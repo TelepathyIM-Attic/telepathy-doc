@@ -1,8 +1,6 @@
-<?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-
-  <!-- These entities are used in the generated .omf files, 
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!-- These entities are used in the generated .omf files, 
        along with the author tags,
        allowing the Yelp help browser to know about the document.
  
@@ -10,19 +8,17 @@
        Use the appversion entity to specify the version of the application.
        Use the manrevision entity to specify the revision number of this manual.
        Use the date entity to specify the release date of this manual.
-       Use the app entity to specify the name of the application. -->
-  <!ENTITY legal SYSTEM "legal.xml">
-  <!ENTITY appversion "0.7">
-  <!ENTITY manrevision "0.2">
-  <!ENTITY date "12 August 2008">
-  <!ENTITY app_no_markup "Telepathy">
-  <!ENTITY app "<application>&app_no_markup;</application>">
-  <!ENTITY url_examples_base "./examples/">
+       Use the app entity to specify the name of the application. --><!ENTITY legal SYSTEM "legal.xml">
+<!ENTITY appversion "0.7">
+<!ENTITY manrevision "0.2">
+<!ENTITY date "12 August 2008">
+<!ENTITY app_no_markup "Telepathy">
+<!ENTITY app "<application>&app_no_markup;</application>">
+<!ENTITY url_examples_base "./examples/">
 ]>
-
-<book id="index">
+<book id="index" lang="de">
   <bookinfo>
-    <title>&app; manual</title>
+    <title><application>Telepathy</application> manual</title>
 
     <!-- If we were using the FDL license then we would need full revision 
          tags instead of just this one date.
@@ -31,11 +27,11 @@
          that. -->
     <revhistory>
       <revision> 
-        <revnumber>&app_no_markup; &appversion;</revnumber> 
-          <date>&date;</date> 
+        <revnumber>Telepathy 0.7</revnumber> 
+          <date>12 August 2008</date> 
           <revdescription> 
             <para role="author">Murray Cumming</para> 
-            <para role="publisher">&app;</para> 
+            <para role="publisher"><application>Telepathy</application></para> 
 	  </revdescription> 
       </revision>
     </revhistory> 
@@ -45,7 +41,7 @@
         <firstname>Murray</firstname> 
         <surname>Cumming</surname> 
         <affiliation> 
-          <orgname>&app_no_markup; Documentation Team</orgname> 
+          <orgname>Telepathy Documentation Team</orgname> 
           <address> <email>murrayc@openismus.com</email> </address> 
         </affiliation> 
       </author> 
@@ -58,17 +54,18 @@
     </copyright>
 
     <abstract role="description">
-      <para>User manual for &app;.</para>
+      <para>User manual for <application>Telepathy</application>.</para>
     </abstract>
 
 
-  <xi:include href="legal.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  <include href="legal.xml"/>
 
-  </bookinfo>
+  
       
-<chapter id="chapter-introduction">
-  <title>Introduction</title>
-  <para>TODO</para>
-</chapter>
 
-</book>
+  Introduction
+  TODO
+
+
+
+</authorgroup></bookinfo></book>

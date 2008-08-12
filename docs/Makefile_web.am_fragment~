@@ -1,6 +1,6 @@
 web_host = openismus.com
-web_path_telepathydocs = /home/murrayc/openismus.com/temp/telepathy_book
-web_path_docs = $(web_path_telepathydocs)
+web_path_flumotiondocs = /home/murrayc/openismus.com/temp/telepathy_book
+web_path_docs = $(web_path_flumotiondocs)
 
 #--delete and --delete-after are causing
 # "

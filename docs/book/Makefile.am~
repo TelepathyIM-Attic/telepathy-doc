@@ -93,7 +93,7 @@ pdf: pdf/telepathy.pdf
 validate: C/$(DOC_MODULE).xml
 	$(XMLLINT) --xinclude --postvalid --noout $<
 
-include $(top_srcdir)/docs/Makefile_web.am_fragment
+include $(top_srcdir)/doc/Makefile_web.am_fragment
 
 post-online: post-html post-pdf
 

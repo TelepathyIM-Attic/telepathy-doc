@@ -1,1 +1,1 @@
-SUBDIRS = manual examples
+SUBDIRS = book examples
