@@ -1,3 +1,3 @@
-SUBDIRS = m4 doc
+SUBDIRS = m4 docs
 
-EXTRA_DIST = TODO flumotion-doc.spec.in flumotion-doc.spec
+EXTRA_DIST =
