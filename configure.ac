@@ -11,12 +11,21 @@ GNOME_DOC_INIT([0.9.0])
 # Get the path to perl, so we can use perl scripts without hard-coding the path.
 TELEPATHY_DOCS_CHECK_PERL([5.6.0])
 
-PKG_CHECK_MODULES(TELEPATHY, telepathy-glib >= 0.7.3)
+# We depend on GTK+ too, because that allows us to create more realistic 
+# examples that are easier to play with. But we will try to write only a small 
+# amount of UI code. 
+PKG_CHECK_MODULES(TELEPATHY_DOCS, telepathy-glib >= 0.7.3 gtk+-2.0 >= 2.12.0)
+
+# Use C:
+AC_PROG_CC()
 
 AC_OUTPUT([
   Makefile
   m4/Makefile
+
   docs/Makefile
-  docs/examples/Makefile
-  docs/book/Makefile
+    docs/examples/Makefile
+      docs/examples/contacts_list_all/Makefile
+
+    docs/book/Makefile
 ])
