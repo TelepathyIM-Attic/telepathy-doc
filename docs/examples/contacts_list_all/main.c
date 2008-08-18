@@ -39,37 +39,42 @@ on_list_connection_managers(TpConnectionManager * const *connection_manager,
 
   //TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=17115
   //about the awkwardness of these pointers to pointers:
-  TpConnectionManager * const *cm_iter = connection_manager;
-  for (; *cm_iter != NULL; ++cm_iter)
+  const TpConnectionManager *cm_iter = (connection_manager ? *connection_manager : NULL);
+  for (; cm_iter != NULL; ++cm_iter)
     {
-      TpConnectionManager * cm = *cm_iter;
+      if(!cm_iter)
+        continue;
+
       //TODO: The protocols really shouldn't be const.
       //const shouldn't be used for complex types in C because C doesn't have full const support.
       //For instance, g_object_get() takes a non-const, so this causes a warning:
       gchar *cm_name = NULL;
-
-      g_object_get (G_OBJECT(cm_iter),
+      g_object_get (cm_iter,
         "connection-manager", &cm_name,
         NULL);
 
       g_printf ("  Connection Manager name: %s\n", cm_name);
 
-      g_free (cm_name);
-
       //TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=17112
       //about the lack of real API for this:
       //Note that it's an array of pointers, not a pointer to an array
       //(unlike the connection_manager array above.)
-      TpConnectionManagerProtocol * const *protocols;
-
-      for (protocols = (TpConnectionManagerProtocol * const *)cm->protocols;
-          protocols != NULL && *protocols != NULL; ++protocols)
+      const TpConnectionManagerProtocol * const *protocols = cm_iter->protocols;
+      const TpConnectionManagerProtocol * const *protocols_iter = protocols;
+      for (; protocols_iter != NULL; ++protocols_iter)
         {
-          TpConnectionManagerProtocol *protocol = *protocols;
-          if (protocol->name)
-            g_printf ("    Protocol name: %s\n", protocol->name);
+          if(!protocols_iter)
+            continue;
+
+          const TpConnectionManagerProtocol *protocol = *protocols_iter;
+          if (protocol)
+            {
+              if(protocol->name)
+                g_printf ("    Protocol name: %s\n", protocol->name);
+            }
         }
 
+      g_free (cm_name);
     }
 
   /* Stop the mainloop so the program finishes: */
