@@ -58,7 +58,7 @@
     </copyright>
 
     <abstract role="description">
-      <para>User manual for &app;.</para>
+      <para>Software development manual for &app;.</para>
     </abstract>
 
 
@@ -68,7 +68,269 @@
       
 <chapter id="chapter-introduction">
   <title>Introduction</title>
-  <para>TODO</para>
+  <para>TODO:
+
+1. Introduction
+   Notes: This will include:
+   - What is it?
+   - What can I do with it?
+   - What are the benefits?
+   - How is it better than the alternatives? (If there are any)
+   - Is it easier, robuster, more secure, more flexible, cheaper, free-er, what?
+</para>
 </chapter>
+
+
+<!--
+Notes:
+- The following sections describe important D-Bus API in telepathy.
+These sections will describe how these interfaces can be used, including small 
+code snippets.
+- Where possible the documentation will pull in small but complete 
+code examples which can build as part of the documentation, guaranteeing that 
+they at least compile with the latest API, and making it easier to test that 
+they really work.
+- Wherever interfaces are mentioned, there will be a links to online API 
+reference documentation (assuming that it exists) and links to relevant parts 
+of the Telapathy specification. 
+-->
+
+<chapter id="chapter-basics">
+  <title>Basics</title>
+  <para>TODO:
+  - Using D-Bus.
+    Notes: Make it clear that telepathy is a D-Bus API, so mention D-Bus and 
+    dbus-glib basics. Also show how to use D-Bus with python.
+
+  - Optional Interfaces
+    Notes: Objects have optional D-Bus interfaces , discovered at runtime.
+
+  - Mission Control
+    Notes: desktop-wide accounts and dispatching to applications.
+
+  - Handles.
+    Notes:
+    - Hold and Release.
+    - Like ref-counting but 2 Holds by the same client is 1 hold 
+      (Mission Control keeps a set of referencing clients)
+
+  - API conventions
+    Notes: For instance"Request*" vs. "Get*" - see Asynchronous Calls.
+
+  - Asynchronous Calls:
+    Notes: Most functions are synchronous, getting locally-stored data.
+    - Convention is that Get* methods access local information, but Request* 
+      methods may access the network.
+    - Many Get* methods are being deprecated in favour of D-Bus properties 
+      currently (because you can do GetAll() for a given interface and download 
+      the state at once with fewer roundtrips).
+  </para>
+</chapter>
+
+<chapter id="chapter-accounts">
+  <title>Accounts and AccountManager</title>
+  <para>TODO:
+   Notes:
+   - This is described in the telepathy specification but only partially 
+     implemented in Nokia mission control.
+   - AccountManager contains a list of my accounts (my jabber account, my 
+     ICQ account, etc)
+   - This is  a desktop-wide list of accounts shared by all applications (via 
+     the Mission Control service)
+     - most developers probably won't need to deal with them much.
+   - This is not a list of remote accounts held by my contacts.
+   - Includes the parameters which are passed to RequestConnection().
+   - Includes some other parameters such as your avatar/your alias, which the 
+     AccountManager takes care of setting for you
+   - Responds to connectivity events/requests.
+  </para>
+</chapter>
+
+<chapter id="chapter-channel-dispatcher">
+  <title>ChannelDispatcher</title>
+  <para>TODO:
+   Notes:
+   - This is in mission control.
+   - This dispatches some events to applications that care about them, by 
+     calling a method on the ChannelHandler interface (that the application 
+     implements). This API is currently in flux.
+   - Estimated time: 5 hours.
+  </para>
+</chapter>
+
+<chapter id="chapter-connection-manager">
+  <title>Connection Manager</title>
+  <para>TODO:
+   Notes:
+   - Provides protocol implementations, allowing telepathy to use additional IM 
+     types, for instance.
+   - This has connections.
+   - This is not used much by developers, but the list of connection managers 
+     should be offered by the desktop-wide accounts UI.
+  </para>
+</chapter>
+
+<chapter id="chapter-connection">
+  <title>Connection</title>
+  <para>TODO:
+   Notes:
+   - This is my connection to my IM account.
+   - A connection has Channels.
+   - Connection gives me several ContactListChannels (subscribe, publish, etc)
+     - Provides a Group interface.
+       - Contains many members (Contact handles)
+   - Has several optional interfaces (Avatars, Presence, etc).
+   - Provides a SimplePresence interface, to which I can give a contact handle 
+     to discover if that contact is online. The SimplePresence interface emits 
+     signals when contacts' presence changes.
+     (SimplePresence replaces the Presence interface, to be deprecated soon.)
+   - Similarly, the Avatars and Aliasing interfaces on the Connection provide 
+     other information about contacts, and notifications when they change. 
+   - (Having interfaces on the connection rather than the contacts makes 
+     overall contact handling easier.)
+   - Has a RequestChannel() method that takes a channel type (text/voip/tubes) 
+     and a handle (contact, room, list or group) handle. 
+   - A new Contact information interface will allow retrieving of multiple 
+     types of information at once (string of handle, alias, avatar, presence, etc), 
+     which is more efficient.
+  </para>
+</chapter>
+
+<chapter id="chapter-handle">
+  <title>Handle</title>
+  <para>TODO:
+   Notes:
+   - http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.Connection.RequestHandles
+   - Could be a contact, contact list, room, etc.
+   - Means that clients don't have to worry about normalisation.
+   - (Not necessarily a nice thing, but simplifies work across processes.)
+   - Important because it confuses people often.
+   - Maybe put this chapter before the others if these aer shown in the early 
+     examples, though Handlers are already mentioned in the Basics chapter.
+   - Estimated time: 5 hours.
+  </para>
+</chapter>
+
+<chapter id="chapter-channel">
+  <title>Channel</title>
+  <para>TODO:
+   Notes:
+   - http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.Connection.RequestChannel, http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.Channel
+   - Allows data exchange between the local account and a remote IM account 
+     (or group of remote accounts).
+   - Only an application knows about actual people (who might have many IM 
+     accounts).
+   - (We need to call them something other than "IM accounts" because it is not 
+     just IM. It can be "people nearby", for instance.)
+   - Maybe an instance of one of these communication types: Text, Contact List, 
+     Streamed Media.
+   - Channel provides (maybe _is_) a contacts list. Usually 2 people (local me 
+     and my remote contact), but x people for a chat group.
+   - The base Channel interface provides channel type, handle and interface 
+     properties, and Close method, Closed signal.
+   - Plus one type-specific interface, such as Text, or Tube, Media.
+   - This is also sometimes a Group interface, for instance if it's a group chat.
+   - Optional interfaces such as Group are discovered by inspecting the 
+     Interfaces property.
+   - Media channels may have DTMF, Hold, CallStates (on hold, ringing, etc) 
+     interfaces
+   - Text channels may have ChatState (typing notification), Messages (rich 
+     messages), Password interfaces
+   - Mention basic channel requesting and then advanced channel requesting.
+     (The new API makes it easier to do these things.)
+   - You'd need two channels for two types of communication with the same 
+     contact. (At least with the new API.)
+   - Has capabilities. (API will change).
+     - Tells me what type of channel I can open on a connection/contact. 
+       For instance, text/media/tube.
+  </para>
+</chapter>
+
+<chapter id="chapter-group">
+   <title>Group Interface</title>
+   <para>TODO:
+   (used in lots of different channels)
+   - This is partitioned into:
+     - Current members
+     - Local pending members, awaiting approval (by doing Add or Remove) by the 
+       local user.
+     - Remote pending members, awaiting approval remotely by the other user)
+   - Unusually, one-to-one calls use the Group interface to indicate call 
+     progression (explain in call section?).
+  </para>
+</chapter>
+
+<chapter id="chapter-tubes">
+  <title>Tubes</title>
+  <para>TODO:
+   - Helps me to implement an ad-hoc protocol or data-exchange structure above 
+     what the IM protocol does.
+   - You wouldn't need a tube for a chat, because the IM protocol has that 
+     already, but you'd need to implement more for some custom thing like 
+     networking of a game.
+   - Streamed Media Channels
+  </para>
+</chapter>
+
+<!-- TODO:
+Wait for the new specs (2008, Q3):
+   - Capabilities interface(s) on Connection
+   - Channel Dispatching
+   - Channel Requesting
+   - Client interfaces
+-->
+
+<!--
+Note: The following sections are more tutorial-like, describing how to implement 
+real functionality, with full examples. The full examples will have a very 
+simple GTK+ UI and will be implemented with dbus-glib. There will also be small 
+code snippets which will also be in dbus-glib, but python versions could be 
+added in future.
+-->
+
+<chapter id="chapter-contacts">
+  <title>Accessing/managing contact information</title> <!-- TODO: rename the title. -->
+  <para>TODO:
+ - Contact Lists
+   - publish/subscribe
+   - Groups
+ - Contact Information
+   - Aliases
+   - Avatars
+   - Presence
+  </para>
+</chapter>
+
+<chapter id="chapter-chat-client">
+  <title>Implementing a Chat Client</title>
+  <para>TODO:
+ - Text Channels (Messages Interface?)
+  </para>
+</chapter>
+
+<chapter id="chapter-voip-client">
+  <title>Creating a VoIP Client</title>
+  <para>TODO: 
+  (Streaming Audio/Video)
+  - Will require some gstreamer knowledge for recording and playback.
+  </para>
+</chapter>
+
+<chapter id="chapter-transferring-files">
+  <title>Transferring Files</title>
+  <para>
+  - Estimated time: 6 hours.
+  </para>
+</chapter>
+
+<chapter id="chapter-networked-application">
+  <title>Making an appliction networked</title> <!-- TODO: Rename the title. -->
+  <para>TODO:
+  - For instance, turn-based Tic-Tac-Toe.
+  - Estimated time: 10 hours.
+  </para>
+</chapter>
+
+
 
 </book>

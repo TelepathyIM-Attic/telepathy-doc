@@ -29,7 +29,7 @@ C/telepathy-with-examples.xml: C/telepathy.xml insert_example_code.pl
 
 # main xml file for the doc
 MAIN = C/$(DOC_MODULE)-with-examples.xml
-HTML_STYLESHEET = manual.css
+HTML_STYLESHEET = book.css
 
 XSLTPROC = xsltproc
 DOCBOOK_STYLESHEET ?= http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
