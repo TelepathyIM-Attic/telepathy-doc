@@ -61,6 +61,19 @@ on_list_connection_managers(TpConnectionManager * const *connection_manager,
       g_free (cm_name);
       cm_name = NULL;
 
+      //TODO: Usually there is no protocols information available, but sometimes 
+      //there is cached information available. Why?
+      //There is an always-introspect property, but setting that would only cause 
+      //introspection to happen at idle time. How can we request it and wait for it.
+      //The always-introspect documentation also talks about the CM being online.
+      //What does online mean in that context?
+      if (cm->info_source == TP_CM_INFO_SOURCE_LIVE)
+        g_printf("    Introspected protocols information is available.\n");
+      else if (cm->info_source == TP_CM_INFO_SOURCE_FILE)
+        g_printf("    Cached protocols information is available.\n");
+      else
+        g_printf("    No protocols information is available.\n");
+
       //TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=17112
       //about the lack of real API for this:
       if(cm->protocols)
