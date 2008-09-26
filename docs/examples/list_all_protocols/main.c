@@ -19,6 +19,57 @@
 
 GMainLoop *mainloop = NULL;
 
+/* A utility function. */
+static void
+list_connection_manager_protocols (TpConnectionManager * const cm, TpCMInfoSource source)
+{
+  /* Get the connection manager name: */
+  gchar *cm_name = NULL;
+  g_object_get (G_OBJECT(cm),
+    "connection-manager", &cm_name,
+    NULL);
+
+  /* List the protocols implemented by this connection manager: */
+  /* TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=17112
+   * about the lack of real API for this: */
+  if(cm->protocols)
+    {
+      const TpConnectionManagerProtocol * const *protocols_iter = cm->protocols;
+      for (; *protocols_iter != NULL; ++protocols_iter)
+         {
+           const TpConnectionManagerProtocol *protocol = *protocols_iter;
+           if (protocol)
+             {
+               const gchar *source_name = "unknown";
+               if (source == TP_CM_INFO_SOURCE_LIVE)
+                 source_name = "introspected";
+               else if (source == TP_CM_INFO_SOURCE_FILE)
+                 source_name = "cached";
+
+               if(protocol->name)
+                 g_printf ("    Connection Manager: %s: Protocol name: %s (%s)\n", 
+                   cm_name, protocol->name, source_name);
+             }
+         }
+    }
+
+  g_free (cm_name);
+  cm_name = NULL;
+}
+
+/* A signal handler: */
+static void
+on_connection_manager_got_info (TpConnectionManager *cm,
+                                guint source, /* TODO: This should actually be a TpCMInfoSource. */
+                                void *user_data)
+{
+  /* TODO: Sometimes we only get the FILE (cached) result, but mostly we 
+     get that plus a seconf call with the LIVE (introspected) result. Why the difference? */
+  if (source !=  TP_CM_INFO_SOURCE_NONE)
+   list_connection_manager_protocols (cm, source);
+}
+
+/* A callback handler. */
 static void
 on_list_connection_managers(TpConnectionManager * const *connection_manager,
                             gsize n_cms,
@@ -65,36 +116,49 @@ on_list_connection_managers(TpConnectionManager * const *connection_manager,
       //there is cached information available. Why?
       //There is an always-introspect property, but setting that would only cause 
       //introspection to happen at idle time. How can we request it and wait for it.
-      //The always-introspect documentation also talks about the CM being online.
-      //What does online mean in that context?
-      if (cm->info_source == TP_CM_INFO_SOURCE_LIVE)
-        g_printf("    Introspected protocols information is available.\n");
-      else if (cm->info_source == TP_CM_INFO_SOURCE_FILE)
-        g_printf("    Cached protocols information is available.\n");
-      else
-        g_printf("    No protocols information is available.\n");
-
-      //TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=17112
-      //about the lack of real API for this:
-      if(cm->protocols)
+      //The always-introspect documentation also talks about the CM being online or running.
+      //What does online/running mean in that context?
+      //
+      //There is a got-info signal, but how can we be sure that it hasn't been 
+      //emitted before we have even had a chance to connect a signal handler here.
+      //Should we create a new ConnectionManager (though we already have one) with 
+      //the same name, just to be able to connect that signal early enough?
+      //
+      //We can activate() the CM, which should then be followed by a got-info, 
+      //but will that got-info signal be emitted if it is already activated?
+      //(activated/running/online seem to be synonymous).
+      if (cm->info_source == TP_CM_INFO_SOURCE_NONE)
         {
-          const TpConnectionManagerProtocol * const *protocols_iter = cm->protocols;
-          for (; *protocols_iter != NULL; ++protocols_iter)
-            {
-              const TpConnectionManagerProtocol *protocol = *protocols_iter;
-              if (protocol)
-                {
-                  if(protocol->name)
-                    g_printf ("    Protocol name: %s\n", protocol->name);
-                }
-            }
+          g_printf("    No protocols information is available. Attempting introspection.\n");
+          
+          /* Request introspection: */
+          /* TODO: Why is this asynchronous? It's just a little disk access that 
+             happens faster than the user could do anything in the meantime, 
+             to load some shared libraries and call some functions in them, surely.
+             Or is there (and if so, why) network access sometimes? */
+          g_signal_connect (cm, "got-info",
+            G_CALLBACK (on_connection_manager_got_info), mainloop);
+          tp_connection_manager_activate (cm);
         }
-
-
+      else
+        {
+           if (cm->info_source == TP_CM_INFO_SOURCE_LIVE)
+             g_printf("    Introspected protocols information is available.\n");
+           else if (cm->info_source == TP_CM_INFO_SOURCE_FILE)
+             g_printf("    Cached protocols information is available.\n");
+     
+           list_connection_manager_protocols (cm, cm->info_source);
+        }
+    
     }
 
   /* Stop the mainloop so the program finishes: */
-  g_main_loop_quit (mainloop);
+  /* TODO: Commented out so that our signal handlers are called.
+   * Either block (with a second mainloop, via a utility function?) when waiting 
+   * for them.
+   * Or somehow refcount the mainloop (is a final mainloop unref equivalent to a quit?)
+   * g_main_loop_quit (mainloop);
+   */
 }
 
 int

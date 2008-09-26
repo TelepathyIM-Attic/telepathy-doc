@@ -1,8 +1,6 @@
 include $(top_srcdir)/docs/Makefile_web.am_fragment
 
-example_dirs = list_all_protocols
-
-# container - Disabled until the new higher-level library exists.
+example_dirs = list_all_protocols list_all_contacts
 
 SUBDIRS = $(example_dirs)
 

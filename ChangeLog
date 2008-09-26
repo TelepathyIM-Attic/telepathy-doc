@@ -1,5 +1,11 @@
 2008-09-26  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/examples/list_all_protocols/main.c: Asynchronously introspect 
+        the connection manager for the protocols information if necessary, 
+	though this raises many more questions. 
+
+2008-09-26  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/examples/list_all_protocols/main.c: Check whether the protocol 
 	information has been introspected. Added TODOs wondering how/when to 
 	get the information if it has not been introspected.
