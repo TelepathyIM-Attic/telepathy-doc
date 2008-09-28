@@ -71,13 +71,13 @@ on_connection_manager_got_info (TpConnectionManager *cm,
 
 /* A callback handler. */
 static void
-on_list_connection_managers(TpConnectionManager * const *connection_manager,
-                            gsize n_cms,
+on_list_connection_managers(TpConnectionManager * const *connection_managers,
+                            gsize n_cms, /* TODO: Why do we have this if it is NULL-terminated? */
                             const GError *error,
                             gpointer user_data,
-                            GObject *weak_object)
+                            GObject *weak_object) /* TODO: What is this good for? */
 {
-  if (error != NULL)
+  if (error)
     {
       g_warning ("%s", error->message);
       
@@ -88,12 +88,12 @@ on_list_connection_managers(TpConnectionManager * const *connection_manager,
 
   g_printf ("Found %" G_GSIZE_FORMAT " connection managers:\n", n_cms);
 
-  if(!connection_manager)
+  if(!connection_managers)
     return;
 
   //TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=17115
   //about the awkwardness of these pointers to pointers:
-  TpConnectionManager * const *cm_iter = connection_manager;
+  TpConnectionManager * const *cm_iter = connection_managers;
   for (; *cm_iter != NULL; ++cm_iter)
     {
       const TpConnectionManager *cm = *cm_iter;
