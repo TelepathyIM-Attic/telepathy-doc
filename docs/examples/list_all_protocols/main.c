@@ -47,7 +47,7 @@ list_connection_manager_protocols (TpConnectionManager * const cm, TpCMInfoSourc
                  source_name = "cached";
 
                if(protocol->name)
-                 g_printf ("    Connection Manager: %s: Protocol name: %s (%s)\n", 
+                 g_printf ("      Connection Manager: %s: Protocol name: %s (%s)\n", 
                    cm_name, protocol->name, source_name);
              }
          }
@@ -58,13 +58,22 @@ list_connection_manager_protocols (TpConnectionManager * const cm, TpCMInfoSourc
 }
 
 /* A signal handler: */
+/* See https://bugs.freedesktop.org/show_bug.cgi?id=18055 about the incorrectly-registered signal.
+ */
 static void
 on_connection_manager_got_info (TpConnectionManager *cm,
-                                guint source, /* TODO: This should actually be a TpCMInfoSource. */
+                                TpCMInfoSource source,
                                 void *user_data)
 {
+  /* Get the connection manager name: */
+  gchar *cm_name = NULL;
+  g_object_get (G_OBJECT(cm),
+    "connection-manager", &cm_name,
+    NULL);
+
+  g_printf ("    Connection Manager: got-info: %s:\n", cm_name);
   /* TODO: Sometimes we only get the FILE (cached) result, but mostly we 
-     get that plus a seconf call with the LIVE (introspected) result. Why the difference? */
+     get that plus a second call with the LIVE (introspected) result. Why the difference? */
   if (source !=  TP_CM_INFO_SOURCE_NONE)
    list_connection_manager_protocols (cm, source);
 }
@@ -91,8 +100,9 @@ on_list_connection_managers(TpConnectionManager * const *connection_managers,
   if(!connection_managers)
     return;
 
-  //TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=17115
-  //about the awkwardness of these pointers to pointers:
+  /* TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=17115
+   * about the awkwardness of these pointers to pointers:
+   */
   TpConnectionManager * const *cm_iter = connection_managers;
   for (; *cm_iter != NULL; ++cm_iter)
     {
@@ -100,9 +110,12 @@ on_list_connection_managers(TpConnectionManager * const *connection_managers,
       if (!cm)
         continue;
 
-      //TODO: The protocols really shouldn't be const.
-      //const shouldn't be used for complex types in C because C doesn't have full const support.
-      //For instance, g_object_get() takes a non-const, so this causes a warning:
+      /* TODO: See https://bugs.freedesktop.org/show_bug.cgi?id=18040
+       * about the protocols really needing to not use const.
+       */
+      /* TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=18056
+       * about the lack of get_name() being tedious.
+       */
       gchar *cm_name = NULL;
       g_object_get (G_OBJECT(cm),
         "connection-manager", &cm_name,
@@ -113,31 +126,32 @@ on_list_connection_managers(TpConnectionManager * const *connection_managers,
       cm_name = NULL;
 
       //TODO: Usually there is no protocols information available, but sometimes 
-      //there is cached information available. Why?
+      //there is cached information available. Why? TODO: Is that still the case with latest telepath-glib?
       //There is an always-introspect property, but setting that would only cause 
       //introspection to happen at idle time. How can we request it and wait for it.
-      //The always-introspect documentation also talks about the CM being online or running.
-      //What does online/running mean in that context?
       //
-      //There is a got-info signal, but how can we be sure that it hasn't been 
+      //TODO: See mailing list discussion about this: There is a got-info signal, but how can we be sure that it hasn't been 
       //emitted before we have even had a chance to connect a signal handler here.
       //Should we create a new ConnectionManager (though we already have one) with 
       //the same name, just to be able to connect that signal early enough?
-      //
-      //We can activate() the CM, which should then be followed by a got-info, 
-      //but will that got-info signal be emitted if it is already activated?
-      //(activated/running/online seem to be synonymous).
+
       if (cm->info_source == TP_CM_INFO_SOURCE_NONE)
         {
           g_printf("    No protocols information is available. Attempting introspection.\n");
           
-          /* Request introspection: */
-          /* TODO: Why is this asynchronous? It's just a little disk access that 
-             happens faster than the user could do anything in the meantime, 
-             to load some shared libraries and call some functions in them, surely.
-             Or is there (and if so, why) network access sometimes? */
+          /* Request introspection:
+           * We activate() the CM, triggering introspection, which will  
+           * then be followed by a got-info signal.
+           */
+
+          /* TODO: See mailing list discussion about the awkwardness of the asynchronous API here:
+          /* TODO: How do we know when the last signal has been emitted, so
+           *  we can unreference the mainloop.
+           */
           g_signal_connect (cm, "got-info",
             G_CALLBACK (on_connection_manager_got_info), mainloop);
+
+          /* Activating a connection manager causes it to be running. */
           tp_connection_manager_activate (cm);
         }
       else
@@ -152,13 +166,11 @@ on_list_connection_managers(TpConnectionManager * const *connection_managers,
     
     }
 
-  /* Stop the mainloop so the program finishes: */
-  /* TODO: Commented out so that our signal handlers are called.
-   * Either block (with a second mainloop, via a utility function?) when waiting 
-   * for them.
-   * Or somehow refcount the mainloop (is a final mainloop unref equivalent to a quit?)
-   * g_main_loop_quit (mainloop);
+  /* Unref the mainloop so the program can finish when all references have been released: */
+  /* TODO: Commented-out because we don't yet have a way to keep a reference while got-info 
+   *  is being emitted.
    */
+  g_main_loop_unref (mainloop);
 }
 
 int

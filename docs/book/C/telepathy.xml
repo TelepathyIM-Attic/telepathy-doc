@@ -154,7 +154,6 @@ of the Telapathy specification.
    - This dispatches some events to applications that care about them, by 
      calling a method on the ChannelHandler interface (that the application 
      implements). This API is currently in flux.
-   - Estimated time: 5 hours.
   </para>
 </chapter>
 
@@ -207,7 +206,6 @@ of the Telapathy specification.
    - Important because it confuses people often.
    - Maybe put this chapter before the others if these aer shown in the early 
      examples, though Handlers are already mentioned in the Basics chapter.
-   - Estimated time: 5 hours.
   </para>
 </chapter>
 
@@ -318,8 +316,7 @@ added in future.
 
 <chapter id="chapter-transferring-files">
   <title>Transferring Files</title>
-  <para>
-  - Estimated time: 6 hours.
+  <para>TODO
   </para>
 </chapter>
 
@@ -327,7 +324,6 @@ added in future.
   <title>Making an appliction networked</title> <!-- TODO: Rename the title. -->
   <para>TODO:
   - For instance, turn-based Tic-Tac-Toe.
-  - Estimated time: 10 hours.
   </para>
 </chapter>
 
