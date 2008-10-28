@@ -106,13 +106,10 @@ on_list_connection_managers(TpConnectionManager * const *connection_managers,
   TpConnectionManager * const *cm_iter = connection_managers;
   for (; *cm_iter != NULL; ++cm_iter)
     {
-      const TpConnectionManager *cm = *cm_iter;
+      TpConnectionManager *cm = *cm_iter;
       if (!cm)
         continue;
 
-      /* TODO: See https://bugs.freedesktop.org/show_bug.cgi?id=18040
-       * about the protocols really needing to not use const.
-       */
       /* TODO: See http://bugs.freedesktop.org/show_bug.cgi?id=18056
        * about the lack of get_name() being tedious.
        */
@@ -170,7 +167,7 @@ on_list_connection_managers(TpConnectionManager * const *connection_managers,
   /* TODO: Commented-out because we don't yet have a way to keep a reference while got-info 
    *  is being emitted.
    */
-  g_main_loop_unref (mainloop);
+  /* g_main_loop_unref (mainloop); */
 }
 
 int

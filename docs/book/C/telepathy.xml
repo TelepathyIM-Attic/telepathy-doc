@@ -121,6 +121,7 @@ of the Telapathy specification.
     Notes: Most functions are synchronous, getting locally-stored data.
     - Convention is that Get* methods access local information, but Request* 
       methods may access the network.
+      (This convention seems to apply to the D-Bus API, but not to the telepathy-glib API. murrayc)
     - Many Get* methods are being deprecated in favour of D-Bus properties 
       currently (because you can do GetAll() for a given interface and download 
       the state at once with fewer roundtrips).
