@@ -19,6 +19,7 @@
 #include <glib/gprintf.h>
 
 GMainLoop *mainloop = NULL;
+TpConnection *connection;
 
 void on_connection_status_changed(TpConnection *proxy,
   guint arg_Status,
@@ -30,6 +31,12 @@ void on_connection_status_changed(TpConnection *proxy,
     {
       case TP_CONNECTION_STATUS_CONNECTED:
         g_printf ("Connection status: Connected: reason=%u.\n", arg_Reason);
+
+        /* Disconnect the connection.
+           Otherwise it will be orphaned. */
+        g_printf ("Disconnecting...\n");
+        tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
+            NULL, NULL);
         break;
 
       case TP_CONNECTION_STATUS_CONNECTING:
@@ -38,6 +45,7 @@ void on_connection_status_changed(TpConnection *proxy,
 
       case TP_CONNECTION_STATUS_DISCONNECTED:
         g_printf ("Connection status: Disconnected: reason=%u.\n", arg_Reason);
+        g_main_loop_quit (mainloop);
         break;
 
       default:
@@ -96,7 +104,7 @@ main (int argc, char **argv)
   g_hash_table_unref (parameters);
 
 
-  TpConnection *connection = tp_connection_new (bus_daemon, service_name, dbus_path, &error);
+  connection = tp_connection_new (bus_daemon, service_name, dbus_path, &error);
   if (error)
     {
       g_printf ("tp_connection_new() failed: %s\n", error->message);
@@ -146,33 +154,11 @@ main (int argc, char **argv)
       g_clear_error (&error);
     }
 
-  /* Disconnect the connection.
-     Otherwise it will be orphaned. */
-  success = tp_cli_connection_run_disconnect (connection, 
-    -1, /* timeout */
-   &error,
-   NULL);
-
-  g_printf("DEBUG: Connection connected.\n");
-
-
-  if(!success)
-    g_printf("tp_cli_connection_run_disconnect() failed.\n");
-
-  if (error)
-    {
-      g_printf ("tp_cli_connection_run_disconnect() failed: %s\n", error->message);
-      g_clear_error (&error);
-    }
-
-  g_printf("DEBUG: Connection disconnected.\n");
-
+  g_main_loop_run (mainloop);
 
   g_object_unref (connection);
   g_object_unref (connection_manager);
 
-  /* Start the main loop, and clean up when it finishes. */
-  g_main_loop_run (mainloop);
   g_main_loop_unref (mainloop);
   g_object_unref (bus_daemon);
 
