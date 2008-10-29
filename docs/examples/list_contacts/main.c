@@ -16,6 +16,7 @@
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
+#include <telepathy-glib/util.h>
 #include <glib/gprintf.h>
 
 GMainLoop *mainloop = NULL;
@@ -132,24 +133,21 @@ main (int argc, char **argv)
     }
 
   /* Get the connection : */
-  GHashTable *parameters = g_hash_table_new (NULL, NULL);
+  GHashTable *parameters = g_hash_table_new_full (NULL, NULL, NULL,
+      (GDestroyNotify) tp_g_value_slice_free);
 
-  GValue value_account = { 0, };
-  g_value_init (&value_account, G_TYPE_STRING);
-  g_value_set_static_string (&value_account, "murrayc@murrayc.com");
-  g_hash_table_insert (parameters, "account", &value_account);
+  GValue *value = tp_g_value_slice_new (G_TYPE_STRING);
+  g_value_set_static_string (value, "murrayc@murrayc.com");
+  g_hash_table_insert (parameters, "account", value);
 
-  GValue value_password = { 0, };
-  g_value_init (&value_password, G_TYPE_STRING);
-  g_value_set_static_string (&value_password, "passwordTODO");
-  g_hash_table_insert (parameters, "password", &value_password);
+  value = tp_g_value_slice_new (G_TYPE_STRING);
+  g_value_set_static_string (value, "passwordTODO");
+  g_hash_table_insert (parameters, "password", value);
 
   /* Call RequestConnection; it will return asynchronously by calling got_connection */
   tp_cli_connection_manager_call_request_connection (connection_manager, -1,
       "jabber", parameters, got_connection, NULL, NULL, NULL);
 
-  g_value_unset (&value_account);
-  g_value_unset (&value_password);
   g_hash_table_unref (parameters);
 
   g_main_loop_run (mainloop);
