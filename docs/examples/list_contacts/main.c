@@ -128,6 +128,7 @@ main (int argc, char **argv)
     {
       g_printf ("tp_connection_manager_new() failed: %s\n", error->message);
       g_clear_error (&error);
+      return 1;
     }
 
   /* Get the connection : */
