@@ -137,22 +137,14 @@ main (int argc, char **argv)
 
   if (error)
     {
-      g_printf ("tp_cli_connection_run_connect () failed: %s\n", error->message);
+      g_printf ("couldn't connect to StatusChanged: %s\n", error->message);
       g_clear_error (&error);
+      return 1;
     }
-
 
   /* Connect the connection: */
-  success = tp_cli_connection_run_connect (connection, -1, &error, NULL);
-
-  if(!success)
-    g_printf("tp_cli_connection_run_connect () failed.\n");
-
-  if (error)
-    {
-      g_printf ("tp_cli_connection_run_connect () failed: %s\n", error->message);
-      g_clear_error (&error);
-    }
+  g_printf ("DEBUG: Calling Connect()\n");
+  tp_cli_connection_call_connect (connection, -1, NULL, NULL, NULL, NULL);
 
   g_main_loop_run (mainloop);
 
