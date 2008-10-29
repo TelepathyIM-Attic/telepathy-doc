@@ -29,15 +29,15 @@ void on_connection_status_changed(TpConnection *proxy,
   switch(arg_Status)
     {
       case TP_CONNECTION_STATUS_CONNECTED:
-        g_printf ("Connection status: Connected: reason=%d.\n", arg_Reason);
+        g_printf ("Connection status: Connected: reason=%u.\n", arg_Reason);
         break;
 
       case TP_CONNECTION_STATUS_CONNECTING:
-        g_printf ("Connection status: Connecting: reason=%d.\n", arg_Reason);
+        g_printf ("Connection status: Connecting: reason=%u.\n", arg_Reason);
         break;
 
       case TP_CONNECTION_STATUS_DISCONNECTED:
-        g_printf ("Connection status: Disconnected: reason=%d.\n", arg_Reason);
+        g_printf ("Connection status: Disconnected: reason=%u.\n", arg_Reason);
         break;
 
       default:
