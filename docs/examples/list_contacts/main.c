@@ -20,7 +20,31 @@
 
 GMainLoop *mainloop = NULL;
 
+void on_connection_status_changed(TpConnection *proxy,
+  guint arg_Status,
+  guint arg_Reason,
+  gpointer user_data,
+  GObject *weak_object)
+{
+  switch(arg_Status)
+    {
+      case TP_CONNECTION_STATUS_CONNECTED:
+        g_printf ("Connection status: Connected: reason=%d.\n", arg_Reason);
+        break;
 
+      case TP_CONNECTION_STATUS_CONNECTING:
+        g_printf ("Connection status: Connecting: reason=%d.\n", arg_Reason);
+        break;
+
+      case TP_CONNECTION_STATUS_DISCONNECTED:
+        g_printf ("Connection status: Disconnected: reason=%d.\n", arg_Reason);
+        break;
+
+      default:
+        g_printf ("Connection status: Unknown status.\n");
+        break;
+    }
+}
 
 int
 main (int argc, char **argv)
@@ -92,6 +116,23 @@ main (int argc, char **argv)
     }
 
   g_printf("DEBUG: Connection created.\n");
+
+  /* React to connection status changes,
+   * including errors when we try to connect: */
+  TpProxySignalConnection* signal_connection = 
+    tp_cli_connection_connect_to_status_changed (connection,
+      &on_connection_status_changed,
+      NULL, /* user_data */
+      NULL, /* destroy_callback */
+      NULL, /* weak_object */
+      &error);
+
+  if (error)
+    {
+      g_printf ("tp_cli_connection_run_connect () failed: %s\n", error->message);
+      g_clear_error (&error);
+    }
+
 
   /* Connect the connection: */
   success = tp_cli_connection_run_connect (connection, -1, &error, NULL);
