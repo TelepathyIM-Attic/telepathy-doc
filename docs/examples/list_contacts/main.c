@@ -19,6 +19,7 @@
 #include <glib/gprintf.h>
 
 GMainLoop *mainloop = NULL;
+TpDBusDaemon *bus_daemon;
 TpConnection *connection;
 
 void on_connection_status_changed(TpConnection *proxy,
@@ -45,6 +46,7 @@ void on_connection_status_changed(TpConnection *proxy,
 
       case TP_CONNECTION_STATUS_DISCONNECTED:
         g_printf ("Connection status: Disconnected: reason=%u.\n", arg_Reason);
+        g_object_unref (connection);
         g_main_loop_quit (mainloop);
         break;
 
@@ -54,6 +56,60 @@ void on_connection_status_changed(TpConnection *proxy,
     }
 }
 
+void
+got_connection (TpConnectionManager *connection_manager,
+                const gchar *service_name,
+                const gchar *object_path,
+                const GError *request_connection_error,
+                gpointer user_data,
+                GObject *weak_object)
+{
+  TpProxySignalConnection *signal_connection;
+  GError *error = NULL;
+
+  if (request_connection_error != NULL)
+    {
+      g_printf ("RequestConnection failed: %s\n",
+          request_connection_error->message);
+      g_main_loop_quit (mainloop);
+      return;
+    }
+
+  connection = tp_connection_new (bus_daemon, service_name, object_path, &error);
+
+  if (error != NULL)
+    {
+      g_printf ("tp_connection_new() failed: %s\n", error->message);
+      g_clear_error (&error);
+      g_main_loop_quit (mainloop);
+      return;
+    }
+
+  g_printf("DEBUG: Connection created.\n");
+
+  /* React to connection status changes,
+   * including errors when we try to connect: */
+  signal_connection = tp_cli_connection_connect_to_status_changed (connection,
+      &on_connection_status_changed,
+      NULL, /* user_data */
+      NULL, /* destroy_callback */
+      NULL, /* weak_object */
+      &error);
+
+  if (error)
+    {
+      g_printf ("couldn't connect to StatusChanged: %s\n", error->message);
+      g_clear_error (&error);
+      g_main_loop_quit (mainloop);
+      return;
+    }
+
+  /* Connect the connection: */
+  g_printf ("DEBUG: Calling Connect()\n");
+  tp_cli_connection_call_connect (connection, -1, NULL, NULL, NULL, NULL);
+}
+
+
 int
 main (int argc, char **argv)
 {
@@ -62,7 +118,7 @@ main (int argc, char **argv)
   /* Create the main loop: */
   mainloop = g_main_loop_new (NULL, FALSE);
 
-  TpDBusDaemon *bus_daemon = tp_dbus_daemon_new (tp_get_bus ());
+  bus_daemon = tp_dbus_daemon_new (tp_get_bus ());
 
   /* Get the connection manager: */
   GError *error = NULL;
@@ -75,8 +131,6 @@ main (int argc, char **argv)
     }
 
   /* Get the connection : */
-  gchar* service_name = NULL;
-  gchar* dbus_path = NULL;
   GHashTable *parameters = g_hash_table_new (NULL, NULL);
 
   GValue value_account = { 0, };
@@ -89,66 +143,16 @@ main (int argc, char **argv)
   g_value_set_static_string (&value_password, "passwordTODO");
   g_hash_table_insert (parameters, "password", &value_password);
 
-  gboolean success = 
-    tp_cli_connection_manager_run_request_connection (connection_manager, 
-      -1, /* timeout */
-     "jabber", /* in_Protocol */
-     parameters, /* in_Parameters */
-     &service_name, /* out0 */
-     &dbus_path, /* out1 */
-     &error, 
-     NULL /* mainloop */);
+  /* Call RequestConnection; it will return asynchronously by calling got_connection */
+  tp_cli_connection_manager_call_request_connection (connection_manager, -1,
+      "jabber", parameters, got_connection, NULL, NULL, NULL);
 
   g_value_unset (&value_account);
   g_value_unset (&value_password);
   g_hash_table_unref (parameters);
 
-
-  connection = tp_connection_new (bus_daemon, service_name, dbus_path, &error);
-  if (error)
-    {
-      g_printf ("tp_connection_new() failed: %s\n", error->message);
-      g_clear_error (&error);
-    }
-
-  g_free (service_name);
-  g_free (dbus_path);
-
-  if(!success)
-    g_printf("tp_cli_connection_manager_run_request_connection() failed.\n");
-
-  if (error)
-    {
-      g_printf ("tp_cli_connection_manager_run_request_connection() error: %s\n", error->message);
-      g_clear_error (&error);
-    }
-
-  g_printf("DEBUG: Connection created.\n");
-
-  /* React to connection status changes,
-   * including errors when we try to connect: */
-  TpProxySignalConnection* signal_connection = 
-    tp_cli_connection_connect_to_status_changed (connection,
-      &on_connection_status_changed,
-      NULL, /* user_data */
-      NULL, /* destroy_callback */
-      NULL, /* weak_object */
-      &error);
-
-  if (error)
-    {
-      g_printf ("couldn't connect to StatusChanged: %s\n", error->message);
-      g_clear_error (&error);
-      return 1;
-    }
-
-  /* Connect the connection: */
-  g_printf ("DEBUG: Calling Connect()\n");
-  tp_cli_connection_call_connect (connection, -1, NULL, NULL, NULL, NULL);
-
   g_main_loop_run (mainloop);
 
-  g_object_unref (connection);
   g_object_unref (connection_manager);
 
   g_main_loop_unref (mainloop);
