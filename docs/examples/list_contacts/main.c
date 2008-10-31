@@ -20,8 +20,46 @@
 #include <glib/gprintf.h>
 
 GMainLoop *mainloop = NULL;
-TpDBusDaemon *bus_daemon;
-TpConnection *connection;
+TpDBusDaemon *bus_daemon = NULL;
+TpConnection *connection = NULL;
+
+/* A utility function to make our debug output easier to read. */
+const gchar* get_reason_description (TpConnectionStatusReason reason)
+{
+  switch (reason)
+    {
+      case TP_CONNECTION_STATUS_REASON_NONE_SPECIFIED:
+        return "None specified";
+      case TP_CONNECTION_STATUS_REASON_REQUESTED:
+        return "Requested";
+      case TP_CONNECTION_STATUS_REASON_NETWORK_ERROR:
+        return "Network error";
+      case TP_CONNECTION_STATUS_REASON_AUTHENTICATION_FAILED:
+        return "Authentication failed";
+      case TP_CONNECTION_STATUS_REASON_ENCRYPTION_ERROR:
+        return "Encryption Error";
+      case TP_CONNECTION_STATUS_REASON_NAME_IN_USE:
+        return "Name in use";
+      case TP_CONNECTION_STATUS_REASON_CERT_NOT_PROVIDED:
+        return "Certificate not provided";
+      case TP_CONNECTION_STATUS_REASON_CERT_UNTRUSTED:
+        return "Certificate untrusted";
+      case TP_CONNECTION_STATUS_REASON_CERT_EXPIRED:
+        return "Certificate expired";
+      case TP_CONNECTION_STATUS_REASON_CERT_NOT_ACTIVATED:
+        return "Certificate not activated";
+      case TP_CONNECTION_STATUS_REASON_CERT_HOSTNAME_MISMATCH:
+        return "Certificate hostname mismatch";
+      case TP_CONNECTION_STATUS_REASON_CERT_FINGERPRINT_MISMATCH:
+        return "Certificate fingerprint mismatch";
+      case TP_CONNECTION_STATUS_REASON_CERT_SELF_SIGNED:
+        return "Cerficate is self signed";
+      case TP_CONNECTION_STATUS_REASON_CERT_OTHER_ERROR:
+        return "Other certificate error";
+      default:
+        return "Unknown reason";
+   }
+}
 
 void on_connection_status_changed(TpConnection *proxy,
   guint arg_Status,
@@ -32,23 +70,35 @@ void on_connection_status_changed(TpConnection *proxy,
   switch(arg_Status)
     {
       case TP_CONNECTION_STATUS_CONNECTED:
-        g_printf ("Connection status: Connected: reason=%u.\n", arg_Reason);
+        g_printf ("Connection status: Connected (reason: %s)\n", get_reason_description (arg_Reason));
 
         /* Disconnect the connection.
            Otherwise it will be orphaned. */
-        g_printf ("Disconnecting...\n");
+        g_printf ("DEBUG: Disconnecting.\n");
         tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
-            NULL, NULL);
+            NULL, NULL); /* Also destroys the connection object. */
+        connection = NULL;
+
         break;
 
       case TP_CONNECTION_STATUS_CONNECTING:
-        g_printf ("Connection status: Connecting: reason=%u.\n", arg_Reason);
+        g_printf ("Connection status: Connecting (reason: %s)\n", get_reason_description (arg_Reason));
+
         break;
 
       case TP_CONNECTION_STATUS_DISCONNECTED:
-        g_printf ("Connection status: Disconnected: reason=%u.\n", arg_Reason);
-        g_object_unref (connection);
+        g_printf ("Connection status: Disconnected (reason: %s)\n", get_reason_description (arg_Reason));
+
+        /* Finish with the connection object: */
+        if (connection)
+          {
+            g_object_unref (connection);
+            connection = NULL;
+          }
+
+        /* Stop the application: */
         g_main_loop_quit (mainloop);
+
         break;
 
       default:
@@ -106,7 +156,7 @@ got_connection (TpConnectionManager *connection_manager,
     }
 
   /* Connect the connection: */
-  g_printf ("DEBUG: Calling Connect()\n");
+  g_printf ("DEBUG: Calling Connect().\n");
   tp_cli_connection_call_connect (connection, -1, NULL, NULL, NULL, NULL);
 }
 
@@ -143,6 +193,13 @@ main (int argc, char **argv)
   value = tp_g_value_slice_new (G_TYPE_STRING);
   g_value_set_static_string (value, "passwordTODO");
   g_hash_table_insert (parameters, "password", value);
+
+  /* This jabber-specific parameter can avoid clashes with 
+     other telepathy clients that use the default jabber 
+     resource name. */
+  value = tp_g_value_slice_new (G_TYPE_STRING);
+  g_value_set_static_string (value, "telepathy-doc list_contacts example");
+  g_hash_table_insert (parameters, "resource", value);
 
   /* Call RequestConnection; it will return asynchronously by calling got_connection */
   tp_cli_connection_manager_call_request_connection (connection_manager, -1,

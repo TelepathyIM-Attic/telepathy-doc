@@ -1,5 +1,15 @@
 2008-09-26  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/examples/list_contacts/main.c: printf the reason as text.
+
+2008-09-29  Will Thompson  will.thompson@collabora.co.uk>
+
+	* docs/examples/list_contacts/main.c: Only disconnect when the connected 
+	status has been received in the callback, so the connection actually 
+	has a chance to happen.
+
+2008-09-26  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/examples/list_contacts/main.c: Try to catch connection problems 
 	via the status_changed callback. 
 
