@@ -1,4 +1,10 @@
-2008-09-26  Murray Cumming  <murrayc@murrayc.com>
+2008-09-31  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/examples/list_contacts/main.c: Get the ContactsList interface, 
+	though I do not yet know how to get details for each contact via 
+	the handle.
+
+2008-09-31  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/contacts/: Added this as a copy of the current 
 	list_contacts. Connecting is complex enough that it deserves its own 

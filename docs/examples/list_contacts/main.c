@@ -16,12 +16,101 @@
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
+#include <telepathy-glib/channel.h>
+#include <telepathy-glib/interfaces.h>
 #include <telepathy-glib/util.h>
 #include <glib/gprintf.h>
 
 GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
+
+void tp_intset_foreach(guint i, gpointer userdata)
+{
+  /* TODO: Get contact details from the guint handle. */
+}
+
+void list_connection_contacts()
+{
+  /* Request the handle that we need to request the channel: */
+  GError *error = NULL;
+  GArray *handles_array = NULL;
+  const gchar **identifier_names = (const gchar **)g_malloc0(2 * sizeof(char*));
+  identifier_names[0] = "subscribe";
+  gboolean success = tp_cli_connection_run_request_handles (connection, 
+    -1, /* timeout */
+    TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList */
+    identifier_names, /* in_Names */
+    &handles_array, /* out0 */
+    &error,
+    NULL /* loop */);
+  g_free (identifier_names);
+
+  if (error)
+    {
+      g_printf ("tp_cli_connection_run_request_handles() failed: %s\n", error->message);
+      g_clear_error (&error);
+      return;
+    }
+
+  if (!handles_array || handles_array->len == 0)
+    {
+      g_printf ("No handles received.\n");
+      return;
+    }
+ 
+  guint handle = g_array_index (handles_array, guint, 0);
+  g_printf("DEBUG: Count of handles received: %u\n", handles_array->len);
+  g_printf("DEBUG: subscribe handle received: %u\n", handle);
+
+  /* Request the channel: */
+  gchar *channel_dbus_path = NULL;
+  success = tp_cli_connection_run_request_channel (connection, 
+    -1, /* timeout */
+    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* in_Type */
+    TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList */
+    handle, /* in_Handle */
+    TRUE, /* in_Suppress_Handler */
+    &channel_dbus_path, /* out0 */
+    &error,
+    NULL /* loop */);
+
+  if (error)
+    {
+      g_printf ("tp_cli_connection_run_request_channel() failed: %s\n", error->message);
+      g_clear_error (&error);
+      return;
+    }
+
+  g_printf("DEBUG: channel D-Bus path received: %s\n", channel_dbus_path);
+
+  /* Create the channel object: */
+  TpChannel *channel = tp_channel_new (connection, 
+    channel_dbus_path, /* object_path */
+    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* optional_channel_type */
+    TP_HANDLE_TYPE_LIST, /* optional_handle_type */
+    handle, /* optional_handle */
+    &error);
+
+  if (error)
+    {
+      g_printf ("tp_channel_new() failed: %s\n", error->message);
+      g_clear_error (&error);
+      return;
+    }
+
+  /* List the channel members: */
+  const TpIntSet* set = tp_channel_group_get_members (channel);
+  if (!set)
+    {
+      g_printf ("tp_channel_group_get_members() returned NULL");
+      return;
+    }
+
+  tp_intset_foreach (set, &on_channel_members_set_foreach, NULL);
+
+  g_object_unref (channel);
+}
 
 /* A utility function to make our debug output easier to read. */
 const gchar* get_reason_description (TpConnectionStatusReason reason)
@@ -71,6 +160,8 @@ void on_connection_status_changed(TpConnection *proxy,
     {
       case TP_CONNECTION_STATUS_CONNECTED:
         g_printf ("Connection status: Connected (reason: %s)\n", get_reason_description (arg_Reason));
+
+        list_connection_contacts ();
 
         /* Disconnect the connection.
            Otherwise it will be orphaned. */
