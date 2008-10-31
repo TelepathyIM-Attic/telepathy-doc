@@ -25,12 +25,7 @@ GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
 
-void on_channel_members_set_foreach(guint i, gpointer userdata)
-{
-  /* TODO: Get contact details from the guint handle. */
-}
-
-void list_connection_contacts()
+void list_connection_contacts ()
 {
   /* Request the handle that we need to request the channel: */
   GError *error = NULL;
@@ -99,16 +94,87 @@ void list_connection_contacts()
       return;
     }
 
+  /* Wait until the channel is ready for use: */
+  tp_channel_run_until_ready (channel, &error, NULL);
+  if (error)
+    {
+      g_printf ("tp_channel_run_until_ready() failed: %s\n", error->message);
+      g_clear_error (&error);
+      return;
+    }
+
+  if (!tp_channel_is_ready (channel))
+    g_printf ("tp_channel_is_ready() returned FALSE.\n");
+
   /* List the channel members: */
   const TpIntSet* set = tp_channel_group_get_members (channel);
   if (!set)
     {
-      g_printf ("tp_channel_group_get_members() returned NULL");
+      g_printf ("tp_channel_group_get_members() returned NULL.\n");
       return;
     }
 
-  tp_intset_foreach (set, &on_channel_members_set_foreach, NULL);
+  g_printf("DEBUG: Number of members: %u\n", tp_intset_size (set));
 
+  /* Get a GArray instead of a TpIntSet: */
+  GArray *members_array = g_array_new (TRUE, TRUE, sizeof(guint));
+  TpIntSetIter iter = TP_INTSET_ITER_INIT  (set);
+  while (tp_intset_iter_next (&iter))
+    {
+      g_array_append_val (members_array, iter.element);
+    }
+  set = NULL;  
+
+
+  /* Specify the information that we want, available via certain interfaces:
+   * Actually, NULL should be equivalent to TP_IFACE_CONNECTION, but that bug is being fixed.
+   * Or TP_IFACE_CONNECTION_INTERFACE_ALIASING, or others mentioned here
+   * http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.Connection.Interface.Contacts
+   */
+  const gchar **interfaces = (const gchar **)g_malloc0(2 * sizeof(char*));
+  interfaces[0] = TP_IFACE_CONNECTION;
+  GHashTable *attributes = 0;
+  tp_cli_connection_interface_contacts_run_get_contact_attributes (
+    connection, 
+    -1, /* timeout_ms */
+    members_array,
+    interfaces, /* in_Interfaces */
+    FALSE, /* in_Hold */
+    &attributes, /* out_Attributes */
+    &error,
+    NULL /* loop */);
+  g_array_free (members_array, TRUE);
+  members_array = NULL;
+  g_free (interfaces);
+
+  if(!attributes)
+    g_printf("DEBUG: tp_cli_connection_interface_contacts_run_get_contact_attributes() returned NULL attributes.\n");
+
+
+  /* Examine each contact: */
+  gpointer key = NULL;
+  gpointer value = NULL;
+  GHashTableIter iter_attributes;
+  g_hash_table_iter_init (&iter_attributes, attributes);
+  while (g_hash_table_iter_next (&iter_attributes, &key, &value)) 
+    {
+      guint handle = GPOINTER_TO_UINT (key);
+      GHashTable *contact_attributes = value;
+    
+      /* Examine each attribute for this contact: */
+      gpointer inner_key = NULL;
+      gpointer inner_value = NULL;
+      GHashTableIter iter_contact_attributes;
+      g_hash_table_iter_init (&iter_contact_attributes, contact_attributes);
+      while (g_hash_table_iter_next (&iter_contact_attributes, &inner_key, &inner_value)) 
+        {
+          const gchar *name = inner_key;
+          GValue *value = inner_value;
+          /* TODO: printf it. */
+        }
+    }
+
+  g_hash_table_unref (attributes);
   g_object_unref (channel);
 }
 
@@ -150,7 +216,7 @@ const gchar* get_reason_description (TpConnectionStatusReason reason)
    }
 }
 
-void on_connection_status_changed(TpConnection *proxy,
+void on_connection_status_changed (TpConnection *proxy,
   guint arg_Status,
   guint arg_Reason,
   gpointer user_data,
