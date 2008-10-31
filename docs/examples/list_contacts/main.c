@@ -25,7 +25,7 @@ GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
 
-void tp_intset_foreach(guint i, gpointer userdata)
+void on_channel_members_set_foreach(guint i, gpointer userdata)
 {
   /* TODO: Get contact details from the guint handle. */
 }
