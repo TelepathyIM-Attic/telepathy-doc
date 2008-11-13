@@ -1,3 +1,11 @@
+2008-11-13  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/examples/list_contacts/main.c: Still trying to read the subscribed 
+	contacts details. Without code changes, I now get a non-null list of 
+	contacts, either because I am using a newer telepathy-glib or because 
+	I upgrade to Ubuntu Intrepid. However, the attribures GHashTable is empty 
+	for all contacts. 
+
 2008-09-31  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/list_contacts/main.c: Trying to read the subscribed 
@@ -11,7 +19,7 @@
 
 2008-09-31  Murray Cumming  <murrayc@murrayc.com>
 
-	* docs/examples/contacts/: Added this as a copy of the current 
+	* docs/examples/connect/: Added this as a copy of the current 
 	list_contacts. Connecting is complex enough that it deserves its own 
 	example, before we make it more complex by adding other stuff.
 

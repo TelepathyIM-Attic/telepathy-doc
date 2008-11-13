@@ -125,31 +125,26 @@ void list_connection_contacts ()
     }
   set = NULL;  
 
+  g_printf("DEBUG: members_array size=%u\n", members_array->len);
 
-  /* Specify the information that we want, available via certain interfaces:
-   * Actually, NULL should be equivalent to TP_IFACE_CONNECTION, but that bug is being fixed.
-   * Or TP_IFACE_CONNECTION_INTERFACE_ALIASING, or others mentioned here
-   * http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.Connection.Interface.Contacts
-   */
-  const gchar **interfaces = (const gchar **)g_malloc0(2 * sizeof(char*));
-  interfaces[0] = TP_IFACE_CONNECTION;
   GHashTable *attributes = 0;
   tp_cli_connection_interface_contacts_run_get_contact_attributes (
     connection, 
     -1, /* timeout_ms */
     members_array,
-    interfaces, /* in_Interfaces */
+    NULL, /* in_Interfaces */
     FALSE, /* in_Hold */
     &attributes, /* out_Attributes */
     &error,
     NULL /* loop */);
   g_array_free (members_array, TRUE);
   members_array = NULL;
-  g_free (interfaces);
 
   if(!attributes)
-    g_printf("DEBUG: tp_cli_connection_interface_contacts_run_get_contact_attributes() returned NULL attributes.\n");
-
+    {
+      g_printf("DEBUG: tp_cli_connection_interface_contacts_run_get_contact_attributes() returned NULL attributes.\n");
+      return;
+    }
 
   /* Examine each contact: */
   gpointer key = NULL;
@@ -160,7 +155,19 @@ void list_connection_contacts ()
     {
       guint handle = GPOINTER_TO_UINT (key);
       GHashTable *contact_attributes = value;
-    
+      if(!contact_attributes)
+        {
+          g_printf("DEBUG: Contact has no attributes (NULL GHashTable).\n");
+          continue;
+        }
+      else if (g_hash_table_size (contact_attributes) == 0)
+        {
+          g_printf("DEBUG: Contact has no attributes (empty GHashTable).\n");
+          continue;
+        }
+      
+      g_printf("DEBUG: Contact attributes (%u):\n", g_hash_table_size (contact_attributes));
+          
       /* Examine each attribute for this contact: */
       gpointer inner_key = NULL;
       gpointer inner_value = NULL;
@@ -170,7 +177,10 @@ void list_connection_contacts ()
         {
           const gchar *name = inner_key;
           GValue *value = inner_value;
-          /* TODO: printf it. */
+
+          gchar* value_str = g_strdup_value_contents (value);
+          g_printf("DEBUG:   name=%s, value=%s\n", name, value_str);
+          g_free (value_str);
         }
     }
 
