@@ -39,11 +39,14 @@ void disconnect ()
 
 void show_contact_information (TpContact *contact)
 {
-  const gchar *identifier = tp_contact_get_identifier (contact);
-  g_printf ("Contact: Identifier=%s\n", identifier);
+  g_printf ("Contact: Identifier=%s\n", 
+    tp_contact_get_identifier (contact));
 
-  const gchar *alias = tp_contact_get_alias (contact);
-  g_printf ("  Alias=%s\n", alias);
+  g_printf ("  Alias=%s\n", 
+    tp_contact_get_alias (contact));
+
+  g_printf ("  Presence Status=%s\n", 
+    tp_contact_get_presence_status (contact));
 }
 
 void on_connection_get_contacts_by_handle (TpConnection *connection,
@@ -204,9 +207,14 @@ void list_connection_contacts ()
   guint n_handles = members_array->len;
   TpHandle* handles = (TpHandle*)g_array_free (members_array, FALSE);
   members_array = NULL;
+  
+  /* The extra optional information that we are interested in: */
+  TpContactFeature features[] = {TP_CONTACT_FEATURE_ALIAS, 
+    TP_CONTACT_FEATURE_AVATAR_TOKEN, TP_CONTACT_FEATURE_PRESENCE};
+
   tp_connection_get_contacts_by_handle (connection,
     n_handles, handles,
-    0 /* n_features */, NULL, /*features */
+    sizeof (features) / sizeof(TpContactFeature), features,
     &on_connection_get_contacts_by_handle,
     NULL, /* user_data */
     NULL, /* destroy */
