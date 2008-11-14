@@ -1,3 +1,10 @@
+2008-11-14  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/examples/list_contacts/main.c: Use the new TpContacts API 
+	instead, which seems much simpler than all that channel stuff.
+	However, this currently gives this GError:
+	handle 2 is not currently a valid contact handle (type 1)
+
 2008-11-13  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/list_contacts/main.c: Still trying to read the subscribed 

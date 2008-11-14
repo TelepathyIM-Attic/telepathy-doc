@@ -16,6 +16,7 @@
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
+#include <telepathy-glib/contact.h>
 #include <telepathy-glib/channel.h>
 #include <telepathy-glib/interfaces.h>
 #include <telepathy-glib/util.h>
@@ -24,6 +25,40 @@
 GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
+
+void show_contact_information (TpContact *contact)
+{
+  const gchar *identifier = tp_contact_get_identifier (contact);
+  g_printf ("Contact: Identifier=: %s\n", identifier);
+
+  const gchar *alias = tp_contact_get_alias (contact);
+  g_printf ("  Alias=: %s\n", alias);
+}
+
+void on_connection_get_contacts_by_handle (TpConnection *connection,
+  guint n_contacts,
+  TpContact * const *contacts,
+  guint n_failed,
+  const TpHandle *failed,
+  const GError *error,
+  gpointer user_data,
+  GObject *weak_object)
+{
+  if (error)
+    {
+      g_printf ("tp_connection_get_contacts_by_handle() failed: %s\n", error->message);
+      return;
+    }
+
+  guint i = 0;
+  for (i = 0; i < n_contacts; ++i)
+    {
+      TpContact *contact = contacts[i];
+
+      if (contact)
+        show_contact_information (contact);
+    }
+}
 
 void list_connection_contacts ()
 {
@@ -58,134 +93,37 @@ void list_connection_contacts ()
   g_printf("DEBUG: Count of handles received: %u\n", handles_array->len);
   g_printf("DEBUG: subscribe handle received: %u\n", handle);
 
-  /* Request the channel: */
-  gchar *channel_dbus_path = NULL;
-  success = tp_cli_connection_run_request_channel (connection, 
-    -1, /* timeout */
-    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* in_Type */
-    TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList */
-    handle, /* in_Handle */
-    TRUE, /* in_Suppress_Handler */
-    &channel_dbus_path, /* out0 */
+
+  /* tp_connection_get_contacts_by_handle() requires the connection to be 
+   * ready: */
+  gboolean ready = tp_connection_run_until_ready (connection, 
+    TRUE /* connect */, 
     &error,
     NULL /* loop */);
-
+  
   if (error)
     {
-      g_printf ("tp_cli_connection_run_request_channel() failed: %s\n", error->message);
+      g_printf ("tp_connection_run_until_ready() failed: %s\n", error->message);
       g_clear_error (&error);
       return;
     }
 
-  g_printf("DEBUG: channel D-Bus path received: %s\n", channel_dbus_path);
-
-  /* Create the channel object: */
-  TpChannel *channel = tp_channel_new (connection, 
-    channel_dbus_path, /* object_path */
-    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* optional_channel_type */
-    TP_HANDLE_TYPE_LIST, /* optional_handle_type */
-    handle, /* optional_handle */
-    &error);
-
-  if (error)
+  if (!ready)
     {
-      g_printf ("tp_channel_new() failed: %s\n", error->message);
-      g_clear_error (&error);
-      return;
+      g_printf ("Aborting because the connection could not be made ready.\n");
     }
 
-  /* Wait until the channel is ready for use: */
-  tp_channel_run_until_ready (channel, &error, NULL);
-  if (error)
-    {
-      g_printf ("tp_channel_run_until_ready() failed: %s\n", error->message);
-      g_clear_error (&error);
-      return;
-    }
+  guint n_handles = handles_array->len;
+  TpHandle* handles = (TpHandle*)g_array_free (handles_array, FALSE);
+  handles_array = NULL;
+  tp_connection_get_contacts_by_handle (connection,
+    n_handles, handles,
+    0 /* n_features */, NULL, /*features */
+    &on_connection_get_contacts_by_handle,
+    NULL, /* user_data */
+    NULL, /* destroy */
+    NULL /* weak_object */);
 
-  if (!tp_channel_is_ready (channel))
-    g_printf ("tp_channel_is_ready() returned FALSE.\n");
-
-  /* List the channel members: */
-  const TpIntSet* set = tp_channel_group_get_members (channel);
-  if (!set)
-    {
-      g_printf ("tp_channel_group_get_members() returned NULL.\n");
-      return;
-    }
-
-  g_printf("DEBUG: Number of members: %u\n", tp_intset_size (set));
-
-  /* Get a GArray instead of a TpIntSet: */
-  GArray *members_array = g_array_new (TRUE, TRUE, sizeof(guint));
-  TpIntSetIter iter = TP_INTSET_ITER_INIT  (set);
-  while (tp_intset_iter_next (&iter))
-    {
-      g_array_append_val (members_array, iter.element);
-    }
-  set = NULL;  
-
-  g_printf("DEBUG: members_array size=%u\n", members_array->len);
-
-  GHashTable *attributes = 0;
-  tp_cli_connection_interface_contacts_run_get_contact_attributes (
-    connection, 
-    -1, /* timeout_ms */
-    members_array,
-    NULL, /* in_Interfaces */
-    FALSE, /* in_Hold */
-    &attributes, /* out_Attributes */
-    &error,
-    NULL /* loop */);
-  g_array_free (members_array, TRUE);
-  members_array = NULL;
-
-  if(!attributes)
-    {
-      g_printf("DEBUG: tp_cli_connection_interface_contacts_run_get_contact_attributes() returned NULL attributes.\n");
-      return;
-    }
-
-  /* Examine each contact: */
-  gpointer key = NULL;
-  gpointer value = NULL;
-  GHashTableIter iter_attributes;
-  g_hash_table_iter_init (&iter_attributes, attributes);
-  while (g_hash_table_iter_next (&iter_attributes, &key, &value)) 
-    {
-      guint handle = GPOINTER_TO_UINT (key);
-      GHashTable *contact_attributes = value;
-      if(!contact_attributes)
-        {
-          g_printf("DEBUG: Contact has no attributes (NULL GHashTable).\n");
-          continue;
-        }
-      else if (g_hash_table_size (contact_attributes) == 0)
-        {
-          g_printf("DEBUG: Contact has no attributes (empty GHashTable).\n");
-          continue;
-        }
-      
-      g_printf("DEBUG: Contact attributes (%u):\n", g_hash_table_size (contact_attributes));
-          
-      /* Examine each attribute for this contact: */
-      gpointer inner_key = NULL;
-      gpointer inner_value = NULL;
-      GHashTableIter iter_contact_attributes;
-      g_hash_table_iter_init (&iter_contact_attributes, contact_attributes);
-      while (g_hash_table_iter_next (&iter_contact_attributes, &inner_key, &inner_value)) 
-        {
-          const gchar *name = inner_key;
-          GValue *value = inner_value;
-
-          gchar* value_str = g_strdup_value_contents (value);
-          g_printf("DEBUG:   name=%s, value=%s\n", name, value_str);
-          g_free (value_str);
-        }
-    }
-
-  g_hash_table_unref (attributes);
-  g_object_unref (channel);
 }
 
 /* A utility function to make our debug output easier to read. */
