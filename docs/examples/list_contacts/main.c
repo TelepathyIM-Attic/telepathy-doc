@@ -26,13 +26,24 @@ GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
 
+void disconnect ()
+{
+  if (!connection)
+    return;
+
+  g_printf ("DEBUG: Disconnecting.\n");
+  tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
+    NULL, NULL); /* Also destroys the connection object. */
+  connection = NULL;
+}
+
 void show_contact_information (TpContact *contact)
 {
   const gchar *identifier = tp_contact_get_identifier (contact);
-  g_printf ("Contact: Identifier=: %s\n", identifier);
+  g_printf ("Contact: Identifier=%s\n", identifier);
 
   const gchar *alias = tp_contact_get_alias (contact);
-  g_printf ("  Alias=: %s\n", alias);
+  g_printf ("  Alias=%s\n", alias);
 }
 
 void on_connection_get_contacts_by_handle (TpConnection *connection,
@@ -45,10 +56,7 @@ void on_connection_get_contacts_by_handle (TpConnection *connection,
   GObject *weak_object)
 {
   if (error)
-    {
       g_printf ("tp_connection_get_contacts_by_handle() failed: %s\n", error->message);
-      return;
-    }
 
   guint i = 0;
   for (i = 0; i < n_contacts; ++i)
@@ -58,6 +66,10 @@ void on_connection_get_contacts_by_handle (TpConnection *connection,
       if (contact)
         show_contact_information (contact);
     }
+
+  /* Disconnect the connection.
+     Otherwise it will be orphaned. */
+  disconnect();
 }
 
 void list_connection_contacts ()
@@ -94,6 +106,79 @@ void list_connection_contacts ()
   g_printf("DEBUG: subscribe handle received: %u\n", handle);
 
 
+  /* Request the channel: */
+  gchar *channel_dbus_path = NULL;
+  success = tp_cli_connection_run_request_channel (connection, 
+    -1, /* timeout */
+    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* in_Type */
+    TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList */
+    handle, /* in_Handle */
+    TRUE, /* in_Suppress_Handler */
+    &channel_dbus_path, /* out0 */
+    &error,
+    NULL /* loop */);
+
+  if (error)
+    {
+      g_printf ("tp_cli_connection_run_request_channel() failed: %s\n", error->message);
+      g_clear_error (&error);
+      return;
+    }
+
+  g_printf("DEBUG: channel D-Bus path received: %s\n", channel_dbus_path);
+
+
+  /* Create the channel object: */
+  TpChannel *channel = tp_channel_new (connection, 
+    channel_dbus_path, /* object_path */
+    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* optional_channel_type */
+    TP_HANDLE_TYPE_LIST, /* optional_handle_type */
+    handle, /* optional_handle */
+    &error);
+
+  if (error)
+    {
+      g_printf ("tp_channel_new() failed: %s\n", error->message);
+      g_clear_error (&error);
+      return;
+    }
+
+  /* Wait until the channel is ready for use: */
+  tp_channel_run_until_ready (channel, &error, NULL);
+  if (error)
+    {
+      g_printf ("tp_channel_run_until_ready() failed: %s\n", error->message);
+      g_clear_error (&error);
+      return;
+    }
+
+  if (!tp_channel_is_ready (channel))
+    g_printf ("tp_channel_is_ready() returned FALSE.\n");
+
+  /* List the channel members: */
+  const TpIntSet* set = tp_channel_group_get_members (channel);
+  if (!set)
+    {
+      g_printf ("tp_channel_group_get_members() returned NULL.\n");
+      return;
+    }
+
+  g_printf("DEBUG: Number of members: %u\n", tp_intset_size (set));
+
+  /* Get a GArray instead of a TpIntSet,
+   * so we can easily create a normal array: */
+  GArray *members_array = g_array_new (TRUE, TRUE, sizeof(guint));
+  TpIntSetIter iter = TP_INTSET_ITER_INIT  (set);
+  while (tp_intset_iter_next (&iter))
+    {
+      g_array_append_val (members_array, iter.element);
+    }
+  set = NULL;  
+
+  g_printf("DEBUG: members_array size=%u\n", members_array->len);
+
+
+
   /* tp_connection_get_contacts_by_handle() requires the connection to be 
    * ready: */
   gboolean ready = tp_connection_run_until_ready (connection, 
@@ -113,9 +198,12 @@ void list_connection_contacts ()
       g_printf ("Aborting because the connection could not be made ready.\n");
     }
 
-  guint n_handles = handles_array->len;
-  TpHandle* handles = (TpHandle*)g_array_free (handles_array, FALSE);
-  handles_array = NULL;
+  g_printf ("DEBUG: Calling tp_connection_get_contacts_by_handle()\n");
+
+  /* Get information about each contact: */ 
+  guint n_handles = members_array->len;
+  TpHandle* handles = (TpHandle*)g_array_free (members_array, FALSE);
+  members_array = NULL;
   tp_connection_get_contacts_by_handle (connection,
     n_handles, handles,
     0 /* n_features */, NULL, /*features */
@@ -175,14 +263,9 @@ void on_connection_status_changed (TpConnection *proxy,
       case TP_CONNECTION_STATUS_CONNECTED:
         g_printf ("Connection status: Connected (reason: %s)\n", get_reason_description (arg_Reason));
 
+        /* Get the contacts information for this connection,
+         * and then disconnect the connection: */
         list_connection_contacts ();
-
-        /* Disconnect the connection.
-           Otherwise it will be orphaned. */
-        g_printf ("DEBUG: Disconnecting.\n");
-        tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
-            NULL, NULL); /* Also destroys the connection object. */
-        connection = NULL;
 
         break;
 
@@ -296,7 +379,7 @@ main (int argc, char **argv)
   g_hash_table_insert (parameters, "account", value);
 
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "passwordTODO");
+  g_value_set_static_string (value, "luftballons");
   g_hash_table_insert (parameters, "password", value);
 
   /* This jabber-specific parameter can avoid clashes with 
