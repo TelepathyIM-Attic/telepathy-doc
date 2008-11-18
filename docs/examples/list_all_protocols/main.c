@@ -186,8 +186,13 @@ main (int argc, char **argv)
 
   /* tp_list_connection_names (bus_daemon, got_connections, &data, NULL, NULL); */
 
-  /* Start the main loop, and clean up when it finishes. */
+  /* Run the main loop, 
+   * to keep our application alive while we wait for responses from telepathy.
+   * This function returns when we call g_main_loop_quit() from elsewhere.
+   */
   g_main_loop_run (mainloop);
+
+  /* Clean up: */
   g_main_loop_unref (mainloop);
   g_object_unref (bus_daemon);
 
