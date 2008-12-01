@@ -22,9 +22,11 @@
 #include <telepathy-glib/util.h>
 #include <glib/gprintf.h>
 
+//TODO: Pass these around in user_data:
 GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
+guint contact_list_handle = 0;
 
 void disconnect ()
 {
@@ -75,83 +77,43 @@ void on_connection_get_contacts_by_handle (TpConnection *connection,
   disconnect();
 }
 
-void list_connection_contacts ()
+void on_connection_request_channel(TpConnection *proxy,
+  const gchar *channel_dbus_path,
+  const GError *error,
+  gpointer user_data,
+  GObject *weak_object)
 {
-  /* Request the handle that we need to request the channel: */
-  GError *error = NULL;
-  GArray *handles_array = NULL;
-  const gchar **identifier_names = (const gchar **)g_malloc0(2 * sizeof(char*));
-  identifier_names[0] = "subscribe";
-  gboolean success = tp_cli_connection_run_request_handles (connection, 
-    -1, /* timeout */
-    TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList */
-    identifier_names, /* in_Names */
-    &handles_array, /* out0 */
-    &error,
-    NULL /* loop */);
-  g_free (identifier_names);
-
-  if (error)
-    {
-      g_printf ("tp_cli_connection_run_request_handles() failed: %s\n", error->message);
-      g_clear_error (&error);
-      return;
-    }
-
-  if (!handles_array || handles_array->len == 0)
-    {
-      g_printf ("No handles received.\n");
-      return;
-    }
- 
-  guint handle = g_array_index (handles_array, guint, 0);
-  g_printf("DEBUG: Count of handles received: %u\n", handles_array->len);
-  g_printf("DEBUG: subscribe handle received: %u\n", handle);
-
-
-  /* Request the channel: */
-  gchar *channel_dbus_path = NULL;
-  success = tp_cli_connection_run_request_channel (connection, 
-    -1, /* timeout */
-    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* in_Type */
-    TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList */
-    handle, /* in_Handle */
-    TRUE, /* in_Suppress_Handler */
-    &channel_dbus_path, /* out0 */
-    &error,
-    NULL /* loop */);
-
   if (error)
     {
       g_printf ("tp_cli_connection_run_request_channel() failed: %s\n", error->message);
-      g_clear_error (&error);
       return;
     }
 
   g_printf("DEBUG: channel D-Bus path received: %s\n", channel_dbus_path);
 
 
-  /* Create the channel object: */
+  /* Create the channel proxy for the ContactList's Group interface: */
+  GError *error_inner = NULL;
   TpChannel *channel = tp_channel_new (connection, 
     channel_dbus_path, /* object_path */
     TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* optional_channel_type */
     TP_HANDLE_TYPE_LIST, /* optional_handle_type */
-    handle, /* optional_handle */
-    &error);
+    contact_list_handle, /* optional_handle */
+    &error_inner);
 
-  if (error)
+  if (error_inner)
     {
-      g_printf ("tp_channel_new() failed: %s\n", error->message);
-      g_clear_error (&error);
+      g_printf ("tp_channel_new() failed: %s\n", error_inner->message);
+      g_clear_error (&error_inner);
       return;
     }
 
   /* Wait until the channel is ready for use: */
-  tp_channel_run_until_ready (channel, &error, NULL);
-  if (error)
+  tp_channel_run_until_ready (channel, &error_inner, NULL);
+  if (error_inner)
     {
-      g_printf ("tp_channel_run_until_ready() failed: %s\n", error->message);
-      g_clear_error (&error);
+      g_printf ("tp_channel_run_until_ready() failed: %s\n", error_inner->message);
+      g_clear_error (&error_inner);
       return;
     }
 
@@ -186,13 +148,13 @@ void list_connection_contacts ()
    * ready: */
   gboolean ready = tp_connection_run_until_ready (connection, 
     TRUE /* connect */, 
-    &error,
+    &error_inner,
     NULL /* loop */);
   
-  if (error)
+  if (error_inner)
     {
-      g_printf ("tp_connection_run_until_ready() failed: %s\n", error->message);
-      g_clear_error (&error);
+      g_printf ("tp_connection_run_until_ready() failed: %s\n", error_inner->message);
+      g_clear_error (&error_inner);
       return;
     }
 
@@ -219,8 +181,43 @@ void list_connection_contacts ()
     NULL, /* user_data */
     NULL, /* destroy */
     NULL /* weak_object */);
-
 }
+
+void on_connection_request_handles (TpConnection *proxy,
+  const GArray *handles_array,
+  const GError *error,
+  gpointer user_data,
+  GObject *weak_object)
+{
+  if (error)
+    {
+      g_printf ("tp_cli_connection_call_request_handles() failed: %s\n", error->message);
+      return;
+    }
+
+  if (!handles_array || handles_array->len == 0)
+    {
+      g_printf ("No handles received.\n");
+      return;
+    }
+ 
+  contact_list_handle = g_array_index (handles_array, guint, 0);
+  g_printf("DEBUG: Count of handles received: %u\n", handles_array->len);
+  g_printf("DEBUG: subscribe handle received: %u\n", contact_list_handle);
+
+
+  /* Request the channel: */
+  tp_cli_connection_call_request_channel (connection, 
+    -1, /* timeout */
+    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* in_Type */
+    TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList */
+    contact_list_handle, /* in_Handle */
+    TRUE, /* in_Suppress_Handler */
+    &on_connection_request_channel, NULL, /* user_data */
+    NULL, /* destroy */
+    NULL /* weak_ref */);
+}
+
 
 /* A utility function to make our debug output easier to read. */
 const gchar* get_reason_description (TpConnectionStatusReason reason)
@@ -273,7 +270,18 @@ void on_connection_status_changed (TpConnection *proxy,
 
         /* Get the contacts information for this connection,
          * and then disconnect the connection: */
-        list_connection_contacts ();
+        
+        /* Request the handle for the ContactList, which lists.
+         * We need this handle to request the Group channel: */
+        const gchar **identifier_names = (const gchar **)g_malloc0(2 * sizeof(char*));
+        identifier_names[0] = "subscribe";
+        tp_cli_connection_call_request_handles (connection, 
+          -1, /* timeout */
+          TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList for server-defined lists, such as "subscribe". */
+          identifier_names, /* in_Names */
+          &on_connection_request_handles, NULL, /* user_data */
+          NULL, /* destroy */
+          NULL /* weak_ref */);
 
         break;
 
@@ -387,7 +395,7 @@ main (int argc, char **argv)
   g_hash_table_insert (parameters, "account", value);
 
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "luftballons");
+  g_value_set_static_string (value, "passwordTODO");
   g_hash_table_insert (parameters, "password", value);
 
   /* This jabber-specific parameter can avoid clashes with 

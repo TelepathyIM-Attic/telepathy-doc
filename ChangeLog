@@ -1,3 +1,8 @@
+2008-12-01  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/examples/list_contacts/main.c: Use *_call_* functions instead 
+	of *_run_* functions because everybody says they should never be used.
+
 2008-11-14  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/list_contacts/main.c: Get other contact features, 
