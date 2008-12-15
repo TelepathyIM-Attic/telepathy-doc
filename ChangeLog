@@ -1,5 +1,11 @@
 2008-12-15  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/examples/set_presence/main.c: 
+	* docs/examples/list_contacts/main.c: Use the *_call_when_ready() 
+	functions instead of *_run_until_ready().
+
+2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/examples/set_presence/main.c: Wait until the connection is 
 	ready, so that setting of the presence can succeed. 
 

@@ -27,6 +27,7 @@ GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
 guint contact_list_handle = 0;
+const TpIntSet* channel_members_set = NULL;
 
 void disconnect ()
 {
@@ -77,6 +78,82 @@ void on_connection_get_contacts_by_handle (TpConnection *connection,
   disconnect();
 }
 
+
+void on_connection_ready (TpConnection *connection,
+  const GError *error,
+  gpointer user_data)
+{
+  if (error)
+  {
+    g_printf ("tp_connection_call_when_ready() failed: %s\n", error->message);
+     return;
+  }
+
+  /* Actually get the information now that the connection is ready: */
+
+
+  /* Get a GArray instead of a TpIntSet,
+   * so we can easily create a normal array: */
+  GArray *members_array = g_array_new (TRUE, TRUE, sizeof(guint));
+  TpIntSetIter iter = TP_INTSET_ITER_INIT (channel_members_set );
+  while (tp_intset_iter_next (&iter))
+    {
+      g_array_append_val (members_array, iter.element);
+    }
+  channel_members_set = NULL; /* We don't need this anymore. */  
+
+  g_printf("DEBUG: members_array size=%u\n", members_array->len);
+
+
+  /* Get information about each contact: */ 
+  guint n_handles = members_array->len;
+  TpHandle* handles = (TpHandle*)g_array_free (members_array, FALSE);
+  members_array = NULL;
+  
+  /* The extra optional information that we are interested in: */
+  TpContactFeature features[] = {TP_CONTACT_FEATURE_ALIAS, 
+    TP_CONTACT_FEATURE_AVATAR_TOKEN, TP_CONTACT_FEATURE_PRESENCE};
+
+  g_printf ("DEBUG: Calling tp_connection_get_contacts_by_handle()\n");
+
+  tp_connection_get_contacts_by_handle (connection,
+    n_handles, handles,
+    sizeof (features) / sizeof(TpContactFeature), features,
+    &on_connection_get_contacts_by_handle,
+    NULL, /* user_data */
+    NULL, /* destroy */
+    NULL /* weak_object */);
+}
+
+void on_channel_ready (TpChannel *channel,
+  const GError *error,
+  gpointer user_data)
+{
+  if (error)
+  {
+    g_printf ("tp_channel_call_when_ready() failed: %s\n", error->message);
+    return;
+  }
+
+
+  /* List the channel members: */
+  channel_members_set = tp_channel_group_get_members (channel);
+  if (!channel_members_set )
+    {
+      g_printf ("tp_channel_group_get_members() returned NULL.\n");
+      return;
+    }
+
+  g_printf("DEBUG: Number of members: %u\n", tp_intset_size (channel_members_set ));
+
+ 
+  /* tp_connection_get_contacts_by_handle() requires the connection to be 
+   * ready: */
+  tp_connection_call_when_ready (connection, 
+    &on_connection_ready,
+    NULL);
+}
+
 void on_connection_request_channel (TpConnection *proxy,
   const gchar *channel_dbus_path,
   const GError *error,
@@ -85,7 +162,7 @@ void on_connection_request_channel (TpConnection *proxy,
 {
   if (error)
     {
-      g_printf ("tp_cli_connection_run_request_channel() failed: %s\n", error->message);
+      g_printf ("tp_cli_connection_call_request_channel() failed: %s\n", error->message);
       return;
     }
 
@@ -109,78 +186,9 @@ void on_connection_request_channel (TpConnection *proxy,
     }
 
   /* Wait until the channel is ready for use: */
-  tp_channel_run_until_ready (channel, &error_inner, NULL);
-  if (error_inner)
-    {
-      g_printf ("tp_channel_run_until_ready() failed: %s\n", error_inner->message);
-      g_clear_error (&error_inner);
-      return;
-    }
-
-  if (!tp_channel_is_ready (channel))
-    g_printf ("tp_channel_is_ready() returned FALSE.\n");
-
-  /* List the channel members: */
-  const TpIntSet* set = tp_channel_group_get_members (channel);
-  if (!set)
-    {
-      g_printf ("tp_channel_group_get_members() returned NULL.\n");
-      return;
-    }
-
-  g_printf("DEBUG: Number of members: %u\n", tp_intset_size (set));
-
-  /* Get a GArray instead of a TpIntSet,
-   * so we can easily create a normal array: */
-  GArray *members_array = g_array_new (TRUE, TRUE, sizeof(guint));
-  TpIntSetIter iter = TP_INTSET_ITER_INIT  (set);
-  while (tp_intset_iter_next (&iter))
-    {
-      g_array_append_val (members_array, iter.element);
-    }
-  set = NULL;  
-
-  g_printf("DEBUG: members_array size=%u\n", members_array->len);
-
-
-
-  /* tp_connection_get_contacts_by_handle() requires the connection to be 
-   * ready: */
-  gboolean ready = tp_connection_run_until_ready (connection, 
-    TRUE /* connect */, 
-    &error_inner,
-    NULL /* loop */);
-  
-  if (error_inner)
-    {
-      g_printf ("tp_connection_run_until_ready() failed: %s\n", error_inner->message);
-      g_clear_error (&error_inner);
-      return;
-    }
-
-  if (!ready)
-    {
-      g_printf ("Aborting because the connection could not be made ready.\n");
-    }
-
-  g_printf ("DEBUG: Calling tp_connection_get_contacts_by_handle()\n");
-
-  /* Get information about each contact: */ 
-  guint n_handles = members_array->len;
-  TpHandle* handles = (TpHandle*)g_array_free (members_array, FALSE);
-  members_array = NULL;
-  
-  /* The extra optional information that we are interested in: */
-  TpContactFeature features[] = {TP_CONTACT_FEATURE_ALIAS, 
-    TP_CONTACT_FEATURE_AVATAR_TOKEN, TP_CONTACT_FEATURE_PRESENCE};
-
-  tp_connection_get_contacts_by_handle (connection,
-    n_handles, handles,
-    sizeof (features) / sizeof(TpContactFeature), features,
-    &on_connection_get_contacts_by_handle,
-    NULL, /* user_data */
-    NULL, /* destroy */
-    NULL /* weak_object */);
+  tp_channel_call_when_ready (channel, 
+    &on_channel_ready,
+    NULL);
 }
 
 void on_connection_request_handles (TpConnection *proxy,
@@ -395,7 +403,7 @@ main (int argc, char **argv)
   g_hash_table_insert (parameters, "account", value);
 
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "passwordTODO");
+  g_value_set_static_string (value, "luftjabb");
   g_hash_table_insert (parameters, "password", value);
 
   /* This jabber-specific parameter can avoid clashes with 
