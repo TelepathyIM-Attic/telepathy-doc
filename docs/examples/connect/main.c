@@ -198,7 +198,7 @@ main (int argc, char **argv)
      other telepathy clients that use the default jabber 
      resource name. */
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "telepathy-doc list_contacts example");
+  g_value_set_static_string (value, "telepathy-doc connect example");
   g_hash_table_insert (parameters, "resource", value);
 
   /* Call RequestConnection; it will return asynchronously by calling got_connection */

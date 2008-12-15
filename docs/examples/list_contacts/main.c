@@ -77,7 +77,7 @@ void on_connection_get_contacts_by_handle (TpConnection *connection,
   disconnect();
 }
 
-void on_connection_request_channel(TpConnection *proxy,
+void on_connection_request_channel (TpConnection *proxy,
   const gchar *channel_dbus_path,
   const GError *error,
   gpointer user_data,

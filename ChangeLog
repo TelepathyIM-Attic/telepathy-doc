@@ -1,3 +1,10 @@
+2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+
+	* configure.ac:
+	* docs/examples/Makefile.am
+	* docs/examples/set_presence/: Added a (nonworking) example of 
+	setting presence, by copying the connect example and adding a call.
+
 2008-12-01  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/list_contacts/main.c: Use *_call_* functions instead 

@@ -141,7 +141,7 @@ on_list_connection_managers(TpConnectionManager * const *connection_managers,
            * then be followed by a got-info signal.
            */
 
-          /* TODO: See mailing list discussion about the awkwardness of the asynchronous API here:
+          /* TODO: See mailing list discussion about the awkwardness of the asynchronous API here: */
           /* TODO: How do we know when the last signal has been emitted, so
            *  we can unreference the mainloop.
            */
