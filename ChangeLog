@@ -1,5 +1,10 @@
 2008-12-15  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/examples/set_presence/main.c: Wait until the connection is 
+	ready, so that setting of the presence can succeed. 
+
+2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+
 	* configure.ac:
 	* docs/examples/Makefile.am
 	* docs/examples/set_presence/: Added a (nonworking) example of 

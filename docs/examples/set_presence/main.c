@@ -73,8 +73,7 @@ void on_connection_set_presence(TpConnection *proxy,
       return;
     }
 
-   g_printf ("Connection set.\n");
-
+   g_printf ("Presence set.\n");
 
 
    /* Disconnect the connection now that our example has finished.
@@ -98,6 +97,31 @@ void on_connection_status_changed(TpConnection *proxy,
         g_printf ("Connection status: Connected (reason: %s)\n", get_reason_description (arg_Reason));
 
         /* Set the presence: */
+
+        /* tp_cli_connection_interface_simple_presence_call_set_presence() requires the connection to be 
+         * ready: */
+        GError *error = NULL;
+        gboolean ready = tp_connection_run_until_ready (connection, 
+         TRUE /* connect */, 
+         &error,
+         NULL /* loop */);
+  
+        if (error)
+        {
+          g_printf ("tp_connection_run_until_ready() failed: %s\n", error->message);
+          g_clear_error (&error);
+          return;
+        }
+
+        if (!ready)
+        {
+          g_printf ("Aborting because the connection could not be made ready.\n");
+        }
+
+        /* Actually set the presence: */
+        /* See https://bugs.freedesktop.org/show_bug.cgi?id=19097 about the 
+         * difficulty of discovering valid status strings.
+         */
         tp_cli_connection_interface_simple_presence_call_set_presence (
           connection, 
           -1, /* timeout */
