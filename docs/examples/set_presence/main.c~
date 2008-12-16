@@ -16,217 +16,12 @@
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
-#include <telepathy-glib/contact.h>
-#include <telepathy-glib/channel.h>
-#include <telepathy-glib/interfaces.h>
 #include <telepathy-glib/util.h>
 #include <glib/gprintf.h>
 
-//TODO: Pass these around in user_data:
 GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
-guint contact_list_handle = 0;
-const TpIntSet* channel_members_set = NULL;
-
-void disconnect ()
-{
-  if (!connection)
-    return;
-
-  g_printf ("DEBUG: Disconnecting.\n");
-  tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
-    NULL, NULL); /* Also destroys the connection object. */
-  connection = NULL;
-}
-
-void show_contact_information (TpContact *contact)
-{
-  g_printf ("Contact: Identifier=%s\n", 
-    tp_contact_get_identifier (contact));
-
-  g_printf ("  Alias=%s\n", 
-    tp_contact_get_alias (contact));
-
-  g_printf ("  Presence Status=%s\n", 
-    tp_contact_get_presence_status (contact));
-}
-
-void on_connection_get_contacts_by_handle (TpConnection *connection,
-  guint n_contacts,
-  TpContact * const *contacts,
-  guint n_failed,
-  const TpHandle *failed,
-  const GError *error,
-  gpointer user_data,
-  GObject *weak_object)
-{
-  if (error)
-      g_printf ("tp_connection_get_contacts_by_handle() failed: %s\n", error->message);
-
-  guint i = 0;
-  for (i = 0; i < n_contacts; ++i)
-    {
-      TpContact *contact = contacts[i];
-
-      if (contact)
-        show_contact_information (contact);
-    }
-
-  /* Disconnect the connection.
-     Otherwise it will be orphaned. */
-  disconnect();
-}
-
-
-void on_connection_ready (TpConnection *connection,
-  const GError *error,
-  gpointer user_data)
-{
-  if (error)
-  {
-    g_printf ("tp_connection_call_when_ready() failed: %s\n", error->message);
-     return;
-  }
-
-  /* Actually get the information now that the connection is ready: */
-
-
-  /* Get a GArray instead of a TpIntSet,
-   * so we can easily create a normal array: */
-  GArray *members_array = g_array_new (TRUE, TRUE, sizeof(guint));
-  TpIntSetIter iter = TP_INTSET_ITER_INIT (channel_members_set );
-  while (tp_intset_iter_next (&iter))
-    {
-      g_array_append_val (members_array, iter.element);
-    }
-  channel_members_set = NULL; /* We don't need this anymore. */  
-
-  g_printf("DEBUG: members_array size=%u\n", members_array->len);
-
-
-  /* Get information about each contact: */ 
-  guint n_handles = members_array->len;
-  TpHandle* handles = (TpHandle*)g_array_free (members_array, FALSE);
-  members_array = NULL;
-  
-  /* The extra optional information that we are interested in: */
-  TpContactFeature features[] = {TP_CONTACT_FEATURE_ALIAS, 
-    TP_CONTACT_FEATURE_AVATAR_TOKEN, TP_CONTACT_FEATURE_PRESENCE};
-
-  g_printf ("DEBUG: Calling tp_connection_get_contacts_by_handle()\n");
-
-  tp_connection_get_contacts_by_handle (connection,
-    n_handles, handles,
-    sizeof (features) / sizeof(TpContactFeature), features,
-    &on_connection_get_contacts_by_handle,
-    NULL, /* user_data */
-    NULL, /* destroy */
-    NULL /* weak_object */);
-  g_free (handles);
-}
-
-void on_channel_ready (TpChannel *channel,
-  const GError *error,
-  gpointer user_data)
-{
-  if (error)
-  {
-    g_printf ("tp_channel_call_when_ready() failed: %s\n", error->message);
-    return;
-  }
-
-
-  /* List the channel members: */
-  channel_members_set = tp_channel_group_get_members (channel);
-  if (!channel_members_set )
-    {
-      g_printf ("tp_channel_group_get_members() returned NULL.\n");
-      return;
-    }
-
-  g_printf("DEBUG: Number of members: %u\n", tp_intset_size (channel_members_set ));
-
- 
-  /* tp_connection_get_contacts_by_handle() requires the connection to be 
-   * ready: */
-  tp_connection_call_when_ready (connection, 
-    &on_connection_ready,
-    NULL);
-}
-
-void on_connection_request_channel (TpConnection *proxy,
-  const gchar *channel_dbus_path,
-  const GError *error,
-  gpointer user_data,
-  GObject *weak_object)
-{
-  if (error)
-    {
-      g_printf ("tp_cli_connection_call_request_channel() failed: %s\n", error->message);
-      return;
-    }
-
-  g_printf("DEBUG: channel D-Bus path received: %s\n", channel_dbus_path);
-
-
-  /* Create the channel proxy for the ContactList's Group interface: */
-  GError *error_inner = NULL;
-  TpChannel *channel = tp_channel_new (connection, 
-    channel_dbus_path, /* object_path */
-    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* optional_channel_type */
-    TP_HANDLE_TYPE_LIST, /* optional_handle_type */
-    contact_list_handle, /* optional_handle */
-    &error_inner);
-
-  if (error_inner)
-    {
-      g_printf ("tp_channel_new() failed: %s\n", error_inner->message);
-      g_clear_error (&error_inner);
-      return;
-    }
-
-  /* Wait until the channel is ready for use: */
-  tp_channel_call_when_ready (channel, 
-    &on_channel_ready,
-    NULL);
-}
-
-void on_connection_request_handles (TpConnection *proxy,
-  const GArray *handles_array,
-  const GError *error,
-  gpointer user_data,
-  GObject *weak_object)
-{
-  if (error)
-    {
-      g_printf ("tp_cli_connection_call_request_handles() failed: %s\n", error->message);
-      return;
-    }
-
-  if (!handles_array || handles_array->len == 0)
-    {
-      g_printf ("No handles received.\n");
-      return;
-    }
- 
-  contact_list_handle = g_array_index (handles_array, guint, 0);
-  g_printf("DEBUG: Count of handles received: %u\n", handles_array->len);
-  g_printf("DEBUG: subscribe handle received: %u\n", contact_list_handle);
-
-
-  /* Request the channel: */
-  tp_cli_connection_call_request_channel (connection, 
-    -1, /* timeout */
-    TP_IFACE_CHANNEL_TYPE_CONTACT_LIST, /* in_Type */
-    TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList */
-    contact_list_handle, /* in_Handle */
-    TRUE, /* in_Suppress_Handler */
-    &on_connection_request_channel, NULL, /* user_data */
-    NULL, /* destroy */
-    NULL /* weak_ref */);
-}
-
 
 /* A utility function to make our debug output easier to read. */
 const gchar* get_reason_description (TpConnectionStatusReason reason)
@@ -266,7 +61,54 @@ const gchar* get_reason_description (TpConnectionStatusReason reason)
    }
 }
 
-void on_connection_status_changed (TpConnection *proxy,
+void on_connection_set_presence(TpConnection *proxy,
+  const GError *error,
+  gpointer user_data, 
+  GObject *weak_object)
+{
+  if (error != NULL)
+    {
+      g_printf ("tp_cli_connection_interface_simple_presence_call_set_presence() failed: %s\n", error->message);
+      g_main_loop_quit (mainloop);
+      return;
+    }
+
+   g_printf ("Presence set.\n");
+
+
+   /* Disconnect the connection now that our example has finished.
+      Otherwise it will be orphaned. */
+   g_printf ("DEBUG: Disconnecting.\n");
+   tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
+            NULL, NULL); /* Also destroys the connection object. */
+   connection = NULL;
+}
+
+
+void on_connection_ready (TpConnection *connection,
+  const GError *error,
+  gpointer user_data)
+{
+  if (error)
+  {
+    g_printf ("tp_connection_call_when_ready() failed: %s\n", error->message);
+     return;
+  }
+
+  /* Actually set the presence: */
+  /* See https://bugs.freedesktop.org/show_bug.cgi?id=19097 about the 
+   * difficulty of discovering valid status strings.
+   */
+  tp_cli_connection_interface_simple_presence_call_set_presence (
+    connection, 
+    -1, /* timeout */
+    "away",
+    "Gone fishing",
+    &on_connection_set_presence,
+    NULL, NULL, NULL);
+}
+
+void on_connection_status_changed(TpConnection *proxy,
   guint arg_Status,
   guint arg_Reason,
   gpointer user_data,
@@ -277,20 +119,13 @@ void on_connection_status_changed (TpConnection *proxy,
       case TP_CONNECTION_STATUS_CONNECTED:
         g_printf ("Connection status: Connected (reason: %s)\n", get_reason_description (arg_Reason));
 
-        /* Get the contacts information for this connection,
-         * and then disconnect the connection: */
-        
-        /* Request the handle for the ContactList, which lists.
-         * We need this handle to request the Group channel: */
-        const gchar **identifier_names = (const gchar **)g_malloc0(2 * sizeof(char*));
-        identifier_names[0] = "subscribe";
-        tp_cli_connection_call_request_handles (connection, 
-          -1, /* timeout */
-          TP_HANDLE_TYPE_LIST, /* in_Handle_Type - the correct type for ContactList for server-defined lists, such as "subscribe". */
-          identifier_names, /* in_Names */
-          &on_connection_request_handles, NULL, /* user_data */
-          NULL, /* destroy */
-          NULL /* weak_ref */);
+        /* Set the presence: */
+
+        /* tp_cli_connection_interface_simple_presence_call_set_presence() requires the connection to be 
+         * ready: */
+        tp_connection_call_when_ready (connection, 
+          &on_connection_ready,
+          NULL);
 
         break;
 
@@ -411,7 +246,7 @@ main (int argc, char **argv)
      other telepathy clients that use the default jabber 
      resource name. */
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "telepathy-doc list_contacts example");
+  g_value_set_static_string (value, "telepathy-doc set_presence example");
   g_hash_table_insert (parameters, "resource", value);
 
   /* Call RequestConnection; it will return asynchronously by calling got_connection */
@@ -427,7 +262,6 @@ main (int argc, char **argv)
    * This function returns when we call g_main_loop_quit() from elsewhere.
    */
   g_main_loop_run (mainloop);
-
 
   /* Clean up: */
   g_object_unref (connection_manager);

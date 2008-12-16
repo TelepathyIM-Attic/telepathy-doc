@@ -29,6 +29,7 @@ AC_OUTPUT([
       docs/examples/list_all_protocols/Makefile
       docs/examples/list_contacts/Makefile
       docs/examples/set_presence/Makefile
+      docs/examples/send_message/Makefile
 
     docs/book/Makefile
 ])

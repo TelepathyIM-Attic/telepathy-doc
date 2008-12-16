@@ -1,6 +1,6 @@
 include $(top_srcdir)/docs/Makefile_web.am_fragment
 
-example_dirs = connect list_all_protocols list_contacts set_presence
+example_dirs = connect list_all_protocols list_contacts set_presence send_message
 
 SUBDIRS = $(example_dirs)
 

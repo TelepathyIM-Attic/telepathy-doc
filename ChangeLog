@@ -1,5 +1,12 @@
 2008-12-15  Murray Cumming  <murrayc@murrayc.com>
 
+	* configure.ac:
+	* docs/examples/Makefile.am
+	* docs/examples/send_message/main.c:  Added the beginnings of a 
+	an example to send a single message to a single specific contact.
+
+2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/examples/set_presence/main.c: 
 	* docs/examples/list_contacts/main.c: Use the *_call_when_ready() 
 	functions instead of *_run_until_ready().
