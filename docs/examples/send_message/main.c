@@ -17,12 +17,16 @@
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
 #include <telepathy-glib/contact.h>
+#include <telepathy-glib/channel.h>
 #include <telepathy-glib/util.h>
+#include <telepathy-glib/interfaces.h> /* For TP_IFACE_CHANNEL_TYPE_TEXT */
 #include <glib/gprintf.h>
 
 GMainLoop *mainloop = NULL;
 TpDBusDaemon *bus_daemon = NULL;
 TpConnection *connection = NULL;
+TpContact *contact = NULL;
+TpChannel *text_channel = NULL;
 
 /* A utility function to make our debug output easier to read. */
 const gchar* get_reason_description (TpConnectionStatusReason reason)
@@ -62,27 +66,75 @@ const gchar* get_reason_description (TpConnectionStatusReason reason)
    }
 }
 
-void on_connection_set_presence(TpConnection *proxy,
+void on_send (TpChannel *proxy,
   const GError *error,
-  gpointer user_data, 
+  gpointer user_data,
   GObject *weak_object)
 {
-  if (error != NULL)
+  if (error)
     {
-      g_printf ("tp_cli_connection_interface_simple_presence_call_set_presence() failed: %s\n", error->message);
-      g_main_loop_quit (mainloop);
+      g_printf ("tp_cli_channel_type_text_call_send () failed: %s\n", error->message);
       return;
     }
 
-   g_printf ("Presence set.\n");
+  g_printf("DEBUG: Message sent.\n");
+}
 
+void on_text_channel_is_ready (TpChannel *channel,
+  const GError *error,
+  gpointer user_data)
+{
+  if (error)
+    {
+      g_printf ("tp_channel_call_when_ready () failed: %s\n", error->message);
+      return;
+    }
 
-   /* Disconnect the connection now that our example has finished.
-      Otherwise it will be orphaned. */
-   g_printf ("DEBUG: Disconnecting.\n");
-   tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
-            NULL, NULL); /* Also destroys the connection object. */
-   connection = NULL;
+  g_printf("DEBUG: Text channel is ready.\n");
+
+  //Send a message:
+
+  TpProxyPendingCall* pending = tp_cli_channel_type_text_call_send (channel, 
+    -1, /* timeout */
+    0, /* Channel_Text_Message_Type_Normal */
+    "Hello from Murray's telepathy example. Send murrayc@openismus.com an email if this arrived.",
+    &on_send,
+    NULL, NULL, NULL);
+}
+
+void on_connection_create_channel(TpConnection *proxy,
+  const gchar *object_path,
+  GHashTable *out_Properties,
+  const GError *error,
+  gpointer user_data,
+  GObject *weak_object)
+{
+  if (error)
+    {
+      g_printf ("tp_cli_connection_interface_requests_call_create_channel () failed: %s\n", error->message);
+      return;
+    }
+
+  g_printf("DEBUG: Text channel created.\n");
+
+  /* Create the proxy object for the channel: */
+  GError *inner_error = NULL;
+  text_channel = tp_channel_new (connection, 
+    object_path, 
+    TP_IFACE_CHANNEL_TYPE_TEXT,
+    TP_HANDLE_TYPE_CONTACT,
+    tp_contact_get_handle (contact),
+    &inner_error);
+
+  if (inner_error)
+    {
+      g_printf ("tp_channel_new () failed: %s\n", error->message);
+      g_clear_error (&inner_error);
+      return;
+    }
+
+  /* Wait for the channel to be ready: */
+  tp_channel_call_when_ready (text_channel, on_text_channel_is_ready, NULL);
 }
 
 void on_get_contacts_by_id (TpConnection *connection,
@@ -107,14 +159,37 @@ void on_get_contacts_by_id (TpConnection *connection,
       return;
     }
 
-  TpContact *contact = contacts[0];
+  contact = contacts[0];
   if(!contact)
     {
       g_printf ("tp_connection_get_contacts_by_id () returned NULL contact\n");
       return;
     }
 
-  //TODO: Send a message.
+  g_printf("DEBUG: Contact found: %s.\n", tp_contact_get_identifier (contact));
+
+ 
+  //Get a text Channel for this contact:
+  GHashTable* properties = g_hash_table_new (NULL, NULL);
+
+  GValue *value = tp_g_value_slice_new (G_TYPE_STRING);
+  g_value_set_static_string (value, TP_IFACE_CHANNEL_TYPE_TEXT);
+  g_hash_table_insert (properties, TP_IFACE_CHANNEL ".ChannelType", value);
+
+  value = tp_g_value_slice_new (G_TYPE_STRING);
+  g_value_set_static_string (value, tp_contact_get_identifier (contact));
+  g_hash_table_insert (properties, TP_IFACE_CHANNEL ".TargetID", value);
+
+  /* Note that this uses the new Requests interface, which is not yet 
+   * implemented by all Telepathy ConnectionManagers. 
+   * The old way (working with all ConnectionManagers), was the RequestChannel 
+   * interface, via tp_cli_connection_call_request_channel().
+   */
+  tp_cli_connection_interface_requests_call_create_channel (connection, 
+    -1, /* timeout */
+    properties,
+    &on_connection_create_channel,
+    NULL, NULL, NULL);
 }
 
 void on_connection_ready (TpConnection *connection,
@@ -267,7 +342,7 @@ main (int argc, char **argv)
   g_hash_table_insert (parameters, "account", value);
 
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "passwordTODO");
+  g_value_set_static_string (value, "luftjab");
   g_hash_table_insert (parameters, "password", value);
 
   /* This jabber-specific parameter can avoid clashes with 

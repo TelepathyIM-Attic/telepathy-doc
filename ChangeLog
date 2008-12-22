@@ -1,3 +1,11 @@
+2008-12-22  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/examples/send_message/main.c: Implement code to get a text 
+	channel and send a message on it, though (like the list_contacts example) 
+	it does not work now due to this error from 
+	tp_connection_get_contacts_by_id():
+        Connection manager :1.171 is broken: contact #2 in the GetContactAttributes result has no contact-id
+
 2008-12-15  Murray Cumming  <murrayc@murrayc.com>
 
 	* configure.ac:
