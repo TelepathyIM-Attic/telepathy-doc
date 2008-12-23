@@ -18,6 +18,7 @@
   <!ENTITY app_no_markup "Telepathy">
   <!ENTITY app "<application>&app_no_markup;</application>">
   <!ENTITY url_examples_base "./examples/">
+  <!ENTITY url_spec_base "http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.">
 ]>
 
 <book id="index">
@@ -103,7 +104,10 @@ of the Telapathy specification.
     dbus-glib basics. Also show how to use D-Bus with python.
 
   - Optional Interfaces
-    Notes: Objects have optional D-Bus interfaces , discovered at runtime.
+    Notes: Objects have main interfaces (often called their type, particularly for channels), 
+    such as <ulink url="&url_spec_base;Channel">Channel</ulink> and <ulink url="&url_spec_base;Connection">Connection</ulink> 
+    and optional D-Bus interfaces , discovered at runtime.
+    See <ulink url="&url_spec_base;Connection.GetInterfaces">Connection.GetInterfaces</ulink>:
 
   - Mission Control
     Notes: desktop-wide accounts and dispatching to applications.
@@ -113,6 +117,7 @@ of the Telapathy specification.
     - Hold and Release.
     - Like ref-counting but 2 Holds by the same client is 1 hold 
       (Mission Control keeps a set of referencing clients)
+    - See <ulink url="&url_spec_base;Connection">Connection</ulink>
 
   - API conventions
     Notes: For instance"Request*" vs. "Get*" - see Asynchronous Calls.
@@ -175,22 +180,24 @@ of the Telapathy specification.
   <para>TODO:
    Notes:
    - This is my connection to my IM account.
-   - A connection has Channels.
-   - Connection gives me several ContactListChannels (subscribe, publish, etc)
-     - Provides a Group interface.
-       - Contains many members (Contact handles)
+   - A connection has <ulink url="&url_spec_base;Channel">Channel</ulink>s.
+   - Connection gives me several <ulink url="&url_spec_base;Channel.Type.ContactList">ContactList</ulink> Channels (subscribe, publish, etc)
+     - Provides a <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface.
+       - Contains many members (Contact handles). Note that there is no Contact interface or object (just a handle), for performance reasons.
    - Has several optional interfaces (Avatars, Presence, etc).
-   - Provides a SimplePresence interface, to which I can give a contact handle 
+     - And some optional interfaces that just improve similar existing interfaces, such as <ulink url="&url_spec_base;Connection.Interface.Requests">Connection.Interface.Requests</ulink>
+       instead of <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>
+   - Provides a <ulink url="&url_spec_base;Connection.Interface.SimplePresence">SimplePresence</ulink> interface, to which I can give a contact handle 
      to discover if that contact is online. The SimplePresence interface emits 
      signals when contacts' presence changes.
-     (SimplePresence replaces the Presence interface, to be deprecated soon.)
-   - Similarly, the Avatars and Aliasing interfaces on the Connection provide 
+     (SimplePresence replaces the <ulink url="&url_spec_base;Connection.Interface.Presence">Presence</ulink> interface, to be deprecated soon.)
+   - Similarly, the <ulink url="&url_spec_base;Connection.Interface.Avatars">Avatars</ulink> and <ulink url="&url_spec_base;Connection.Interface.Aliasing">Aliasing</ulink> interfaces on the Connection provide 
      other information about contacts, and notifications when they change. 
    - (Having interfaces on the connection rather than the contacts makes 
      overall contact handling easier.)
-   - Has a RequestChannel() method that takes a channel type (text/voip/tubes) 
+   - Has a <ulink url="&url_spec_base;Connection.RequestChannel">RequestChannel()</ulink> method that takes a channel type (text/voip/tubes) 
      and a handle (contact, room, list or group) handle. 
-   - A new Contact information interface will allow retrieving of multiple 
+   - A new <ulink url="&url_spec_base;Connection.Interface.ContactCapabilities.DRAFT">ContactCapabilities</ulink> interface will allow retrieving of multiple 
      types of information at once (string of handle, alias, avatar, presence, etc), 
      which is more efficient.
   </para>
@@ -200,8 +207,9 @@ of the Telapathy specification.
   <title>Handle</title>
   <para>TODO:
    Notes:
-   - http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.Connection.RequestHandles
+   - <ulink url="&url_spec_base;Connection.RequestHandles">RequestHandles()</ulink>
    - Could be a contact, contact list, room, etc.
+   - Note that there is no Contact interface or object (just a handle), for performance reasons.
    - Means that clients don't have to worry about normalisation.
    - (Not necessarily a nice thing, but simplifies work across processes.)
    - Important because it confuses people often.
@@ -214,7 +222,7 @@ of the Telapathy specification.
   <title>Channel</title>
   <para>TODO:
    Notes:
-   - http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.Connection.RequestChannel, http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.Channel
+   - <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>, <ulink url="&url_spec_base;Channel">Channel</ulink>
    - Allows data exchange between the local account and a remote IM account 
      (or group of remote accounts).
    - Only an application knows about actual people (who might have many IM 
@@ -228,7 +236,7 @@ of the Telapathy specification.
    - The base Channel interface provides channel type, handle and interface 
      properties, and Close method, Closed signal.
    - Plus one type-specific interface, such as Text, or Tube, Media.
-   - This is also sometimes a Group interface, for instance if it's a group chat.
+   - This is also sometimes a <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface, for instance if it's a group chat.
    - Optional interfaces such as Group are discovered by inspecting the 
      Interfaces property.
    - Media channels may have DTMF, Hold, CallStates (on hold, ringing, etc) 
@@ -254,7 +262,7 @@ of the Telapathy specification.
      - Local pending members, awaiting approval (by doing Add or Remove) by the 
        local user.
      - Remote pending members, awaiting approval remotely by the other user)
-   - Unusually, one-to-one calls use the Group interface to indicate call 
+   - Unusually, one-to-one calls use the <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface to indicate call 
      progression (explain in call section?).
   </para>
 </chapter>

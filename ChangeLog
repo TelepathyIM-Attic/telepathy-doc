@@ -1,3 +1,8 @@
+2008-12-23  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/book/C/telepathy.xml: Define a base URL entity and use ulink to 
+	link to types, interfaces and methods in the Telepathy specification.
+
 2008-12-22  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/send_message/main.c: Implement code to get a text 
