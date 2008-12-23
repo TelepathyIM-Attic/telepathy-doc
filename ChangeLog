@@ -1,5 +1,15 @@
 2008-12-23  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/book/insert_example_code.pl: Base this on the gtkmm-documentation 
+	one rather than the flumotion-doc one (but using .c, not .cc), to 
+	read all files in a directory rather than individual files.
+	* doc/book/Makefile.am: Call insert_example_code.pl with the correct 
+	path.
+	* doc/book/C/telepathy.xml: Add the examples at some vaguely 
+	appropriate places, to check that this works.
+
+2008-12-23  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/book/C/telepathy.xml: Define a base URL entity and use ulink to 
 	link to types, interfaces and methods in the Telepathy specification.
 

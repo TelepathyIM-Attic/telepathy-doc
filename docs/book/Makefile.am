@@ -24,7 +24,7 @@ DOC_LINGUAS = de
 
 # Create a DocBook source file that doesn't have the examples' comments blocks:
 C/telepathy-with-examples.xml: C/telepathy.xml insert_example_code.pl
-	$(PERL_PATH) $(srcdir)/insert_example_code.pl $(top_srcdir)/doc/examples $< >$@
+	$(PERL_PATH) $(srcdir)/insert_example_code.pl $(top_srcdir)/docs/examples $< >$@
 
 
 # main xml file for the doc

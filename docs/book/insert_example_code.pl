@@ -16,20 +16,32 @@
 
       #Beginning of comment:
       # Look for
-      # <para><ulink url="&url_examples_base;helloworld.xml">Example File</ulink></para>
+      # <para><ulink url="&url_examples_base;helloworld">Source Code</ulink></para>
 
-      if(/<para><ulink url=\"&url_examples_base;(.*)\">(.*)<\/ulink><\/para>/)
+      if(/<para><ulink url=\"&url_examples_base;([\/\w]+)\">Source Code<\/ulink><\/para>/)
       {
         #List all the source files in that directory:
-        my $source_file = $examples_base . $1;
+        my $directory = $examples_base . $1;
 
-        # print "<para>File: <filename>${source_file}</filename>\n";
-        # print "</para>\n";
-        print "<programlisting>\n";
+        opendir(DIR, $directory);
+        my @dir_contents = readdir(DIR);
+        closedir(DIR);
 
-        &process_source_file("${source_file}");
+        my @source_files = grep(/\.c$/, @dir_contents);
+        my @header_files = grep(/\.h$/,  @dir_contents);
 
-        print "</programlisting>\n";
+        print "<!-- start inserted example code -->\n";
+
+        foreach $source_file (@header_files, @source_files)
+        {
+           print "<para>File: <filename>${source_file}</filename>\n";
+           print "</para>\n";
+           print "<programlisting>\n";
+
+           &process_source_file("${directory}/${source_file}");
+
+           print "</programlisting>\n";
+        }
 
         print "<!-- end inserted example code -->\n";
       }
@@ -50,6 +62,13 @@ sub process_source_file($)
 
   while(<SOURCE_FILE>)
   {
+    # Skip all text until the first code line.
+    if(!$found_start)
+    {
+      next unless /^[#\w]/;
+      $found_start = 1;
+    }
+
     s/&/&amp;/g;
     s/</&lt;/g;
     s/>/&gt;/g;

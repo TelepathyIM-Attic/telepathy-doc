@@ -201,6 +201,25 @@ of the Telapathy specification.
      types of information at once (string of handle, alias, avatar, presence, etc), 
      which is more efficient.
   </para>
+
+  <sect1>
+  <title>Connection Example</title>
+  <para>This example connects to a jabber account.</para>
+  <para><ulink url="&url_examples_base;connect">Source Code</ulink></para>
+  </sect1>
+
+  <sect1>
+  <title>Presence Example</title>
+  <para>This example sets the presence for a jabber account.</para>
+  <para><ulink url="&url_examples_base;set_presence">Source Code</ulink></para>
+  </sect1>
+
+  <sect1>
+  <title>Protocols Listing Example</title>
+  <para>This example list all available connection managers and the protocols that they support.</para>
+  <para><ulink url="&url_examples_base;list_all_protocols">Source Code</ulink></para>
+  </sect1>
+
 </chapter>
 
 <chapter id="chapter-handle">
@@ -251,6 +270,13 @@ of the Telapathy specification.
      - Tells me what type of channel I can open on a connection/contact. 
        For instance, text/media/tube.
   </para>
+
+  <sect1>
+  <title>Example</title>
+  <para>This example sends a text message to a jabber contact via a text channel.</para>
+  <para><ulink url="&url_examples_base;send_message">Source Code</ulink></para>
+  </sect1>
+
 </chapter>
 
 <chapter id="chapter-group">
@@ -306,6 +332,13 @@ added in future.
    - Avatars
    - Presence
   </para>
+
+  <sect1>
+  <title>Example</title>
+  <para>This example connects to a jabber account and lists all contacts for that account.</para>
+  <para><ulink url="&url_examples_base;list_contacts">Source Code</ulink></para>
+  </sect1>
+
 </chapter>
 
 <chapter id="chapter-chat-client">
