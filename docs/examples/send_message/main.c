@@ -342,7 +342,7 @@ main (int argc, char **argv)
   g_hash_table_insert (parameters, "account", value);
 
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "luftjab");
+  g_value_set_static_string (value, "passwordTODO");
   g_hash_table_insert (parameters, "password", value);
 
   /* This jabber-specific parameter can avoid clashes with 

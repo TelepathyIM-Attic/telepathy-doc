@@ -1,3 +1,9 @@
+2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/examples/list_contacts/main.c: Do not null-terminated the array 
+	given to tp_connection_get_contacts_by_handle() though I still get an 
+	error about handle #2 having no contact-id.
+
 2008-12-23  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/insert_example_code.pl: Base this on the gtkmm-documentation 

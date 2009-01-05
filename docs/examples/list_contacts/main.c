@@ -94,11 +94,12 @@ void on_connection_ready (TpConnection *connection,
 
   /* Get a GArray instead of a TpIntSet,
    * so we can easily create a normal array: */
-  GArray *members_array = g_array_new (TRUE, TRUE, sizeof(guint));
+  GArray *members_array = g_array_new (FALSE, TRUE, sizeof(guint));
   TpIntSetIter iter = TP_INTSET_ITER_INIT (channel_members_set );
   while (tp_intset_iter_next (&iter))
     {
       g_array_append_val (members_array, iter.element);
+      g_printf("DEBUG: handle: %d\n", iter.element); 
     }
   channel_members_set = NULL; /* We don't need this anymore. */  
 
