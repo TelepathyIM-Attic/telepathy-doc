@@ -173,23 +173,34 @@ void on_get_contacts_by_id (TpConnection *connection,
   GHashTable* properties = g_hash_table_new (NULL, NULL);
 
   GValue *value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, TP_IFACE_CHANNEL_TYPE_TEXT);
+  g_value_set_static_string (value, TP_IFACE_CHANNEL_TYPE_TEXT); /* Rather than streamed media, or a contact list, for instance. */
   g_hash_table_insert (properties, TP_IFACE_CHANNEL ".ChannelType", value);
 
   value = tp_g_value_slice_new (G_TYPE_STRING);
   g_value_set_static_string (value, tp_contact_get_identifier (contact));
   g_hash_table_insert (properties, TP_IFACE_CHANNEL ".TargetID", value);
 
+  /* Note that we must use g_value_set_int() instead of g_value_set_enum() 
+   * because these enums have no GTypes:
+   * https://bugs.freedesktop.org/show_bug.cgi?id=18055
+   */
+  GValue *value_enum = tp_g_value_slice_new (G_TYPE_INT);
+  g_printf("DEBUG: TP_HANDLE_TYPE_CONTACT=%d\n", TP_HANDLE_TYPE_CONTACT);
+  g_value_set_int (value_enum, TP_HANDLE_TYPE_CONTACT); /* Rather than a ROOM. */
+  g_hash_table_insert (properties, TP_IFACE_CHANNEL ".TargetHandleType", value_enum);
+
   /* Note that this uses the new Requests interface, which is not yet 
    * implemented by all Telepathy ConnectionManagers. 
    * The old way (working with all ConnectionManagers), was the RequestChannel 
    * interface, via tp_cli_connection_call_request_channel().
    */
+  g_printf("DEBUG: Calling tp_cli_connection_interface_requests_call_create_channel().\n");
   tp_cli_connection_interface_requests_call_create_channel (connection, 
     -1, /* timeout */
     properties,
     &on_connection_create_channel,
     NULL, NULL, NULL);
+  g_printf("DEBUG: Called tp_cli_connection_interface_requests_call_create_channel().\n");
 }
 
 void on_connection_ready (TpConnection *connection,
@@ -342,7 +353,7 @@ main (int argc, char **argv)
   g_hash_table_insert (parameters, "account", value);
 
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "passwordTODO");
+  g_value_set_static_string (value, "paswordTODO");
   g_hash_table_insert (parameters, "password", value);
 
   /* This jabber-specific parameter can avoid clashes with 
@@ -352,6 +363,7 @@ main (int argc, char **argv)
   g_value_set_static_string (value, "telepathy-doc send_message example");
   g_hash_table_insert (parameters, "resource", value);
 
+  
   /* Call RequestConnection; it will return asynchronously by calling got_connection */
   tp_cli_connection_manager_call_request_connection (connection_manager, -1,
       "jabber", parameters, got_connection, NULL, NULL, NULL);
