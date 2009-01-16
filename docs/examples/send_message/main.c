@@ -78,12 +78,22 @@ void on_send (TpChannel *proxy,
     }
 
   g_printf("DEBUG: Message sent.\n");
+
+  /* Disconnect the connection.
+     Otherwise it will be orphaned. */
+  g_printf ("DEBUG: Disconnecting.\n");
+  tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
+    NULL, NULL); /* Also destroys the connection object. */
+  connection = NULL;
 }
 
 void on_text_channel_is_ready (TpChannel *channel,
   const GError *error,
   gpointer user_data)
 {
+  g_printf("DEBUG: on_text_channel_is_ready().\n");
+
+
   if (error)
     {
       g_printf ("tp_channel_call_when_ready () failed: %s\n", error->message);
@@ -119,11 +129,12 @@ void on_connection_create_channel(TpConnection *proxy,
 
   /* Create the proxy object for the channel: */
   GError *inner_error = NULL;
+  int handle = tp_contact_get_handle (contact);
   text_channel = tp_channel_new (connection, 
     object_path, 
     TP_IFACE_CHANNEL_TYPE_TEXT,
     TP_HANDLE_TYPE_CONTACT,
-    tp_contact_get_handle (contact),
+    handle,
     &inner_error);
 
   if (inner_error)
@@ -165,8 +176,11 @@ void on_get_contacts_by_id (TpConnection *connection,
       g_printf ("tp_connection_get_contacts_by_id () returned NULL contact\n");
       return;
     }
+ 
+  /* Reference this because we use it later: */
+  g_object_ref(contact);
 
-  g_printf("DEBUG: Contact found: %s.\n", tp_contact_get_identifier (contact));
+  g_printf("DEBUG: Contact found: %p: %s.\n", contact, tp_contact_get_identifier (contact));
 
  
   //Get a text Channel for this contact:
@@ -215,7 +229,7 @@ void on_connection_ready (TpConnection *connection,
 
   //This crashes:
   const gchar * ids[1];
-  ids[0] = "daniel.kitta@jabber.org"; //TODO: Rename this so he doesn't get spam.
+  ids[0] = "someoneorother@jabber.org";
   tp_connection_get_contacts_by_id (connection,
     1, ids, 
     0, NULL, /* features */
@@ -353,7 +367,7 @@ main (int argc, char **argv)
   g_hash_table_insert (parameters, "account", value);
 
   value = tp_g_value_slice_new (G_TYPE_STRING);
-  g_value_set_static_string (value, "paswordTODO");
+  g_value_set_static_string (value, "passwordTODO");
   g_hash_table_insert (parameters, "password", value);
 
   /* This jabber-specific parameter can avoid clashes with 
@@ -378,7 +392,17 @@ main (int argc, char **argv)
    */
   g_main_loop_run (mainloop);
 
+
   /* Clean up: */
+  if (text_channel)
+    g_object_unref (text_channel);
+
+  if (contact)
+    g_object_unref (contact);
+
+  if (connection)
+    g_object_unref (connection);
+
   g_object_unref (connection_manager);
   g_main_loop_unref (mainloop);
   g_object_unref (bus_daemon);

@@ -1,5 +1,11 @@
 2008-12-15  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/examples/send_message/main.c: on_get_contacts_by_id(): Ref the 
+	TpContact so we can use it later, avoiding the crash when calling 
+	tp_contact_get_handle().
+
+2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/examples/send_message/main.c: Set the TargetHandleType too, 
 	though this then crashes: 
 	https://bugs.freedesktop.org/show_bug.cgi?id=19523
