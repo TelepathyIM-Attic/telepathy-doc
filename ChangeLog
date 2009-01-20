@@ -1,5 +1,17 @@
 2009-12-15  Murray Cumming  <murrayc@murrayc.com>
 
+	* configure.ac:
+	* docs/examples/basics_dbus_glib/Makefile.am:
+	* docs/examples/basics_dbus_glib/main.c
+	* docs/book/C/telepathy.xml: Basics: Add a little example of calling a 
+	D-Bus method with dbus-glib.
+
+	* docs/book/C/icons/:
+	* docs/book/C/figures/: Added these directories to git. I forgot to do 
+	that until now.
+
+2009-12-15  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/book/C/telepathy.xml: Add a small part of the introduction. 
 	Add some sect structure.
 

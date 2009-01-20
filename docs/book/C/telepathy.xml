@@ -71,7 +71,7 @@
 <chapter id="chapter-introduction">
   <title>Introduction</title>
   <para>The Telepathy framework allows applications to use real-time communications via several common protocols, such as XMPP (Jabber). For instance, an instant messenger application might use Telepathy to allow chats with online contacts via accounts with various IM services. Or a  game might use Telepathy to simplify the implementation of its networking code, allowing users to play against each other.</para>
-  <para>Telepathy is a D-Bus API so it may be used from most programming languages.</para>
+  <para>Telepathy is a <ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink> API so it may be used from most programming languages.</para>
   <para>All this functionality is available under an open source license, allowing people to make improvements and add new features.</para>
 
   <para>TODO:  What are the benefits? How is it better than the alternatives? (If there are any). Is it easier, robuster, more secure, more flexible, cheaper, free-er, what?</para>
@@ -104,6 +104,13 @@ of the Telapathy specification.
     <sect2 id="sec-basics-dbus-glib">
       <title>Using D-Bus from C, with glib</title>
       <para>TODO</para>
+
+      <sect3>
+      <title>Example</title>
+      <para>This example used dbus-glib to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path.</para>
+      <para><ulink url="&url_examples_base;basics_dbus_glib">Source Code</ulink></para>
+      </sect3>
+
     </sect2>
 
     <sect2 id="sec-basics-dbus-python">
