@@ -1,0 +1,300 @@
+main.o: main.c /opt/gnome220/include/dbus-1.0/dbus/dbus-glib.h \
+  /opt/gnome220/include/glib-2.0/glib-object.h \
+  /opt/gnome220/include/glib-2.0/gobject/gboxed.h \
+  /opt/gnome220/include/glib-2.0/gobject/gtype.h \
+  /opt/gnome220/include/glib-2.0/glib.h \
+  /opt/gnome220/include/glib-2.0/glib/galloca.h \
+  /opt/gnome220/include/glib-2.0/glib/gtypes.h \
+  /opt/gnome220/lib/glib-2.0/include/glibconfig.h \
+  /opt/gnome220/include/glib-2.0/glib/gmacros.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.2/include/stddef.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.2/include-fixed/limits.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.2/include-fixed/syslimits.h \
+  /usr/include/limits.h /usr/include/features.h /usr/include/sys/cdefs.h \
+  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+  /usr/include/gnu/stubs-32.h /usr/include/bits/posix1_lim.h \
+  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+  /usr/include/bits/posix2_lim.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.2/include/float.h \
+  /opt/gnome220/include/glib-2.0/glib/garray.h \
+  /opt/gnome220/include/glib-2.0/glib/gasyncqueue.h \
+  /opt/gnome220/include/glib-2.0/glib/gthread.h \
+  /opt/gnome220/include/glib-2.0/glib/gerror.h \
+  /opt/gnome220/include/glib-2.0/glib/gquark.h \
+  /opt/gnome220/include/glib-2.0/glib/gutils.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.2/include/stdarg.h \
+  /opt/gnome220/include/glib-2.0/glib/gatomic.h \
+  /opt/gnome220/include/glib-2.0/glib/gbacktrace.h /usr/include/signal.h \
+  /usr/include/bits/sigset.h /usr/include/bits/types.h \
+  /usr/include/bits/typesizes.h /usr/include/bits/signum.h \
+  /usr/include/time.h /usr/include/bits/siginfo.h \
+  /usr/include/bits/sigaction.h /usr/include/bits/sigcontext.h \
+  /usr/include/bits/sigstack.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sigthread.h \
+  /opt/gnome220/include/glib-2.0/glib/gbase64.h \
+  /opt/gnome220/include/glib-2.0/glib/gbookmarkfile.h \
+  /usr/include/bits/time.h /opt/gnome220/include/glib-2.0/glib/gcache.h \
+  /opt/gnome220/include/glib-2.0/glib/glist.h \
+  /opt/gnome220/include/glib-2.0/glib/gmem.h \
+  /opt/gnome220/include/glib-2.0/glib/gslice.h \
+  /opt/gnome220/include/glib-2.0/glib/gchecksum.h \
+  /opt/gnome220/include/glib-2.0/glib/gcompletion.h \
+  /opt/gnome220/include/glib-2.0/glib/gconvert.h \
+  /opt/gnome220/include/glib-2.0/glib/gdataset.h \
+  /opt/gnome220/include/glib-2.0/glib/gdate.h \
+  /opt/gnome220/include/glib-2.0/glib/gdir.h \
+  /opt/gnome220/include/glib-2.0/glib/gfileutils.h \
+  /opt/gnome220/include/glib-2.0/glib/ghash.h \
+  /opt/gnome220/include/glib-2.0/glib/ghook.h \
+  /opt/gnome220/include/glib-2.0/glib/giochannel.h \
+  /opt/gnome220/include/glib-2.0/glib/gmain.h \
+  /opt/gnome220/include/glib-2.0/glib/gpoll.h \
+  /opt/gnome220/include/glib-2.0/glib/gslist.h \
+  /opt/gnome220/include/glib-2.0/glib/gstring.h \
+  /opt/gnome220/include/glib-2.0/glib/gunicode.h \
+  /opt/gnome220/include/glib-2.0/glib/gkeyfile.h \
+  /opt/gnome220/include/glib-2.0/glib/gmappedfile.h \
+  /opt/gnome220/include/glib-2.0/glib/gmarkup.h \
+  /opt/gnome220/include/glib-2.0/glib/gmessages.h \
+  /opt/gnome220/include/glib-2.0/glib/gnode.h \
+  /opt/gnome220/include/glib-2.0/glib/goption.h \
+  /opt/gnome220/include/glib-2.0/glib/gpattern.h \
+  /opt/gnome220/include/glib-2.0/glib/gprimes.h \
+  /opt/gnome220/include/glib-2.0/glib/gqsort.h \
+  /opt/gnome220/include/glib-2.0/glib/gqueue.h \
+  /opt/gnome220/include/glib-2.0/glib/grand.h \
+  /opt/gnome220/include/glib-2.0/glib/grel.h \
+  /opt/gnome220/include/glib-2.0/glib/gregex.h \
+  /opt/gnome220/include/glib-2.0/glib/gscanner.h \
+  /opt/gnome220/include/glib-2.0/glib/gsequence.h \
+  /opt/gnome220/include/glib-2.0/glib/gshell.h \
+  /opt/gnome220/include/glib-2.0/glib/gspawn.h \
+  /opt/gnome220/include/glib-2.0/glib/gstrfuncs.h \
+  /opt/gnome220/include/glib-2.0/glib/gtestutils.h \
+  /opt/gnome220/include/glib-2.0/glib/gthreadpool.h \
+  /opt/gnome220/include/glib-2.0/glib/gtimer.h \
+  /opt/gnome220/include/glib-2.0/glib/gtree.h \
+  /opt/gnome220/include/glib-2.0/glib/gurifuncs.h \
+  /opt/gnome220/include/glib-2.0/gobject/genums.h \
+  /opt/gnome220/include/glib-2.0/gobject/gobject.h \
+  /opt/gnome220/include/glib-2.0/gobject/gvalue.h \
+  /opt/gnome220/include/glib-2.0/gobject/gparam.h \
+  /opt/gnome220/include/glib-2.0/gobject/gclosure.h \
+  /opt/gnome220/include/glib-2.0/gobject/gsignal.h \
+  /opt/gnome220/include/glib-2.0/gobject/gmarshal.h \
+  /opt/gnome220/include/glib-2.0/gobject/gparamspecs.h \
+  /opt/gnome220/include/glib-2.0/gobject/gsourceclosure.h \
+  /opt/gnome220/include/glib-2.0/gobject/gtypemodule.h \
+  /opt/gnome220/include/glib-2.0/gobject/gtypeplugin.h \
+  /opt/gnome220/include/glib-2.0/gobject/gvaluearray.h \
+  /opt/gnome220/include/glib-2.0/gobject/gvaluetypes.h \
+  /opt/gnome220/include/dbus-1.0/dbus/dbus-shared.h \
+  /opt/gnome220/include/dbus-1.0/dbus/dbus-gtype-specialized.h
+
+/opt/gnome220/include/dbus-1.0/dbus/dbus-glib.h:
+
+/opt/gnome220/include/glib-2.0/glib-object.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gboxed.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gtype.h:
+
+/opt/gnome220/include/glib-2.0/glib.h:
+
+/opt/gnome220/include/glib-2.0/glib/galloca.h:
+
+/opt/gnome220/include/glib-2.0/glib/gtypes.h:
+
+/opt/gnome220/lib/glib-2.0/include/glibconfig.h:
+
+/opt/gnome220/include/glib-2.0/glib/gmacros.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.2/include/stddef.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.2/include-fixed/limits.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.2/include-fixed/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.2/include/float.h:
+
+/opt/gnome220/include/glib-2.0/glib/garray.h:
+
+/opt/gnome220/include/glib-2.0/glib/gasyncqueue.h:
+
+/opt/gnome220/include/glib-2.0/glib/gthread.h:
+
+/opt/gnome220/include/glib-2.0/glib/gerror.h:
+
+/opt/gnome220/include/glib-2.0/glib/gquark.h:
+
+/opt/gnome220/include/glib-2.0/glib/gutils.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.2/include/stdarg.h:
+
+/opt/gnome220/include/glib-2.0/glib/gatomic.h:
+
+/opt/gnome220/include/glib-2.0/glib/gbacktrace.h:
+
+/usr/include/signal.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/bits/signum.h:
+
+/usr/include/time.h:
+
+/usr/include/bits/siginfo.h:
+
+/usr/include/bits/sigaction.h:
+
+/usr/include/bits/sigcontext.h:
+
+/usr/include/bits/sigstack.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/bits/sigthread.h:
+
+/opt/gnome220/include/glib-2.0/glib/gbase64.h:
+
+/opt/gnome220/include/glib-2.0/glib/gbookmarkfile.h:
+
+/usr/include/bits/time.h:
+
+/opt/gnome220/include/glib-2.0/glib/gcache.h:
+
+/opt/gnome220/include/glib-2.0/glib/glist.h:
+
+/opt/gnome220/include/glib-2.0/glib/gmem.h:
+
+/opt/gnome220/include/glib-2.0/glib/gslice.h:
+
+/opt/gnome220/include/glib-2.0/glib/gchecksum.h:
+
+/opt/gnome220/include/glib-2.0/glib/gcompletion.h:
+
+/opt/gnome220/include/glib-2.0/glib/gconvert.h:
+
+/opt/gnome220/include/glib-2.0/glib/gdataset.h:
+
+/opt/gnome220/include/glib-2.0/glib/gdate.h:
+
+/opt/gnome220/include/glib-2.0/glib/gdir.h:
+
+/opt/gnome220/include/glib-2.0/glib/gfileutils.h:
+
+/opt/gnome220/include/glib-2.0/glib/ghash.h:
+
+/opt/gnome220/include/glib-2.0/glib/ghook.h:
+
+/opt/gnome220/include/glib-2.0/glib/giochannel.h:
+
+/opt/gnome220/include/glib-2.0/glib/gmain.h:
+
+/opt/gnome220/include/glib-2.0/glib/gpoll.h:
+
+/opt/gnome220/include/glib-2.0/glib/gslist.h:
+
+/opt/gnome220/include/glib-2.0/glib/gstring.h:
+
+/opt/gnome220/include/glib-2.0/glib/gunicode.h:
+
+/opt/gnome220/include/glib-2.0/glib/gkeyfile.h:
+
+/opt/gnome220/include/glib-2.0/glib/gmappedfile.h:
+
+/opt/gnome220/include/glib-2.0/glib/gmarkup.h:
+
+/opt/gnome220/include/glib-2.0/glib/gmessages.h:
+
+/opt/gnome220/include/glib-2.0/glib/gnode.h:
+
+/opt/gnome220/include/glib-2.0/glib/goption.h:
+
+/opt/gnome220/include/glib-2.0/glib/gpattern.h:
+
+/opt/gnome220/include/glib-2.0/glib/gprimes.h:
+
+/opt/gnome220/include/glib-2.0/glib/gqsort.h:
+
+/opt/gnome220/include/glib-2.0/glib/gqueue.h:
+
+/opt/gnome220/include/glib-2.0/glib/grand.h:
+
+/opt/gnome220/include/glib-2.0/glib/grel.h:
+
+/opt/gnome220/include/glib-2.0/glib/gregex.h:
+
+/opt/gnome220/include/glib-2.0/glib/gscanner.h:
+
+/opt/gnome220/include/glib-2.0/glib/gsequence.h:
+
+/opt/gnome220/include/glib-2.0/glib/gshell.h:
+
+/opt/gnome220/include/glib-2.0/glib/gspawn.h:
+
+/opt/gnome220/include/glib-2.0/glib/gstrfuncs.h:
+
+/opt/gnome220/include/glib-2.0/glib/gtestutils.h:
+
+/opt/gnome220/include/glib-2.0/glib/gthreadpool.h:
+
+/opt/gnome220/include/glib-2.0/glib/gtimer.h:
+
+/opt/gnome220/include/glib-2.0/glib/gtree.h:
+
+/opt/gnome220/include/glib-2.0/glib/gurifuncs.h:
+
+/opt/gnome220/include/glib-2.0/gobject/genums.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gobject.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gvalue.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gparam.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gclosure.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gsignal.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gmarshal.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gparamspecs.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gsourceclosure.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gtypemodule.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gtypeplugin.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gvaluearray.h:
+
+/opt/gnome220/include/glib-2.0/gobject/gvaluetypes.h:
+
+/opt/gnome220/include/dbus-1.0/dbus/dbus-shared.h:
+
+/opt/gnome220/include/dbus-1.0/dbus/dbus-gtype-specialized.h:

@@ -29,10 +29,11 @@
 
         my @source_files = grep(/\.c$/, @dir_contents);
         my @header_files = grep(/\.h$/,  @dir_contents);
+        my @python_source_files = grep(/\.py$/, @dir_contents);
 
         print "<!-- start inserted example code -->\n";
 
-        foreach $source_file (@header_files, @source_files)
+        foreach $source_file (@header_files, @source_files, @python_source_files)
         {
            print "<para>File: <filename>${source_file}</filename>\n";
            print "</para>\n";

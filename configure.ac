@@ -26,6 +26,7 @@ AC_OUTPUT([
   docs/Makefile
     docs/examples/Makefile
       docs/examples/basics_dbus_glib/Makefile
+      docs/examples/basics_dbus_python/Makefile
       docs/examples/connect/Makefile
       docs/examples/list_all_protocols/Makefile
       docs/examples/list_contacts/Makefile

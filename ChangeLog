@@ -1,6 +1,17 @@
 2009-12-15  Murray Cumming  <murrayc@murrayc.com>
 
 	* configure.ac:
+	* docs/examples/basics_dbus_python/Makefile.am:
+	* docs/examples/basics_dbus_python/example.py
+	* docs/book/C/telepathy.xml: Basics: Add a little example of calling a 
+	D-Bus method with Python.
+
+	* docs/book/insert-example-code.py: Read .py files as well as .h and .cc 
+	files.
+
+2009-12-15  Murray Cumming  <murrayc@murrayc.com>
+
+	* configure.ac:
 	* docs/examples/basics_dbus_glib/Makefile.am:
 	* docs/examples/basics_dbus_glib/main.c
 	* docs/book/C/telepathy.xml: Basics: Add a little example of calling a 

@@ -116,6 +116,13 @@ of the Telapathy specification.
     <sect2 id="sec-basics-dbus-python">
       <title>Using D-Bus from Python</title>
       <para>TODO</para>
+
+      <sect3>
+      <title>Example</title>
+      <para>This example used Python to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path.</para>
+      <para><ulink url="&url_examples_base;basics_dbus_python">Source Code</ulink></para>
+      </sect3>
+
     </sect2>
 
   </sect1>
