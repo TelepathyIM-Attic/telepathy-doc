@@ -18,7 +18,8 @@
   <!ENTITY app_no_markup "Telepathy">
   <!ENTITY app "<application>&app_no_markup;</application>">
   <!ENTITY url_examples_base "./examples/">
-  <!ENTITY url_spec_base "http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
+  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
 ]>
 
 <book id="index">
@@ -69,16 +70,11 @@
       
 <chapter id="chapter-introduction">
   <title>Introduction</title>
-  <para>TODO:
+  <para>The Telepathy framework allows applications to use real-time communications via several common protocols, such as XMPP (Jabber). For instance, an instant messenger application might use Telepathy to allow chats with online contacts via accounts with various IM services. Or a  game might use Telepathy to simplify the implementation of its networking code, allowing users to play against each other.</para>
+  <para>Telepathy is a D-Bus API so it may be used from most programming languages.</para>
+  <para>All this functionality is available under an open source license, allowing people to make improvements and add new features.</para>
 
-1. Introduction
-   Notes: This will include:
-   - What is it?
-   - What can I do with it?
-   - What are the benefits?
-   - How is it better than the alternatives? (If there are any)
-   - Is it easier, robuster, more secure, more flexible, cheaper, free-er, what?
-</para>
+  <para>TODO:  What are the benefits? How is it better than the alternatives? (If there are any). Is it easier, robuster, more secure, more flexible, cheaper, free-er, what?</para>
 </chapter>
 
 
@@ -98,31 +94,59 @@ of the Telapathy specification.
 
 <chapter id="chapter-basics">
   <title>Basics</title>
-  <para>TODO:
-  - Using D-Bus.
-    Notes: Make it clear that telepathy is a D-Bus API, so mention D-Bus and 
-    dbus-glib basics. Also show how to use D-Bus with python.
 
-  - Optional Interfaces
-    Notes: Objects have main interfaces (often called their type, particularly for channels), 
+  <sect1 id="sec-basics-dbus">
+    <title>Using D-Bus</title>
+    <para>Telepathy is a D-Bus API. Telepathy components conform to the <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>, which is therefore also the main Telepathy API reference. D-Bus is an IPC (Inter-process communication) system, allowing different software components to be implemented in different processes, with different programming languages. It also allows multiple applications to easily share functionality from a single process.</para>
+
+    <para>In the following sections you can see how a D-Bus API can be used from some common programming languages.</para>
+
+    <sect2 id="sec-basics-dbus-glib">
+      <title>Using D-Bus from C, with glib</title>
+      <para>TODO</para>
+    </sect2>
+
+    <sect2 id="sec-basics-dbus-python">
+      <title>Using D-Bus from Python</title>
+      <para>TODO</para>
+    </sect2>
+
+  </sect1>
+
+  <sect1 id="sec-basics-optional-interfaces">
+    <title>Optional Interfaces</title>
+    <para>TODO: Notes: Objects have main interfaces (often called their type, particularly for channels), 
     such as <ulink url="&url_spec_base;Channel">Channel</ulink> and <ulink url="&url_spec_base;Connection">Connection</ulink> 
     and optional D-Bus interfaces , discovered at runtime.
     See <ulink url="&url_spec_base;Connection.GetInterfaces">Connection.GetInterfaces</ulink>:
+    </para>
+  </sect1>
 
-  - Mission Control
-    Notes: desktop-wide accounts and dispatching to applications.
+  <sect1 id="sec-basics-mission-control">
+    <title>Mission Control</title>
+    <para>TODO: Notes: desktop-wide accounts and dispatching to applications.
+    </para>
+  </sect1>
 
-  - Handles.
-    Notes:
+  <sect1 id="sec-basics-handles">
+    <title>Handles</title>
+    <para>TODO:
     - Hold and Release.
     - Like ref-counting but 2 Holds by the same client is 1 hold 
       (Mission Control keeps a set of referencing clients)
     - See <ulink url="&url_spec_base;Connection">Connection</ulink>
+    </para>
+  </sect1>
 
-  - API conventions
-    Notes: For instance"Request*" vs. "Get*" - see Asynchronous Calls.
+  <sect1 id="sec-basics-api-conventions">
+    <title>API conventions</title>
+    <para>TODO: Notes: For instance"Request*" vs. "Get*" - see Asynchronous Calls.
+    </para>
+  </sect1>
 
-  - Asynchronous Calls:
+  <sect1 id="sec-basics-asynchronous-calls">
+    <title>Asynchronous Calls</title>
+    <para>TODO: 
     Notes: Most functions are synchronous, getting locally-stored data.
     - Convention is that Get* methods access local information, but Request* 
       methods may access the network.
@@ -130,7 +154,8 @@ of the Telapathy specification.
     - Many Get* methods are being deprecated in favour of D-Bus properties 
       currently (because you can do GetAll() for a given interface and download 
       the state at once with fewer roundtrips).
-  </para>
+    </para>
+  </sect1>
 </chapter>
 
 <chapter id="chapter-accounts">

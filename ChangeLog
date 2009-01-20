@@ -1,17 +1,22 @@
-2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+2009-12-15  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/book/C/telepathy.xml: Add a small part of the introduction. 
+	Add some sect structure.
+
+2009-01-16  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/send_message/main.c: on_get_contacts_by_id(): Ref the 
 	TpContact so we can use it later, avoiding the crash when calling 
 	tp_contact_get_handle().
 
-2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+2009-01-12  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/send_message/main.c: Set the TargetHandleType too, 
 	though this then crashes: 
 	https://bugs.freedesktop.org/show_bug.cgi?id=19523
 	(The previous mentioned error was fixed by upgrading telepathy-gabble.)
 
-2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+2008-01-05  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/list_contacts/main.c: Do not null-terminated the array 
 	given to tp_connection_get_contacts_by_handle() though I still get an 
