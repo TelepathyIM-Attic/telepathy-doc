@@ -97,7 +97,9 @@ of the Telapathy specification.
 
   <sect1 id="sec-basics-dbus">
     <title>Using D-Bus</title>
-    <para>Telepathy is a D-Bus API. Telepathy components conform to the <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>, which is therefore also the main Telepathy API reference. D-Bus is an IPC (Inter-process communication) system, allowing different software components to be implemented in different processes, with different programming languages. It also allows multiple applications to easily share functionality from a single process.</para>
+    <para>Telepathy is a D-Bus API. Telepathy components conform to the <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>, which is therefore also the main Telepathy API reference.</para>
+    <para>D-Bus is an IPC (Inter-process communication) system, allowing different software components to be implemented in different processes, with different programming languages. It also allows multiple applications to easily share functionality from a single process.</para>
+    <!-- TODO: Mention basic D-Bus concepts, though try not to overwhelm the reader so early. -->
 
     <para>In the following sections you can see how a D-Bus API can be used from some common programming languages.</para>
 
@@ -124,8 +126,15 @@ of the Telapathy specification.
       </sect3>
 
     </sect2>
+   </sect1>
 
-  </sect1>
+   <sect1 id="sec-basics-language-bindings">
+    <title>Language Bindings</title>
+    <para>As mentioned in the <link linkend="sec-basics-dbus">Using D-Bus</link> section, many programming languages have their own generic ways of using D-Bus APIs. In addition, there are some Telepathy-specific APIs to make the use of Telepathy even easier. For instance, <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20GLib">telepathy-glib</ulink> provides an API that is familiar to users of Glib and GTK+, using the GObject system and related conventions.</para>
+    <para>Likewise, the <ulink url="http://telepathy.freedesktop.org/wiki/TelepathyQt">Telepathy-Qt</ulink> project provides a more Qt-like API for Telepathy and <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20Python">Telepathy-Python</ulink> does the same for Python.</para> <!-- TODO: Link to Telepathy-Qt4 when it is ready. -->
+    <para>The C examples in this book will use telepathy-glib.</para>
+
+   </sect1>
 
   <sect1 id="sec-basics-connection-managers">
     <title>Connection Managers</title>
@@ -147,7 +156,7 @@ of the Telapathy specification.
 
   <sect1 id="sec-basics-mission-control">
     <title>Mission Control</title>
-    <para>TODO: Notes: desktop-wide accounts and dispatching to applications.
+    <para>TODO: Notes: desktop-wide accounts and dispatching to applications. TODO: Should we even mention this before the new (5?) version is ready?
     </para>
   </sect1>
 

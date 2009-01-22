@@ -1,5 +1,11 @@
 2009-12-20  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/book/C/telepathy.xml: Basics: Add a Language Bindings sub-section 
+	as a way to mention telepathy-glib, which we use (so far) for all our 
+	examples.
+
+2009-12-20  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/book/C/telepathy.xml: Basics: Move the boring stuff about 
 	Introspect() into a notes section because it is too soon to get scary.
 

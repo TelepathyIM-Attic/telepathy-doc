@@ -97,7 +97,7 @@ include $(top_srcdir)/docs/Makefile_web.am_fragment
 
 post-online: post-html post-pdf
 
-post-html: html
+post-html: html pdf
 	rsync $(rsync_args) -r html/ murrayc@$(web_host):$(web_path_docs)/html/
 	rsync $(rsync_args) -r pdf/ murrayc@$(web_host):$(web_path_docs)/pdf/
 
