@@ -127,13 +127,22 @@ of the Telapathy specification.
 
   </sect1>
 
+  <sect1 id="sec-basics-connection-managers">
+    <title>Connection Managers</title>
+    <para>Support for the various communication protocols is provided by various <literal>Connection Managers</literal>. For instance, the <literal>telepathy-gabble</literal> Connection Manager provides support for the <acronym>XMPP</acronym> protocol, also known as <literal>Jabber</literal>.</para>
+    <para>There is no central &app; D-Bus service. Instead there are several connection manager services, activated on demand, and each of these connection managers provide the same core set of D-Bus interfaces, such as <ulink url="&url_spec_base;Connection">Connection</ulink> and <ulink url="&url_spec_base;Channel">Channel</ulink>, allowing application code to be written generically for all connection managers.</para>
+  </sect1>
+
+  <!-- TODO: Notes: The interfaces are often called their type, particularly for channels. Explain. -->
+  <!-- TODO: Is it only Connection that has optional interfaces? -->
   <sect1 id="sec-basics-optional-interfaces">
     <title>Optional Interfaces</title>
-    <para>TODO: Notes: Objects have main interfaces (often called their type, particularly for channels), 
-    such as <ulink url="&url_spec_base;Channel">Channel</ulink> and <ulink url="&url_spec_base;Connection">Connection</ulink> 
-    and optional D-Bus interfaces , discovered at runtime.
-    See <ulink url="&url_spec_base;Connection.GetInterfaces">Connection.GetInterfaces</ulink>:
+    <para>Although a core set of D-Bus interfaces is provided by all connection managers, some extra D-Bus interfaces are optional. For instance, some connection managers only provide extra interfaces when it discovers that the remote server provides that optional functionality. Therefore, when using these interfaces, application code should first check that the interface is available, sometimes falling back to alternative interfaces. Use the Connection interface's <ulink url="&url_spec_base;Connection.GetInterfaces"><function>GetInterfaces()</function></ulink> method for this.</para>
+
+    <note>
+    <para>Note that the <ulink url="&url_spec_base;Connection.GetInterfaces"><function>Connection.GetInterfaces()</function></ulink> method  does more than the standard D-Bus <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-introspectable"><function>Introspectable.Introspect()</function></ulink> method. <function>GetInterfaces()</function> allows tools and language bindings to know about the possible availability of interfaces via <function>Introspect()</function> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
     </para>
+    </note>
   </sect1>
 
   <sect1 id="sec-basics-mission-control">

@@ -1,4 +1,19 @@
-2009-12-15  Murray Cumming  <murrayc@murrayc.com>
+2009-12-20  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/book/C/telepathy.xml: Basics: Move the boring stuff about 
+	Introspect() into a notes section because it is too soon to get scary.
+
+2009-12-20  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/book/C/telepathy.xml: Basics: Write some text about optional 
+	interfaces. Added a Connection Managers section before it, so that we 
+	see the point and so we can describe the Telepathy architecture briefly.
+
+	* docs/book/C/icons/: Put the .png files in the folder instead of above.
+	* docs/book/C/figures/: Tried adding this again, adding a README because 
+	git seems to ignore it if it is empty.
+
+2009-12-20  Murray Cumming  <murrayc@murrayc.com>
 
 	* configure.ac:
 	* docs/examples/basics_dbus_python/Makefile.am:
