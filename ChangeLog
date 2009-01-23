@@ -1,5 +1,10 @@
 2009-12-23  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/book/C/telepathy.xml: Basics: Correct the use of the indexterm 
+	tags. Their contents are not displayed in the main text.
+
+2009-12-23  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/book/C/telepathy.xml: Basics: telepathy-glib: Mention sync/async 
 	prefixes. Mention generated/hand-coded prefixes. Mention 
 	call_when_ready() functions.
