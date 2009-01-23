@@ -1,10 +1,21 @@
-2009-12-20  Murray Cumming  <murrayc@murrayc.com>
+2009-12-23  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/examples/basics_dbus_glib/main.c:
+	* docs/examples/basics_dbus_python/example.py: Call the D-Bus method 
+	asynchronously instead of synchronously.
+	* docs/book/C/telepathy.xml: Basics: Using D-Bus: Mention simple D-Bus 
+	concepts. Mention asyncronous calls, and say how we do that in the 
+	examples.
+	Added an Installation chapter.
+	Added an index and sprinkled some indexterm tags around to fill it.
+
+2009-12-22  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Add a Language Bindings sub-section 
 	as a way to mention telepathy-glib, which we use (so far) for all our 
 	examples.
 
-2009-12-20  Murray Cumming  <murrayc@murrayc.com>
+2009-12-22  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Move the boring stuff about 
 	Introspect() into a notes section because it is too soon to get scary.

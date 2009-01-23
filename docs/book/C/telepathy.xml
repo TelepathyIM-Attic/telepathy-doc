@@ -77,6 +77,21 @@
   <para>TODO:  What are the benefits? How is it better than the alternatives? (If there are any). Is it easier, robuster, more secure, more flexible, cheaper, free-er, what?</para>
 </chapter>
 
+<chapter id="chapter-installation">
+  <title>Installation</title>
+  <para>If you are using a common Linux distribution you may already have the Telepathy packages installed. For instance, it is a dependency of the <application>Empathy</application> instant messenging client. However, you will probably still need some extra packages to build the examples in this book.</para>
+  
+  <sect1>
+    <title>Installation on Ubuntu Linux</title>
+    <para>You can install the Telepathy packages from the command line <application>Terminal</application> with this <command>sudo apt-get install telepathy-devel libtelepathy-glib-dev</command> command.</para>
+  </sect1>
+
+  <sect1>
+    <title>Installation on Fedora Linux</title>
+    <para>TODO.</para>
+  </sect1>
+
+</chapter>
 
 <!--
 Notes:
@@ -95,35 +110,69 @@ of the Telapathy specification.
 <chapter id="chapter-basics">
   <title>Basics</title>
 
+  <para>This chapter introduces some basic techniques and concepts that you must understand to use Telepathy confidently. You should read through this chapter before proceeding, but you will probably want to refer back here again later.</para>
+
   <sect1 id="sec-basics-dbus">
     <title>Using D-Bus</title>
-    <para>Telepathy is a D-Bus API. Telepathy components conform to the <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>, which is therefore also the main Telepathy API reference.</para>
-    <para>D-Bus is an IPC (Inter-process communication) system, allowing different software components to be implemented in different processes, with different programming languages. It also allows multiple applications to easily share functionality from a single process.</para>
-    <!-- TODO: Mention basic D-Bus concepts, though try not to overwhelm the reader so early. -->
+    <para>Telepathy is a <indexterm><primary>D-Bus</primary></indexterm> API. Telepathy components conform to the <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>, which is therefore also the main Telepathy API reference.</para>
+    <para>D-Bus is an <indexterm><primary>IPC</primary></indexterm> (Inter-process communication) system, allowing different software components to be implemented in different processes, with different programming languages. It also allows multiple applications to easily share functionality from a single process. Most examples in this book will use <link linkend="sec-basics-language-bindings">language bindings</link> instead of using D-Bus directly. However, an understanding of the following D-Bus concepts will help you even when using language bindings.</para>
+ 
+     <variablelist>
 
-    <para>In the following sections you can see how a D-Bus API can be used from some common programming languages.</para>
+       <varlistentry>
+         <term>
+           <indexterm><primary>Bus Name</primary></indexterm>
+           Bus Name
+         </term>
+         <listitem>
+           <para>A process can make a service available by connecting to a D-Bus <literal>bus</literal> and requesting a &quot;well-known&quot; <literal>bus name</literal> for the connection, such as &quot;com.mycompany.TextEditor&quot;, by which other processes, such as applications, can access it.</para>
+         </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Object Path</primary></indexterm>
+           Object Path
+         </term>
+         <listitem>
+           <para>The service process provides D-Bus objects on that bus name. Each object has an <literal>object path</literal>, such as &quot;/com/company/TextEditor&quot;, which a client application must specify to use that object.</para>
+         </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Interface Name</primary></indexterm>
+           Bus Name
+         </term>
+         <listitem>
+           <para>Each D-Bus object implements one or more D-Bus interfaces. Each interface has an <literal>interface name</literal>, such as &quot;com.mycompany.TextEditor&quot;. Each interface provides one or more methods or signals, each with a member name.</para>
+         </listitem>
+       </varlistentry>
+
+    </variablelist>
+
+    <para>Of course, for simple services with just one object that provides just one interface, these three names will often  look very similar.</para>
+
+    <para>In the following sections you will see how a D-Bus API can be used from some common programming languages. In these examples, we use the FreeDesktop <literal>Notification</literal> system, which should be available on most modern Linux installations. The examples should cause a message to popup from your desktop panel. Note that, like Telepathy, this service is available on the <indexterm><primary><literal>Session Bus</literal></primary></indexterm> rather than the <indexterm><primary><literal>System Bus</literal></primary></indexterm>. Services on the <literal>Session Bus</literal> are for the current user's session only. Services on the <literal>System Bus</literal> are shared between all users.</para>
+
+    <para>These programming languages allow you to call D-Bus methods synchronously, meaning that they block until they can return the method's result. However, that is generally disapproved of because the D-Bus service may take a long time to reply, and because of some fundamental technical problems with the use of blocking calls between processes. Therefore, the examples call the D-Bus method asynchronously, theoretically allowing the application to continue with other tasks while waiting for the result.</para> 
+    <!-- TODO: Get the result asynchronously. --> 
 
     <sect2 id="sec-basics-dbus-glib">
       <title>Using D-Bus from C, with glib</title>
-      <para>TODO</para>
 
-      <sect3>
-      <title>Example</title>
-      <para>This example used dbus-glib to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path.</para>
+      <para>This example uses dbus-glib's <ulink url="http://dbus.freedesktop.org/doc/api/html/group__DBusGLib.html#gbd4dab5f4d66ab052c15862028502caf">dbus_g_proxy_begin_call()</ulink> function to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path. Note that we must specify the types of each parameter.</para>
+      <para>We could have used the synchronous <ulink url="http://dbus.freedesktop.org/doc/api/html/group__DBusGLib.html#ge38c0fb788e874fcf88489c961480f38">dbus_g_proxy_call()</ulink> function instead but, as already mentioned, asynchronous calls are generally preferred with D-Bus.</para>
       <para><ulink url="&url_examples_base;basics_dbus_glib">Source Code</ulink></para>
-      </sect3>
 
     </sect2>
 
     <sect2 id="sec-basics-dbus-python">
       <title>Using D-Bus from Python</title>
-      <para>TODO</para>
 
-      <sect3>
-      <title>Example</title>
-      <para>This example used Python to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path.</para>
+      <para>This example uses <indexterm><primary>Python</primary></indexterm> to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path.</para>
+      <para>Note that we specify reply and error handlers as keyword arguments, to call the method asynchronously because asynchronous calls are generally preferred with D-Bus.</para>
       <para><ulink url="&url_examples_base;basics_dbus_python">Source Code</ulink></para>
-      </sect3>
 
     </sect2>
    </sect1>
@@ -132,9 +181,14 @@ of the Telapathy specification.
     <title>Language Bindings</title>
     <para>As mentioned in the <link linkend="sec-basics-dbus">Using D-Bus</link> section, many programming languages have their own generic ways of using D-Bus APIs. In addition, there are some Telepathy-specific APIs to make the use of Telepathy even easier. For instance, <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20GLib">telepathy-glib</ulink> provides an API that is familiar to users of Glib and GTK+, using the GObject system and related conventions.</para>
     <para>Likewise, the <ulink url="http://telepathy.freedesktop.org/wiki/TelepathyQt">Telepathy-Qt</ulink> project provides a more Qt-like API for Telepathy and <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20Python">Telepathy-Python</ulink> does the same for Python.</para> <!-- TODO: Link to Telepathy-Qt4 when it is ready. -->
-    <para>The C examples in this book will use telepathy-glib.</para>
+  
+    <sect2 id="sec-basics-language-bindings-telepathy-glib">
+      <title>telepathy-glib</title>
+      <para>The C examples in this book will use telepathy-glib.</para>
+      <!-- TODO: Mention the function naming conventions (see sec-basics-asynchronous-calls), and mention not to use the blocking calls. -->
+    </sect2>
 
-   </sect1>
+  </sect1>
 
   <sect1 id="sec-basics-connection-managers">
     <title>Connection Managers</title>
@@ -426,6 +480,7 @@ added in future.
   </para>
 </chapter>
 
-
+<index id="refindex">
+</index>
 
 </book>

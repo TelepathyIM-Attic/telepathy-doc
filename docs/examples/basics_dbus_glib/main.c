@@ -19,6 +19,31 @@
 
 GMainLoop *mainloop = NULL;
 
+void on_proxy_call_notify (DBusGProxy *proxy,
+  DBusGProxyCall *call_id,
+  void *user_data)
+{
+  GError *error = 0;
+  guint result = 0;
+  dbus_g_proxy_end_call (proxy, call_id, &error, 
+    G_TYPE_UINT, &result, /* Return value. */
+    G_TYPE_INVALID);
+
+  if (error)
+    {
+      g_printf ("dbus_g_proxy_begin_call() failed: %s\n", error->message);
+      g_clear_error (&error);
+    }
+  else
+    {
+      g_printf ("dbus_g_proxy_begin_call() succeeded, returning %u\n", result);
+    }
+
+  /* Stop the main loop to allow main() to finish, 
+   * stopping the program: */
+  g_main_loop_quit (mainloop);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -44,11 +69,16 @@ main (int argc, char **argv)
     "/org/freedesktop/Notifications", /* path */
     "org.freedesktop.Notifications"); /* interface */
 
- /* Call a method on the interface  of the remote object: */
-  error = NULL;
-  guint id = 0;
-  GHashTable* actions = g_hash_table_new (NULL, NULL);   
-  dbus_g_proxy_call (proxy, "Notify", &error, 
+
+  /* Call a method on the interface  of the remote object: */
+
+  /* Create an empty GHashTable for one of the parameters: */
+  GHashTable* actions = g_hash_table_new (NULL, NULL);  
+
+  /* Call the method: */
+  dbus_g_proxy_begin_call (proxy, "Notify", 
+    &on_proxy_call_notify, NULL, /* user_data */ 
+    NULL, /* destroy notification */
     G_TYPE_STRING, "dbus-glib example",
     G_TYPE_UINT, 0,
     G_TYPE_STRING, "", /* icon_name */ 
@@ -58,19 +88,9 @@ main (int argc, char **argv)
     dbus_g_type_get_map("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), actions,
     G_TYPE_INT, 0,
     G_TYPE_INVALID,
-    G_TYPE_UINT, &id, /* Return value. */
     G_TYPE_INVALID);
   g_hash_table_unref (actions);
   actions = NULL;
-
-  if (error)
-    {
-      g_printf ("dbus_g_proxy_call() failed: %s\n", error->message);
-      g_clear_error (&error);
-      g_main_loop_quit (mainloop);
-      return 1;
-    }
-
 
   /* Run the main loop, 
    * to keep our application alive while we wait for responses from D-Bus.
