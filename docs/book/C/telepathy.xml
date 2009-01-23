@@ -20,6 +20,7 @@
   <!ENTITY url_examples_base "./examples/">
   <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
   <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
+  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
 ]>
 
 <book id="index">
@@ -184,8 +185,53 @@ of the Telapathy specification.
   
     <sect2 id="sec-basics-language-bindings-telepathy-glib">
       <title>telepathy-glib</title>
-      <para>The C examples in this book will use telepathy-glib.</para>
-      <!-- TODO: Mention the function naming conventions (see sec-basics-asynchronous-calls), and mention not to use the blocking calls. -->
+      <para>The C examples in this book will use telepathy-glib, which provides a GObject-based API for the Telepathy framework.</para>
+
+      <!-- TODO: Mention this? 
+      <para>The telepathy-glib API and implementation is partly hand-coded and partly generated. The reference documentation only makes sense in terms of the Telepathy D-Bus Specification.</para>
+      -->
+
+      <sect3 id="sec-basics-language-bindings-telepathy-glib-async">
+        <title>Asynchronous Calls</title>
+        <para>For each Telepathy D-Bus method, telepathy-glib generally provides both a &quot;run&quot; and a &quot;call&quot; function. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_run_connect()</ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-call-connect">tp_cli_connection_call_connect()</ulink>. The &quot;run&quot; function is synchronous, blocking until the D-Bus service has returned the value, whereas the &quot;call&quot; function is asynchronous, immediately returning and later providing the result to a callback function.</para>
+        <para>However, the Telepathy developers strongly discourage the use of the &quot;run&quot; functions, so all examples in this book will use the asynchronous &quot;call&quot; functions. This complicates application code but it is more robust and allows the application to be more responsive, doing more than one thing at a time.</para>
+      </sect3>
+
+      <sect3 id="sec-basics-language-bindings-telepathy-glib-generated">
+        <title>Generated Functions</title>
+        <para>telepathy-glib provides both hand-coded and generated API. The generated functions have these prefixes:</para>
+
+        <variablelist>
+
+          <varlistentry>
+            <term>tp_cli_</term> 
+            <listitem>
+              <para>These functions are useful for client applications. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_run_connect()</ulink>.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>tp_svc_</term> 
+            <listitem>
+              <para>These functions are useful for service implementations, such as connection managers. For instance, <ulink url="&url_telepathy_glib_base;svc-connection.html#tp-svc-connection-implement-connect">tp_svc_connection_implement_connect()</ulink>.</para>
+            </listitem>
+          </varlistentry>
+
+        </variablelist>
+
+        <para>The generated functions make simple direct calls to the D-Bus methods, without any additional logic and without using more appropriate types. For instance, they use unsigned integers for parameters because D-Bus does not have a concept of enumerations. However, the Telepathy D-Bus Specification does describe enumerations of possible values for these parameters, so the hand-written functions do use enums.</para>
+        <para>Hand-coded functions have a simple <literal>tp_</literal> prefix and should be preferred whenever they exist. The generated functions exist only because hand-written functions have not yet been implemented for all Telepathy D-Bus methods.</para>  
+        <para>In addition to more pleasant syntax, some hand-written objects contain a large amount of useful logic which can simplify application code. For instance, <ulink url="&url_telepathy_glib_base;contact.html">TpContact</ulink> uses GObject signals.</para>
+      </sect3>
+
+      <sect3>
+        <title>Instantiation and Readiness</title>
+        <!-- TODO: Keep any eye on http://bugs.freedesktop.org/show_bug.cgi?id=13422 -->
+        <para>Some of the hand-coded objects, such as <ulink url="&url_telepathy_glib_base;connection.html">TpConnection</ulink> and <ulink url="&url_telepathy_glib_base;connection.html">TpChannel</ulink>, call additional D-Bus methods to acquire necessary information. When they have received this information they are then &quot;ready&quot;, meaning that other hand-written functions can then be called. This concept of &quot;readiness&quot; does not exist in the raw D-Bus API because it describes the status of the hand-written behaviour. For instance, you should call <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready">tp_connection_call_when_ready()</ulink> after instantiating a TpConnection, or <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready">tp_channel_call_when_ready()</ulink> after instantiating a TpChannel.</para>
+
+      </sect3>
+
+
     </sect2>
 
   </sect1>

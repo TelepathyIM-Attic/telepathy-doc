@@ -1,5 +1,11 @@
 2009-12-23  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/book/C/telepathy.xml: Basics: telepathy-glib: Mention sync/async 
+	prefixes. Mention generated/hand-coded prefixes. Mention 
+	call_when_ready() functions.
+
+2009-12-23  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/examples/basics_dbus_glib/main.c:
 	* docs/examples/basics_dbus_python/example.py: Call the D-Bus method 
 	asynchronously instead of synchronously.
