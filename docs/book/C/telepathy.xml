@@ -289,13 +289,13 @@ AC_SUBST(EXAMPLE_LIBS)
   <sect1 id="sec-basics-handles">
     <title>Handles</title>
     <para>The Telepathy D-Bus API does not have D-Bus objects to represent contacts, groups, or rooms. These are instead identified by numeric <literal>handles</literal>. This is for performance reasons, and because it is easier to compare numeric handles than to discover if two D-Bus proxy objects refer to the same object instance.</para>
-    <para>These numeric handles are only unique within a Telepathy Connection. For instance, don't try to use a Connection's contact handle with a different Connection. The handles also only make sense when combined with a <ulink url="&url_spec;#type-Handle_Type">handle type</ulink>, telling the API whether it represents a contact, group, or list.</para>
+    <para>These numeric handles are only unique within a Telepathy Connection. For instance, don't try to use a Connection's contact handle with a different Connection. The handles also only make sense when combined with a <ulink url="&url_spec;#type-Handle_Type">handle type</ulink>, telling the API whether it represents a contact, group, or list. In fact, two handles may be numerically identical but be for different types.</para>
 
     <sect2>
       <title>Hold and Release</title>
-      <para>When a Telepathy object has finished with a handle, that number may be forgotten and even reused later as a handle for a completely different item. However, your application may wish to &quot;hold&quot; the handle for a longer time. To do so, you should call the Connection's <ulink url="&url_spec_base;Connection.HoldHandles"><function>HoldHandles()</function></ulink> method and call <ulink url="&url_spec_base;Connection.ReleaseHandles"><function>ReleaseHandles()</function></ulink> when you have finished with the handle. However, a single <function>ReleaseHandles()</function> call will release a handle regardless of how many times <function>HoldHandles()</function> has been called, so be careful not to call it while other code may be using the handle.</para>
+      <para>When a Telepathy object has finished with a handle that number may be forgotten and even reused later as a handle for a completely different item. However, your application may wish to &quot;hold&quot; the handle for a longer time. To do so, you should call the Connection's <ulink url="&url_spec_base;Connection.HoldHandles"><function>HoldHandles()</function></ulink> method and call <ulink url="&url_spec_base;Connection.ReleaseHandles"><function>ReleaseHandles()</function></ulink> when you have finished with the handle. However, a single <function>ReleaseHandles()</function> call will release a handle regardless of how many times <function>HoldHandles()</function> has been called, so be careful not to call it while other code may be using the handle.</para>
 
-      <para>This is less necessary when using Telepathy <link linkend="sec-basics-language-bindings">language bindings</link>, such as telepathy-glib, because they may automatically hold and release handles for the lifetime of their objects, such as telepathy-glib's TpContact. Additionaly, telepathy-glib wraps the hold methods with the <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles()</function></ulink> functions which reference-count the client-side handle &quot;hold&quot;, allowing you to match each <function>tp_connection_hold_handles()</function> call with a call to <function>tp_connection_release_handles()</function>.</para>
+      <para>This is less necessary when using Telepathy <link linkend="sec-basics-language-bindings">language bindings</link>, such as telepathy-glib, because they may automatically hold and release handles for the lifetime of their objects, such as telepathy-glib's TpContact object. Additionally, telepathy-glib wraps the <function>HoldHandles()</function> and <function>ReleaseHandles()</function> D-Bus methods with the <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles()</function></ulink> functions which reference-count the client-side handle &quot;hold&quot;, allowing you to match each <function>tp_connection_hold_handles()</function> call with a call to <function>tp_connection_release_handles()</function>.</para>
 
       <para>In the later sections we will mention when it actually makes sense to do this when using specific parts of the Telapathy API.</para>
     </sect2>
@@ -304,22 +304,18 @@ AC_SUBST(EXAMPLE_LIBS)
 
   <sect1 id="sec-basics-api-conventions">
     <title>API conventions</title>
-    <para>TODO: Notes: For instance"Request*" vs. "Get*" - see Asynchronous Calls.
-    </para>
+    <para>Telepathy's method names follow a simple convention.</para>
+    <orderedlist>
+      <listitem><simpara>Methods prefixed with <literal>Request</literal> are aysnchronous, meaning that the result will be provided later and your application should not block while it waits. For instance, <ulink url="&url_spec_base;Connection.RequestChannel"><function>Connection.RequestChannel()</function></ulink>.</simpara></listitem>
+      <!-- TODO: What is the D-Bus convention for the separator? . or :: ? -->
+      <listitem><simpara>Methods prefixed with <literal>Get</literal> are synchronous, meaning that the result will be returned immediately. These methods generally access local information and do not need to make any contact with the remote server. For instance, <ulink url="&url_spec_base;Connection.GetStatus"><function>Connection.GetStatus()</function></ulink>.</simpara></listitem>
+    </orderedlist>
+
+    <para>See the <link linkend="sec-basics-dbus">Using D-Bus section</link> to learn more about asynchronous D-Bus method calls. Note that many <literal>Get</literal> methods may be replaced with D-Bus properties in future, which will also be syncronous.</para>
+
+    <para>See also the section about <link linkend="sec-basics-language-bindings-telepathy-glib">telepathy-glib</link> section about its function naming conventions.</para>
   </sect1>
 
-  <sect1 id="sec-basics-asynchronous-calls">
-    <title>Asynchronous Calls</title>
-    <para>TODO: 
-    Notes: Most functions are synchronous, getting locally-stored data.
-    - Convention is that Get* methods access local information, but Request* 
-      methods may access the network.
-      (This convention seems to apply to the D-Bus API, but not to the telepathy-glib API. murrayc)
-    - Many Get* methods are being deprecated in favour of D-Bus properties 
-      currently (because you can do GetAll() for a given interface and download 
-      the state at once with fewer roundtrips).
-    </para>
-  </sect1>
 </chapter>
 
 <chapter id="chapter-accounts">

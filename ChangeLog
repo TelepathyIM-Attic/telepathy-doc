@@ -1,5 +1,12 @@
 2009-12-26  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/book/C/telepathy.xml: Basics: API Conventions: Mention the 
+	Request/Get distinction and link to the telepathy-glib conventions.
+	Removed the Asynchronous Calls section because we dealt with that here 
+	and in the Using D-Bus section.
+
+2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/book/C/telepathy.xml: Basics: Handles: Write this section. 
 	Removed the main Handles chapter because a) It was planned to cover the 
 	same stuff and b) It should be covered very early.
