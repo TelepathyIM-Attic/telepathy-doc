@@ -1,6 +1,14 @@
 2009-12-26  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention that 
+	all interfaces are theoretically optional.
+	Connection, Channel: Arrange the lists of optional interfaces in 
+	variablelist blocks. Rearrange the notes to match where we probably want 
+	to mention things.
+
+2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention that 
 	ConnectionManager and Channel also have optional interfaces (not just 
 	Connection), and mention the new Interfaces property.
 

@@ -273,6 +273,7 @@ AC_SUBST(EXAMPLE_LIBS)
     <title>Optional Interfaces</title>
     <para>Although a core set of D-Bus interfaces is provided by all connection managers, some extra D-Bus interfaces are optional. For instance, some connection managers only provide extra interfaces when they discover that the remote server provides that optional functionality. Therefore, when using these interfaces, application code should first check that the interface is available, sometimes falling back to alternative interfaces.</para>
     <para>For instance, use the <classname>Connection</classname> interface's <ulink url="&url_spec_base;Connection.GetInterfaces"><function>GetInterfaces()</function></ulink> method. For <classname>ConnectionManager</classname>s and <classname>Channel</classname>s use their <property>Interfaces</property> D-Bus property. Eventually <classname>Connection</classname> will also have an <property>Interfaces</property> property, when its <function>GetInterfaces()</function> method will be deprecated.</para>
+    <para>Actually, the core interfaces are only &quot;recommended&quot; by the Telepathy D-Bus specification so you should check before using any interface even if it is not commonly considered to be optional.</para>
 
     <note>
     <para>Note that the <property>Interfaces</property> property (or the <ulink url="&url_spec_base;Connection.GetInterfaces"><function>Connection.GetInterfaces()</function></ulink> method) does more than the standard D-Bus <ulink url="&url_dbus_spec_base;standard-interfaces-introspectable"><function>Introspectable.Introspect()</function></ulink> method. The Telepathy-specific mechanism allows tools and language bindings to know about the possible availability of interfaces via <function>Introspect()</function> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
@@ -361,7 +362,7 @@ AC_SUBST(EXAMPLE_LIBS)
 
   <sect1>
   <title>Protocols Listing Example</title>
-    <para>This example list all available connection managers and the protocols that they support.</para>
+    <para>This example list all available connection managers and the protocols they support.</para>
     <para><ulink url="&url_examples_base;list_all_protocols">Source Code</ulink></para>
   </sect1>
 
@@ -380,6 +381,9 @@ AC_SUBST(EXAMPLE_LIBS)
 
     <para>See the <link linkend="chapter-channel">Channels</link> section about obtaining and using <classname>Channel</classname>s from the <classname>Connection</classname> with which you can list groups of contacts .</para>
 
+    <!-- TODO: Mention these interfaces, mentioned by smcv on irc: Requests and Contacts are "recommended" (every protocol ought to be able to support them), and are only non-core because they're new (so clients can discover whether they're present)
+ murrayc: when we eventually remove deprecated stuff, it's likely that Requests and Contacts will become part of Connection -->
+
     <sect2>
       <title>Connection Example</title>
       <para>This example connects to a jabber account.</para>
@@ -389,38 +393,85 @@ AC_SUBST(EXAMPLE_LIBS)
 
   <sect1>
     <title>Optional Interfaces</title>
-    <para>TODO: The Connection object gas several optional interfaces (Avatars, Presence, etc).
+    <para>As mentioned in the <link linkend="sec-basics-optional-interfaces">Basics</link> section, the <classname>Connection</classname> may provide several optional interfaces, depending on the <classname>ConnectionManager</classname> used and depending on the capabilities of the remote server.</para>
+
+    <para>For instance, these interfaces are present if the remote server or its protocol provides that functionality:</para>
+
+    <!-- TODO: Are there other potential optional Connection interfaces. I can't tell from the Spec. murrayc. -->
+    <variablelist>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Aliasing</primary></indexterm>
+           <ulink url="&url_spec_base;Connection.Interface.Aliasing"><classname>Aliasing</classname></ulink>
+         </term>
+         <listitem>
+           <para>TODO: Notes: provides other information about contacts, and notifications when they change.</para>
+         </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Avatars</primary></indexterm>
+           <ulink url="&url_spec_base;Connection.Interface.Avatars"><classname>Avatars</classname></ulink>
+         </term>
+         <listitem>
+           <para>TODO: Notes: provides other information about contacts, and notifications when they change.</para>
+         </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Presence</primary></indexterm>
+           <ulink url="&url_spec_base;Connection.Interface.Presence"><classname>Presence</classname></ulink>
+         </term>
+         <listitem>
+           <para>TODO</para>
+         </listitem>
+       </varlistentry>
+
+    </variablelist>
+
+    <para>These newer interfaces are present if the <classname>ConnectionManager</classname> has implemented them already. They generally replace older deprecated interfaces. They must be optional to avoid forcing all <classname>ConnectionManager</classname>s and all client code to use the new interfaces immediately.</para>
+
+    <!-- TODO: Are there other potential optional Connection interfaces. I can't tell from the Spec. murrayc. -->
+    <variablelist>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Requests</primary></indexterm>
+           <ulink url="&url_spec_base;Connection.Interface.Requests"><classname>Requests</classname></ulink>
+         </term>
+         <listitem>
+           <para>TODO</para>
+         </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>SimplePresence</primary></indexterm>
+           <ulink url="&url_spec_base;Connection.Interface.SimplePresence"><classname>SimplePresence</classname></ulink>
+         </term>
+         <listitem>
+           <para>TODO: Notes: to which I can give a contact handle 
+     to discover if that contact is online. The SimplePresence interface emits 
+     signals when contacts' presence changes.
+     (SimplePresence replaces the <ulink url="&url_spec_base;Connection.Interface.Presence">Presence</ulink> interface, to be deprecated soon.)</para>
+         </listitem>
+       </varlistentry>
+
+       <!-- TODO: Mention this when it is out of draft: - A new <ulink url="&url_spec_base;Connection.Interface.ContactCapabilities.DRAFT">ContactCapabilities</ulink> interface will allow retrieving of multiple 
+     types of information at once (string of handle, alias, avatar, presence, etc), 
+     which is more efficient.
+       -->
+
+    </variablelist>
+
+    <para>
      - And some optional interfaces that just improve similar existing interfaces, such as <ulink url="&url_spec_base;Connection.Interface.Requests">Connection.Interface.Requests</ulink>
        instead of <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>
     </para>
   </sect1>
-  
-
-  <sect1>
-    <title>TODO</title>
-  <para>TODO:
-   Notes:
-   - A connection has <ulink url="&url_spec_base;Channel">Channel</ulink>s.
-   - Connection gives me several <ulink url="&url_spec_base;Channel.Type.ContactList">ContactList</ulink> Channels (subscribe, publish, etc)
-     - Provides a <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface.
-       - Contains many members (Contact handles). 
-   -
-   - Provides a <ulink url="&url_spec_base;Connection.Interface.SimplePresence">SimplePresence</ulink> interface, to which I can give a contact handle 
-     to discover if that contact is online. The SimplePresence interface emits 
-     signals when contacts' presence changes.
-     (SimplePresence replaces the <ulink url="&url_spec_base;Connection.Interface.Presence">Presence</ulink> interface, to be deprecated soon.)
-   - Similarly, the <ulink url="&url_spec_base;Connection.Interface.Avatars">Avatars</ulink> and <ulink url="&url_spec_base;Connection.Interface.Aliasing">Aliasing</ulink> interfaces on the Connection provide 
-     other information about contacts, and notifications when they change. 
-   - (Having interfaces on the connection rather than the contacts makes 
-     overall contact handling easier.)
-   - Has a <ulink url="&url_spec_base;Connection.RequestChannel">RequestChannel()</ulink> method that takes a channel type (text/voip/tubes) 
-     and a handle (contact, room, list or group) handle. 
-   - A new <ulink url="&url_spec_base;Connection.Interface.ContactCapabilities.DRAFT">ContactCapabilities</ulink> interface will allow retrieving of multiple 
-     types of information at once (string of handle, alias, avatar, presence, etc), 
-     which is more efficient.
-  </para>
-  </sect1>
-
 
   <sect1>
   <title>Presence Example</title>
@@ -432,6 +483,19 @@ AC_SUBST(EXAMPLE_LIBS)
 
 <chapter id="chapter-channel">
   <title>Channel</title>
+
+
+
+  <para>TODO:
+   Notes:
+   - A connection has <ulink url="&url_spec_base;Channel">Channel</ulink>s.
+   - Connection gives me several <ulink url="&url_spec_base;Channel.Type.ContactList">ContactList</ulink> Channels (subscribe, publish, etc)
+     - Provides a <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface.
+       - Contains many members (Contact handles). 
+   - Has a <ulink url="&url_spec_base;Connection.RequestChannel">RequestChannel()</ulink> method that takes a channel type (text/voip/tubes) 
+     and a handle (contact, room, list or group) handle. 
+  </para>
+
   <para>TODO:
    Notes:
    - <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>, <ulink url="&url_spec_base;Channel">Channel</ulink>
@@ -445,16 +509,9 @@ AC_SUBST(EXAMPLE_LIBS)
      Streamed Media.
    - Channel provides (maybe _is_) a contacts list. Usually 2 people (local me 
      and my remote contact), but x people for a chat group.
-   - The base Channel interface provides channel type, handle and interface 
+   - The base Channel interface provides channel type, handle and Interfaces 
      properties, and Close method, Closed signal.
-   - Plus one type-specific interface, such as Text, or Tube, Media.
-   - This is also sometimes a <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface, for instance if it's a group chat.
-   - Optional interfaces such as Group are discovered by inspecting the 
-     Interfaces property.
-   - Media channels may have DTMF, Hold, CallStates (on hold, ringing, etc) 
-     interfaces
-   - Text channels may have ChatState (typing notification), Messages (rich 
-     messages), Password interfaces
+ 
    - Mention basic channel requesting and then advanced channel requesting.
      (The new API makes it easier to do these things.)
    - You'd need two channels for two types of communication with the same 
@@ -465,7 +522,39 @@ AC_SUBST(EXAMPLE_LIBS)
   </para>
 
   <sect1>
-  <title>Example</title>
+    <title>Optional Interfaces</title>
+    <para>As mentioned in the <link linkend="sec-basics-optional-interfaces">Basics</link> section, the <classname>Channel</classname> may provide several optional interfaces, depending on the <classname>ConnectionManager</classname> used and depending on the capabilities of the remote server.</para>
+
+    <para>For instance, these interfaces are present if the remote server or its protocol provides that functionality:</para>
+
+    <para>TODO: 
+    - Plus one type-specific interface, such as Text, or Tube, Media.
+   - This is also sometimes a <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface, for instance if it's a group chat.
+   - Media channels may have DTMF, Hold, CallStates (on hold, ringing, etc) 
+     interfaces
+   - Text channels may have ChatState (typing notification), Messages (rich 
+     messages), Password interfaces
+    </para>
+
+    <!-- TODO: Are there other potential optional Channel interfaces. I can't tell from the Spec. murrayc. -->
+    <variablelist>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Group</primary></indexterm>
+           <ulink url="&url_spec_base;Connection.Interface.Group"><classname>Group</classname></ulink>
+         </term>
+         <listitem>
+           <para>TODO.</para>
+         </listitem>
+       </varlistentry>
+
+    </variablelist>
+
+  </sect1>
+
+  <sect1>
+  <title>Message Send Example</title>
   <para>This example sends a text message to a jabber contact via a text channel.</para>
   <para><ulink url="&url_examples_base;send_message">Source Code</ulink></para>
   </sect1>
