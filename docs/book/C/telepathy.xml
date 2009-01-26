@@ -288,12 +288,18 @@ AC_SUBST(EXAMPLE_LIBS)
 
   <sect1 id="sec-basics-handles">
     <title>Handles</title>
-    <para>TODO:
-    - Hold and Release.
-    - Like ref-counting but 2 Holds by the same client is 1 hold 
-      (Mission Control keeps a set of referencing clients)
-    - See <ulink url="&url_spec_base;Connection">Connection</ulink>
-    </para>
+    <para>The Telepathy D-Bus API does not have D-Bus objects to represent contacts, groups, or rooms. These are instead identified by numeric <literal>handles</literal>. This is for performance reasons, and because it is easier to compare numeric handles than to discover if two D-Bus proxy objects refer to the same object instance.</para>
+    <para>These numeric handles are only unique within a Telepathy Connection. For instance, don't try to use a Connection's contact handle with a different Connection. The handles also only make sense when combined with a <ulink url="&url_spec;#type-Handle_Type">handle type</ulink>, telling the API whether it represents a contact, group, or list.</para>
+
+    <sect2>
+      <title>Hold and Release</title>
+      <para>When a Telepathy object has finished with a handle, that number may be forgotten and even reused later as a handle for a completely different item. However, your application may wish to &quot;hold&quot; the handle for a longer time. To do so, you should call the Connection's <ulink url="&url_spec_base;Connection.HoldHandles"><function>HoldHandles()</function></ulink> method and call <ulink url="&url_spec_base;Connection.ReleaseHandles"><function>ReleaseHandles()</function></ulink> when you have finished with the handle. However, a single <function>ReleaseHandles()</function> call will release a handle regardless of how many times <function>HoldHandles()</function> has been called, so be careful not to call it while other code may be using the handle.</para>
+
+      <para>This is less necessary when using Telepathy <link linkend="sec-basics-language-bindings">language bindings</link>, such as telepathy-glib, because they may automatically hold and release handles for the lifetime of their objects, such as telepathy-glib's TpContact. Additionaly, telepathy-glib wraps the hold methods with the <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles()</function></ulink> functions which reference-count the client-side handle &quot;hold&quot;, allowing you to match each <function>tp_connection_hold_handles()</function> call with a call to <function>tp_connection_release_handles()</function>.</para>
+
+      <para>In the later sections we will mention when it actually makes sense to do this when using specific parts of the Telapathy API.</para>
+    </sect2>
+
   </sect1>
 
   <sect1 id="sec-basics-api-conventions">
@@ -366,10 +372,21 @@ AC_SUBST(EXAMPLE_LIBS)
 <chapter id="chapter-connection">
   <title>Connection</title>
   
-  <para>To attempt a connection to the remote server, call a Connection Manager's <ulink url="&url_spec_base;ConnectionManager.RequestConnection"><function>RequestConnection</function></ulink> D-Bus method, providing the connection details. If the connection succeeds then this method returns the <literal>bus name</literal> and <literal>object path</literal> of a Telepathy <ulink url="&url_spec_base;Connection">Connection</ulink> object.</para>
-  <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html">TpConnection</ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
-  <note><para>See the <link linkend="sec-basics-language-bindings-telepathy-glib-generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
+  <sect1>
+    <title>Connecting</title>
+    <para>To attempt a connection to the remote server, call a Connection Manager's <ulink url="&url_spec_base;ConnectionManager.RequestConnection"><function>RequestConnection</function></ulink> D-Bus method, providing the connection details. If the connection succeeds then this method returns the <literal>bus name</literal> and <literal>object path</literal> of a Telepathy <ulink url="&url_spec_base;Connection">Connection</ulink> object.</para>
+    <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html">TpConnection</ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
+    <note><para>See the <link linkend="sec-basics-language-bindings-telepathy-glib-generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
 
+    <sect2>
+      <title>Connection Example</title>
+      <para>This example connects to a jabber account.</para>
+      <para><ulink url="&url_examples_base;connect">Source Code</ulink></para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>TODO</title>
   <para>TODO:
    Notes:
    - This is my connection to my IM account.
@@ -394,12 +411,8 @@ AC_SUBST(EXAMPLE_LIBS)
      types of information at once (string of handle, alias, avatar, presence, etc), 
      which is more efficient.
   </para>
-
-  <sect1>
-  <title>Connection Example</title>
-  <para>This example connects to a jabber account.</para>
-  <para><ulink url="&url_examples_base;connect">Source Code</ulink></para>
   </sect1>
+
 
   <sect1>
   <title>Presence Example</title>
@@ -407,21 +420,6 @@ AC_SUBST(EXAMPLE_LIBS)
   <para><ulink url="&url_examples_base;set_presence">Source Code</ulink></para>
   </sect1>
 
-</chapter>
-
-<chapter id="chapter-handle">
-  <title>Handle</title>
-  <para>TODO:
-   Notes:
-   - <ulink url="&url_spec_base;Connection.RequestHandles">RequestHandles()</ulink>
-   - Could be a contact, contact list, room, etc.
-   - Note that there is no Contact interface or object (just a handle), for performance reasons.
-   - Means that clients don't have to worry about normalisation.
-   - (Not necessarily a nice thing, but simplifies work across processes.)
-   - Important because it confuses people often.
-   - Maybe put this chapter before the others if these aer shown in the early 
-     examples, though Handlers are already mentioned in the Basics chapter.
-  </para>
 </chapter>
 
 <chapter id="chapter-channel">
