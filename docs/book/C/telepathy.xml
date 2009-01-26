@@ -21,6 +21,7 @@
   <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
   <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
   <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
+  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
 ]>
 
 <book id="index">
@@ -84,12 +85,13 @@
   
   <sect1>
     <title>Installation on Ubuntu Linux</title>
-    <para>You can install the Telepathy packages from the command line <application>Terminal</application> with this <command>sudo apt-get install telepathy-devel libtelepathy-glib-dev</command> command.</para>
+    <para>You can install the Telepathy packages from the command line <application>Terminal</application> with this command: <command>sudo apt-get install telepathy-devel libtelepathy-glib-dev</command></para>
   </sect1>
 
   <sect1>
     <title>Installation on Fedora Linux</title>
-    <para>TODO.</para>
+     <!-- TODO: Is there no general telepathy-devel package? -->
+     <para>You can install the Telepathy packages from the command line <application>Terminal</application> with this command, as root: <command>yum install telepathy-glib-devel telepathy-gabble telepathty-butterfly telepathy-haze telepathy-salut telepathy-stream-engine</command></para>
   </sect1>
 
 </chapter>
@@ -143,18 +145,20 @@ of the Telapathy specification.
        <varlistentry>
          <term>
            <indexterm><primary>Interface Name</primary></indexterm>
-           Bus Name
+           Interface Name
          </term>
          <listitem>
-           <para>Each D-Bus object implements one or more D-Bus interfaces. Each interface has an <literal>interface name</literal>, such as &quot;com.mycompany.TextEditor&quot;. Each interface provides one or more methods or signals, each with a member name.</para>
+           <para>Each D-Bus object implements one or more D-Bus interface. Each interface has an <literal>interface name</literal>, such as &quot;com.mycompany.TextEditor&quot;. Each interface provides one or more method or signal, each with a member name.</para>
          </listitem>
        </varlistentry>
 
     </variablelist>
 
-    <para>Of course, for simple services with just one object that provides just one interface, these three names will often  look very similar.</para>
+    <para>Of course, for simple services with just one object that provides just one interface, these three names will often look very similar.</para>
 
-    <para>In the following sections you will see how a D-Bus API can be used from some common programming languages. In these examples, we use the FreeDesktop <literal>Notification</literal> system, which should be available on most modern Linux installations. The examples should cause a message to popup from your desktop panel. Note that, like Telepathy, this service is available on the <indexterm><primary>Session Bus</primary></indexterm><literal>Session Bus</literal> rather than the <indexterm><primary>System Bus</primary></indexterm><literal>System Bus</literal>. Services on the <literal>Session Bus</literal> are for the current user's session only. Services on the <literal>System Bus</literal> are shared between all users.</para>
+    <para>In the following sections you will see how a D-Bus API can be used from some common programming languages. Remember that these examples only create <literal>proxies</literal> to the D-Bus objects, providing a way to use their API. The actual objects are instantiated in the service's process.</para>
+
+    <para>In these examples, we use the FreeDesktop <literal>Notification</literal> system, which should be available on most modern Linux installations. The examples should cause a message to popup from your desktop panel. Note that, like Telepathy, this service is available on the <indexterm><primary>Session Bus</primary></indexterm><literal>Session Bus</literal> rather than the <indexterm><primary>System Bus</primary></indexterm><literal>System Bus</literal>. Services on the <literal>Session Bus</literal> are for the current user's session only. Services on the <literal>System Bus</literal> are shared between all users.</para>
 
     <para>These programming languages allow you to call D-Bus methods synchronously, meaning that they block until they can return the method's result. However, that is generally disapproved of because the D-Bus service may take a long time to reply, and because of some fundamental technical problems with the use of blocking calls between processes. Therefore, the examples call the D-Bus method asynchronously, theoretically allowing the application to continue with other tasks while waiting for the result.</para> 
     <!-- TODO: Get the result asynchronously. --> 
@@ -182,13 +186,15 @@ of the Telapathy specification.
     <title>Language Bindings</title>
     <para>As mentioned in the <link linkend="sec-basics-dbus">Using D-Bus</link> section, many programming languages have their own generic ways of using D-Bus APIs. In addition, there are some Telepathy-specific APIs to make the use of Telepathy even easier. For instance, <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20GLib">telepathy-glib</ulink> provides an API that is familiar to users of Glib and GTK+, using the GObject system and related conventions.</para>
     <para>Likewise, the <ulink url="http://telepathy.freedesktop.org/wiki/TelepathyQt">Telepathy-Qt</ulink> project provides a more Qt-like API for Telepathy and <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20Python">Telepathy-Python</ulink> does the same for Python.</para> <!-- TODO: Link to Telepathy-Qt4 when it is ready. -->
+
+    <para>Remember that, like raw use of D-Bus from the programming languages, these Telepathy language bindings only create <literal>proxies</literal> to the D-Bus objects, providing a way to use their API. The actual objects are instantiated in the service's process.</para>
   
     <sect2 id="sec-basics-language-bindings-telepathy-glib">
       <title>telepathy-glib</title>
       <para>The C examples in this book will use telepathy-glib, which provides a GObject-based API for the Telepathy framework.</para>
 
       <!-- TODO: Mention this? 
-      <para>The telepathy-glib API and implementation is partly hand-coded and partly generated. The reference documentation only makes sense in terms of the Telepathy D-Bus Specification.</para>
+      <para>The reference documentation only makes sense in terms of the Telepathy D-Bus Specification.</para>
       -->
 
       <sect3 id="sec-basics-language-bindings-telepathy-glib-async">
@@ -219,7 +225,7 @@ of the Telapathy specification.
 
         </variablelist>
 
-        <para>The generated functions make simple direct calls to the D-Bus methods, without any additional logic and without using more appropriate types. For instance, they use unsigned integers for parameters because D-Bus does not have a concept of enumerations. However, the Telepathy D-Bus Specification does describe enumerations of possible values for these parameters, so the hand-written functions do use enums.</para>
+        <para>The generated functions make simple direct calls to the D-Bus methods, without any additional logic and without using more appropriate types. For instance, they use unsigned integers for parameters because D-Bus does not have a concept of enumerations. However, the Telepathy D-Bus Specification does describe enumerations of possible values for these parameters, so the hand-written functions do use enums. Likewise, raw D-Bus methods can only identify object instances in terms of a <literal>bus name</literal> and <literal>object path</literal> combination, but telepathy-glib can directly provide a GObject instance that is a proxy for a D-Bus object without exposing those intermediate details.</para>
         <para>Hand-coded functions have a simple <literal>tp_</literal> prefix and should be preferred whenever they exist. The generated functions exist only because hand-written functions have not yet been implemented for all Telepathy D-Bus methods.</para>  
         <para>In addition to more pleasant syntax, some hand-written objects contain a large amount of useful logic which can simplify application code. For instance, <ulink url="&url_telepathy_glib_base;contact.html">TpContact</ulink> uses GObject signals.</para>
       </sect3>
@@ -231,6 +237,26 @@ of the Telapathy specification.
 
       </sect3>
 
+      <sect3>
+        <title>Headers and Linking</title>
+        <para>To use the telepathy-glib API, you must include the headers for the library, and link to its shared library. The necessary compiler and linker commands can be obtained from the <literal>pkg-config</literal> utiltity like so:</para>
+        <para>
+<programlisting>
+pkg-config telepathy-glib --cflags
+pkg-config telepathy-glib --libs
+</programlisting>
+        </para>
+        <para>However, if you are using the &quot;autotools&quot; (automake, autoconf, etc) build system, you will find it more convenient to use the <function>PKG_CHECK_MODULES</function> macro in your <literal>configure.ac</literal> file.
+       </para>
+       <para>
+<programlisting>
+PKG_CHECK_MODULES(EXAMPLE, telepathy-glib)
+AC_SUBST(EXAMPLE_CFLAGS)
+AC_SUBST(EXAMPLE_LIBS)
+</programlisting>
+        </para>
+        <para>You should then use the generated _CFLAGS and _LIBS definitions in your Makefile.am files.</para>
+      </sect3>
 
     </sect2>
 
@@ -238,7 +264,7 @@ of the Telapathy specification.
 
   <sect1 id="sec-basics-connection-managers">
     <title>Connection Managers</title>
-    <para>Support for the various communication protocols is provided by various <literal>Connection Managers</literal>. For instance, the <literal>telepathy-gabble</literal> Connection Manager provides support for the <acronym>XMPP</acronym> protocol, also known as <literal>Jabber</literal>.</para>
+    <para>Support for the various communication protocols is provided by several <literal>Connection Managers</literal>. For instance, the <literal>telepathy-gabble</literal> Connection Manager provides support for the <acronym>XMPP</acronym> protocol, also known as <literal>Jabber</literal>.</para>
     <para>There is no central &app; D-Bus service. Instead there are several connection manager services, activated on demand, and each of these connection managers provide the same core set of D-Bus interfaces, such as <ulink url="&url_spec_base;Connection">Connection</ulink> and <ulink url="&url_spec_base;Channel">Channel</ulink>, allowing application code to be written generically for all connection managers.</para>
   </sect1>
 
@@ -249,7 +275,7 @@ of the Telapathy specification.
     <para>Although a core set of D-Bus interfaces is provided by all connection managers, some extra D-Bus interfaces are optional. For instance, some connection managers only provide extra interfaces when it discovers that the remote server provides that optional functionality. Therefore, when using these interfaces, application code should first check that the interface is available, sometimes falling back to alternative interfaces. Use the Connection interface's <ulink url="&url_spec_base;Connection.GetInterfaces"><function>GetInterfaces()</function></ulink> method for this.</para>
 
     <note>
-    <para>Note that the <ulink url="&url_spec_base;Connection.GetInterfaces"><function>Connection.GetInterfaces()</function></ulink> method  does more than the standard D-Bus <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-introspectable"><function>Introspectable.Introspect()</function></ulink> method. <function>GetInterfaces()</function> allows tools and language bindings to know about the possible availability of interfaces via <function>Introspect()</function> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
+    <para>Note that the <ulink url="&url_spec_base;Connection.GetInterfaces"><function>Connection.GetInterfaces()</function></ulink> method  does more than the standard D-Bus <ulink url="&url_dbus_spec_base;standard-interfaces-introspectable"><function>Introspectable.Introspect()</function></ulink> method. <function>GetInterfaces()</function> allows tools and language bindings to know about the possible availability of interfaces via <function>Introspect()</function> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
     </para>
     </note>
   </sect1>
@@ -322,18 +348,28 @@ of the Telapathy specification.
 
 <chapter id="chapter-connection-manager">
   <title>Connection Manager</title>
-  <para>TODO:
-   Notes:
-   - Provides protocol implementations, allowing telepathy to use additional IM 
-     types, for instance.
-   - This has connections.
-   - This is not used much by developers, but the list of connection managers 
-     should be offered by the desktop-wide accounts UI.
-  </para>
+
+  <para>As mentioned in the <link linkend="sec-basics-connection-managers">Basics</link> chapter, each <ulink url="&url_spec_base;ConnectionManager">Connection Manager</ulink> provides support for a communication protocol.</para>
+
+  <para>All Telepathy Connection Managers have <literal>bus name</literal>s that begin with &quot;org.freedesktop.Telepathy.ConnectionManager&quot; so you can discover all available connection managers by calling the D-Bus <ulink url="&url_dbus_spec_base;bus-messages-list-activatable-names"><function>ListActivatableNames()</function></ulink> method and then comparing the names with that prefix. telepathy-glib provides the <ulink url="&url_telepathy_glib_base;connection-manager.html#tp-list-connection-managers"><function>tp_list_connection_managers()</function></ulink> function that conveniently does this.</para>
+  <para>You may then discover what protocols are provided by each connection manager by calling the ConnectionManagers's <ulink url="&url_spec_base;ConnectionManager.ListProtocols"><function>ListProtocols</function></ulink> D-Bus method. telepathy-glib's <ulink url="&url_telepathy_glib_base;connection-manager.html">TpConnectionManager</ulink> object calls this automatically and emits the <literal>got-info</literal> signal when it has returned. You can examine the TpConnectionManager::protocols struct field in your signal handler.</para>
+  <para>Applications, such as IM clients, might choose to offer the user a choice from that list of protocols and then use the appropriate connection manager. Others might use only one protocol and therefore hard-code the connection manager's <literal>bus name</literal>.</para> 
+
+  <sect1>
+  <title>Example</title>
+    <para>This example list all available connection managers and the protocols that they support.</para>
+    <para><ulink url="&url_examples_base;list_all_protocols">Source Code</ulink></para>
+  </sect1>
+
 </chapter>
 
 <chapter id="chapter-connection">
   <title>Connection</title>
+  
+  <para>To attempt a connection to the remote server, call a Connection Manager's <ulink url="&url_spec_base;ConnectionManager.RequestConnection"><function>RequestConnection</function></ulink> D-Bus method, providing the connection details. If the connection succeeds then this method returns the <literal>bus name</literal> and <literal>object path</literal> of a Telepathy <ulink url="&url_spec_base;Connection">Connection</ulink> object.</para>
+  <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html">TpConnection</ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
+  <note><para>See the <link linkend="sec-basics-language-bindings-telepathy-glib-generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
+
   <para>TODO:
    Notes:
    - This is my connection to my IM account.
@@ -369,12 +405,6 @@ of the Telapathy specification.
   <title>Presence Example</title>
   <para>This example sets the presence for a jabber account.</para>
   <para><ulink url="&url_examples_base;set_presence">Source Code</ulink></para>
-  </sect1>
-
-  <sect1>
-  <title>Protocols Listing Example</title>
-  <para>This example list all available connection managers and the protocols that they support.</para>
-  <para><ulink url="&url_examples_base;list_all_protocols">Source Code</ulink></para>
   </sect1>
 
 </chapter>

@@ -1,3 +1,14 @@
+2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+
+	* docs/book/C/telepathy.xml: Basics: D-Bus, telepathy-glib: Explicitly 
+	point out that we are dealing with proxies, not the objects themselves.
+	Added a Headers and Linking sub-section.
+	ConnectionManager chapter: Mention how to list connection managers and 
+	their proxies, with links to the spec and reference documetnation. 
+	Move the list_protocols example here.
+	Connection: Mention RequestConnection() and the telepathy-glib 
+	equivalent. 
+
 2009-12-23  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Correct the use of the indexterm 

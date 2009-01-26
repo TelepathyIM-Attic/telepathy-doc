@@ -80,7 +80,7 @@ on_connection_manager_got_info (TpConnectionManager *cm,
 
 /* A callback handler. */
 static void
-on_list_connection_managers(TpConnectionManager * const *connection_managers,
+on_list_connection_managers (TpConnectionManager * const *connection_managers,
                             gsize n_cms, /* TODO: Why do we have this if it is NULL-terminated? */
                             const GError *error,
                             gpointer user_data,
