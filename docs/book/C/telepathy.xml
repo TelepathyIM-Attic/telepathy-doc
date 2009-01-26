@@ -187,7 +187,7 @@ of the Telapathy specification.
     <para>As mentioned in the <link linkend="sec-basics-dbus">Using D-Bus</link> section, many programming languages have their own generic ways of using D-Bus APIs. In addition, there are some Telepathy-specific APIs to make the use of Telepathy even easier. For instance, <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20GLib">telepathy-glib</ulink> provides an API that is familiar to users of Glib and GTK+, using the GObject system and related conventions.</para>
     <para>Likewise, the <ulink url="http://telepathy.freedesktop.org/wiki/TelepathyQt">Telepathy-Qt</ulink> project provides a more Qt-like API for Telepathy and <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20Python">Telepathy-Python</ulink> does the same for Python.</para> <!-- TODO: Link to Telepathy-Qt4 when it is ready. -->
 
-    <para>Remember that, like raw use of D-Bus from the programming languages, these Telepathy language bindings only create <literal>proxies</literal> to the D-Bus objects, providing a way to use their API. The actual objects are instantiated in the service's process.</para>
+    <para>Remember that, like raw use of D-Bus from these programming languages, the Telepathy language bindings only create <literal>proxies</literal> to the D-Bus objects, providing a way to use their API. The actual objects are instantiated in the service's process.</para>
   
     <sect2 id="sec-basics-language-bindings-telepathy-glib">
       <title>telepathy-glib</title>
@@ -227,13 +227,13 @@ of the Telapathy specification.
 
         <para>The generated functions make simple direct calls to the D-Bus methods, without any additional logic and without using more appropriate types. For instance, they use unsigned integers for parameters because D-Bus does not have a concept of enumerations. However, the Telepathy D-Bus Specification does describe enumerations of possible values for these parameters, so the hand-written functions do use enums. Likewise, raw D-Bus methods can only identify object instances in terms of a <literal>bus name</literal> and <literal>object path</literal> combination, but telepathy-glib can directly provide a GObject instance that is a proxy for a D-Bus object without exposing those intermediate details.</para>
         <para>Hand-coded functions have a simple <literal>tp_</literal> prefix and should be preferred whenever they exist. The generated functions exist only because hand-written functions have not yet been implemented for all Telepathy D-Bus methods.</para>  
-        <para>In addition to more pleasant syntax, some hand-written objects contain a large amount of useful logic which can simplify application code. For instance, <ulink url="&url_telepathy_glib_base;contact.html">TpContact</ulink> uses GObject signals.</para>
+        <para>In addition to more pleasant syntax, some hand-written objects contain a large amount of useful logic which can simplify application code. For instance, <ulink url="&url_telepathy_glib_base;contact.html"><classname>TpContact</classname></ulink> uses GObject signals. <!-- TODO: Finish this sentence. --></para>
       </sect3>
 
       <sect3>
         <title>Instantiation and Readiness</title>
         <!-- TODO: Keep any eye on http://bugs.freedesktop.org/show_bug.cgi?id=13422 -->
-        <para>Some of the hand-coded objects, such as <ulink url="&url_telepathy_glib_base;connection.html">TpConnection</ulink> and <ulink url="&url_telepathy_glib_base;connection.html">TpChannel</ulink>, call additional D-Bus methods to acquire necessary information. When they have received this information they are then &quot;ready&quot;, meaning that other hand-written functions can then be called. This concept of &quot;readiness&quot; does not exist in the raw D-Bus API because it describes the status of the hand-written behaviour. For instance, you should call <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready">tp_connection_call_when_ready()</ulink> after instantiating a TpConnection, or <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready">tp_channel_call_when_ready()</ulink> after instantiating a TpChannel.</para>
+        <para>Some of the hand-coded objects, such as <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> and <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpChannel</classname></ulink>, call additional D-Bus methods to acquire necessary information. When they have received this information they are then &quot;ready&quot;, meaning that other hand-written functions can then be called. This concept of &quot;readiness&quot; does not exist in the raw D-Bus API because it describes the status of the hand-written behaviour. For instance, you should call <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready">tp_connection_call_when_ready()</ulink> after instantiating a TpConnection, or <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready">tp_channel_call_when_ready()</ulink> after instantiating a TpChannel.</para>
 
       </sect3>
 
@@ -265,26 +265,28 @@ AC_SUBST(EXAMPLE_LIBS)
   <sect1 id="sec-basics-connection-managers">
     <title>Connection Managers</title>
     <para>Support for the various communication protocols is provided by several <literal>Connection Managers</literal>. For instance, the <literal>telepathy-gabble</literal> Connection Manager provides support for the <acronym>XMPP</acronym> protocol, also known as <literal>Jabber</literal>.</para>
-    <para>There is no central &app; D-Bus service. Instead there are several connection manager services, activated on demand, and each of these connection managers provide the same core set of D-Bus interfaces, such as <ulink url="&url_spec_base;Connection">Connection</ulink> and <ulink url="&url_spec_base;Channel">Channel</ulink>, allowing application code to be written generically for all connection managers.</para>
+    <para>There is no central &app; D-Bus service. Instead there are several connection manager services, activated on demand, and each of these connection managers provide the same core set of D-Bus interfaces, such as <ulink url="&url_spec_base;Connection"><classname>Connection</classname></ulink> and <ulink url="&url_spec_base;Channel"><classname>Channel</classname></ulink>, allowing application code to be written generically for all connection managers.</para>
   </sect1>
 
   <!-- TODO: Notes: The interfaces are often called their type, particularly for channels. Explain. -->
-  <!-- TODO: Is it only Connection that has optional interfaces? -->
   <sect1 id="sec-basics-optional-interfaces">
     <title>Optional Interfaces</title>
-    <para>Although a core set of D-Bus interfaces is provided by all connection managers, some extra D-Bus interfaces are optional. For instance, some connection managers only provide extra interfaces when it discovers that the remote server provides that optional functionality. Therefore, when using these interfaces, application code should first check that the interface is available, sometimes falling back to alternative interfaces. Use the Connection interface's <ulink url="&url_spec_base;Connection.GetInterfaces"><function>GetInterfaces()</function></ulink> method for this.</para>
+    <para>Although a core set of D-Bus interfaces is provided by all connection managers, some extra D-Bus interfaces are optional. For instance, some connection managers only provide extra interfaces when they discover that the remote server provides that optional functionality. Therefore, when using these interfaces, application code should first check that the interface is available, sometimes falling back to alternative interfaces.</para>
+    <para>For instance, use the <classname>Connection</classname> interface's <ulink url="&url_spec_base;Connection.GetInterfaces"><function>GetInterfaces()</function></ulink> method. For <classname>ConnectionManager</classname>s and <classname>Channel</classname>s use their <property>Interfaces</property> D-Bus property. Eventually <classname>Connection</classname> will also have an <property>Interfaces</property> property, when its <function>GetInterfaces()</function> method will be deprecated.</para>
 
     <note>
-    <para>Note that the <ulink url="&url_spec_base;Connection.GetInterfaces"><function>Connection.GetInterfaces()</function></ulink> method  does more than the standard D-Bus <ulink url="&url_dbus_spec_base;standard-interfaces-introspectable"><function>Introspectable.Introspect()</function></ulink> method. <function>GetInterfaces()</function> allows tools and language bindings to know about the possible availability of interfaces via <function>Introspect()</function> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
+    <para>Note that the <property>Interfaces</property> property (or the <ulink url="&url_spec_base;Connection.GetInterfaces"><function>Connection.GetInterfaces()</function></ulink> method) does more than the standard D-Bus <ulink url="&url_dbus_spec_base;standard-interfaces-introspectable"><function>Introspectable.Introspect()</function></ulink> method. The Telepathy-specific mechanism allows tools and language bindings to know about the possible availability of interfaces via <function>Introspect()</function> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
     </para>
     </note>
   </sect1>
 
+  <!-- TODO: Should we even mention this before the new (5?) version is ready?
   <sect1 id="sec-basics-mission-control">
     <title>Mission Control</title>
-    <para>TODO: Notes: desktop-wide accounts and dispatching to applications. TODO: Should we even mention this before the new (5?) version is ready?
+    <para>TODO: Notes: desktop-wide accounts and dispatching to applications. 
     </para>
   </sect1>
+  -->
 
   <sect1 id="sec-basics-handles">
     <title>Handles</title>
@@ -295,7 +297,7 @@ AC_SUBST(EXAMPLE_LIBS)
       <title>Hold and Release</title>
       <para>When a Telepathy object has finished with a handle that number may be forgotten and even reused later as a handle for a completely different item. However, your application may wish to &quot;hold&quot; the handle for a longer time. To do so, you should call the Connection's <ulink url="&url_spec_base;Connection.HoldHandles"><function>HoldHandles()</function></ulink> method and call <ulink url="&url_spec_base;Connection.ReleaseHandles"><function>ReleaseHandles()</function></ulink> when you have finished with the handle. However, a single <function>ReleaseHandles()</function> call will release a handle regardless of how many times <function>HoldHandles()</function> has been called, so be careful not to call it while other code may be using the handle.</para>
 
-      <para>This is less necessary when using Telepathy <link linkend="sec-basics-language-bindings">language bindings</link>, such as telepathy-glib, because they may automatically hold and release handles for the lifetime of their objects, such as telepathy-glib's TpContact object. Additionally, telepathy-glib wraps the <function>HoldHandles()</function> and <function>ReleaseHandles()</function> D-Bus methods with the <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles()</function></ulink> functions which reference-count the client-side handle &quot;hold&quot;, allowing you to match each <function>tp_connection_hold_handles()</function> call with a call to <function>tp_connection_release_handles()</function>.</para>
+      <para>This is less necessary when using Telepathy <link linkend="sec-basics-language-bindings">language bindings</link>, such as telepathy-glib, because they may automatically hold and release handles for the lifetime of their objects, such as telepathy-glib's <classname>TpContact</classname> object. Additionally, telepathy-glib wraps the <function>HoldHandles()</function> and <function>ReleaseHandles()</function> D-Bus methods with the <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles()</function></ulink> functions which reference-count the client-side handle &quot;hold&quot;, allowing you to match each <function>tp_connection_hold_handles()</function> call with a call to <function>tp_connection_release_handles()</function>.</para>
 
       <para>In the later sections we will mention when it actually makes sense to do this when using specific parts of the Telapathy API.</para>
     </sect2>
@@ -311,15 +313,15 @@ AC_SUBST(EXAMPLE_LIBS)
       <listitem><simpara>Methods prefixed with <literal>Get</literal> are synchronous, meaning that the result will be returned immediately. These methods generally access local information and do not need to make any contact with the remote server. For instance, <ulink url="&url_spec_base;Connection.GetStatus"><function>Connection.GetStatus()</function></ulink>.</simpara></listitem>
     </orderedlist>
 
-    <para>See the <link linkend="sec-basics-dbus">Using D-Bus section</link> to learn more about asynchronous D-Bus method calls. Note that many <literal>Get</literal> methods may be replaced with D-Bus properties in future, which will also be syncronous.</para>
+    <para>See the <link linkend="sec-basics-dbus">Using D-Bus</link> section to learn more about asynchronous D-Bus method calls. Note that many <literal>Get</literal> methods may be replaced with D-Bus properties in future, which will also be syncronous.</para>
 
-    <para>See also the section about <link linkend="sec-basics-language-bindings-telepathy-glib">telepathy-glib</link> section about its function naming conventions.</para>
+    <para>See also the <link linkend="sec-basics-language-bindings-telepathy-glib">telepathy-glib</link> section about its function naming conventions.</para>
   </sect1>
 
 </chapter>
 
 <chapter id="chapter-accounts">
-  <title>Accounts and AccountManager</title>
+  <title>TODO: Accounts and AccountManager</title>
   <para>TODO:
    Notes:
    - This is described in the telepathy specification but only partially 
@@ -338,7 +340,7 @@ AC_SUBST(EXAMPLE_LIBS)
 </chapter>
 
 <chapter id="chapter-channel-dispatcher">
-  <title>ChannelDispatcher</title>
+  <title>TODO: ChannelDispatcher</title>
   <para>TODO:
    Notes:
    - This is in mission control.
@@ -351,14 +353,14 @@ AC_SUBST(EXAMPLE_LIBS)
 <chapter id="chapter-connection-manager">
   <title>Connection Manager</title>
 
-  <para>As mentioned in the <link linkend="sec-basics-connection-managers">Basics</link> chapter, each <ulink url="&url_spec_base;ConnectionManager">Connection Manager</ulink> provides support for a communication protocol.</para>
+  <para>As mentioned in the <link linkend="sec-basics-connection-managers">Basics</link> chapter, each <ulink url="&url_spec_base;ConnectionManager"><classname>ConnectionManager</classname></ulink> provides support for a communication protocol.</para>
 
   <para>All Telepathy Connection Managers have <literal>bus name</literal>s that begin with &quot;org.freedesktop.Telepathy.ConnectionManager&quot; so you can discover all available connection managers by calling the D-Bus <ulink url="&url_dbus_spec_base;bus-messages-list-activatable-names"><function>ListActivatableNames()</function></ulink> method and then comparing the names with that prefix. telepathy-glib provides the <ulink url="&url_telepathy_glib_base;connection-manager.html#tp-list-connection-managers"><function>tp_list_connection_managers()</function></ulink> function that conveniently does this.</para>
-  <para>You may then discover what protocols are provided by each connection manager by calling the ConnectionManagers's <ulink url="&url_spec_base;ConnectionManager.ListProtocols"><function>ListProtocols</function></ulink> D-Bus method. telepathy-glib's <ulink url="&url_telepathy_glib_base;connection-manager.html">TpConnectionManager</ulink> object calls this automatically and emits the <literal>got-info</literal> signal when it has returned. You can examine the TpConnectionManager::protocols struct field in your signal handler.</para>
+  <para>You may then discover what protocols are provided by each connection manager by calling the ConnectionManagers's <ulink url="&url_spec_base;ConnectionManager.ListProtocols"><function>ListProtocols</function></ulink> D-Bus method. telepathy-glib's <ulink url="&url_telepathy_glib_base;connection-manager.html"><classname>TpConnectionManager</classname></ulink> object calls this automatically and emits the <literal>got-info</literal> signal when it has returned. You can examine the TpConnectionManager::protocols struct field in your signal handler.</para>
   <para>Applications, such as IM clients, might choose to offer the user a choice from that list of protocols and then use the appropriate connection manager. Others might use only one protocol and therefore hard-code the connection manager's <literal>bus name</literal>.</para> 
 
   <sect1>
-  <title>Example</title>
+  <title>Protocols Listing Example</title>
     <para>This example list all available connection managers and the protocols that they support.</para>
     <para><ulink url="&url_examples_base;list_all_protocols">Source Code</ulink></para>
   </sect1>
@@ -370,9 +372,13 @@ AC_SUBST(EXAMPLE_LIBS)
   
   <sect1>
     <title>Connecting</title>
-    <para>To attempt a connection to the remote server, call a Connection Manager's <ulink url="&url_spec_base;ConnectionManager.RequestConnection"><function>RequestConnection</function></ulink> D-Bus method, providing the connection details. If the connection succeeds then this method returns the <literal>bus name</literal> and <literal>object path</literal> of a Telepathy <ulink url="&url_spec_base;Connection">Connection</ulink> object.</para>
-    <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html">TpConnection</ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
+    <para>To attempt a connection to the remote server, for instance to your Jabber IM account, call a <classname>ConnectionManager</classname>'s <ulink url="&url_spec_base;ConnectionManager.RequestConnection"><function>RequestConnection</function></ulink> D-Bus method, providing the connection details. If the connection succeeds then this method returns the <literal>bus name</literal> and <literal>object path</literal> of a Telepathy <ulink url="&url_spec_base;Connection"><classname>Connection</classname></ulink> object.</para>
+
+    <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
+
     <note><para>See the <link linkend="sec-basics-language-bindings-telepathy-glib-generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
+
+    <para>See the <link linkend="chapter-channel">Channels</link> section about obtaining and using <classname>Channel</classname>s from the <classname>Connection</classname> with which you can list groups of contacts .</para>
 
     <sect2>
       <title>Connection Example</title>
@@ -382,17 +388,23 @@ AC_SUBST(EXAMPLE_LIBS)
   </sect1>
 
   <sect1>
+    <title>Optional Interfaces</title>
+    <para>TODO: The Connection object gas several optional interfaces (Avatars, Presence, etc).
+     - And some optional interfaces that just improve similar existing interfaces, such as <ulink url="&url_spec_base;Connection.Interface.Requests">Connection.Interface.Requests</ulink>
+       instead of <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>
+    </para>
+  </sect1>
+  
+
+  <sect1>
     <title>TODO</title>
   <para>TODO:
    Notes:
-   - This is my connection to my IM account.
    - A connection has <ulink url="&url_spec_base;Channel">Channel</ulink>s.
    - Connection gives me several <ulink url="&url_spec_base;Channel.Type.ContactList">ContactList</ulink> Channels (subscribe, publish, etc)
      - Provides a <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface.
-       - Contains many members (Contact handles). Note that there is no Contact interface or object (just a handle), for performance reasons.
-   - Has several optional interfaces (Avatars, Presence, etc).
-     - And some optional interfaces that just improve similar existing interfaces, such as <ulink url="&url_spec_base;Connection.Interface.Requests">Connection.Interface.Requests</ulink>
-       instead of <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>
+       - Contains many members (Contact handles). 
+   -
    - Provides a <ulink url="&url_spec_base;Connection.Interface.SimplePresence">SimplePresence</ulink> interface, to which I can give a contact handle 
      to discover if that contact is online. The SimplePresence interface emits 
      signals when contacts' presence changes.

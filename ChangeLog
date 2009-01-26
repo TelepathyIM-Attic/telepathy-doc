@@ -1,5 +1,11 @@
 2009-12-26  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention that 
+	ConnectionManager and Channel also have optional interfaces (not just 
+	Connection), and mention the new Interfaces property.
+
+2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/book/C/telepathy.xml: Basics: API Conventions: Mention the 
 	Request/Get distinction and link to the telepathy-glib conventions.
 	Removed the Asynchronous Calls section because we dealt with that here 
