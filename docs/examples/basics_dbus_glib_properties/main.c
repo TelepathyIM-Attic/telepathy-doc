@@ -19,14 +19,14 @@
 
 GMainLoop *mainloop = NULL;
 
-void on_proxy_call_notify (DBusGProxy *proxy,
+void on_proxy_call_get (DBusGProxy *proxy,
   DBusGProxyCall *call_id,
   void *user_data)
 {
   GError *error = 0;
-  guint result = 0;
+  GValue result = {0, };
   dbus_g_proxy_end_call (proxy, call_id, &error, 
-    G_TYPE_UINT, &result, /* Return value. */
+    G_TYPE_VALUE, &result, /* Return value. */
     G_TYPE_INVALID);
 
   if (error)
@@ -36,8 +36,13 @@ void on_proxy_call_notify (DBusGProxy *proxy,
     }
   else
     {
-      g_printf ("dbus_g_proxy_begin_call() succeeded, returning %u\n", result);
+      gchar* as_string = g_strdup_value_contents (&result);
+      g_printf ("dbus_g_proxy_begin_call() succeeded, returning type=%s, value=%s\n", 
+        G_VALUE_TYPE_NAME(&result), as_string);
+      g_free (as_string);
     }
+
+  g_value_unset (&result);
 
   /* Stop the main loop to allow main() to finish, 
    * stopping the program: */
@@ -63,34 +68,23 @@ main (int argc, char **argv)
       return 1;
     }
 
-  /* Get a proxy for the remote object: */
+  /* Get a proxy for the Properties interface of a remote object: */
   DBusGProxy *proxy = dbus_g_proxy_new_for_name (connection,
-    "org.freedesktop.Notifications", /* name */
-    "/org/freedesktop/Notifications", /* path */
-    "org.freedesktop.Notifications"); /* interface */
+    "org.freedesktop.Telepathy.Connection.salut.local_xmpp.Murray_20Cumming", /* name */
+    "/org/freedesktop/Telepathy/Connection/salut/local_xmpp/Murray_20Cumming", /* path */
+    "org.freedesktop.DBus.Properties"); /* interface */
 
+  /* Call the Properties.Get method on the interface of the remote object: */
 
-  /* Call a method on the interface  of the remote object: */
-
-  /* Create an empty GHashTable for one of the parameters: */
-  GHashTable* actions = g_hash_table_new (NULL, NULL);  
-
-  /* Call the method: */
-  dbus_g_proxy_begin_call (proxy, "Notify", 
-    &on_proxy_call_notify, NULL, /* user_data */ 
+  /* Call the Get method to get a property value: */
+  dbus_g_proxy_begin_call (proxy, "Get" /* property name */,
+    &on_proxy_call_get, NULL, /* user_data */ 
     NULL, /* destroy notification */
-    G_TYPE_STRING, "dbus-glib example",
-    G_TYPE_UINT, 0,
-    G_TYPE_STRING, "", /* icon_name */ 
-    G_TYPE_STRING, "Example Notification",
-    G_TYPE_STRING, "This is an example notification via dbus-glib.",
-    G_TYPE_STRV, 0,
-    dbus_g_type_get_map("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), actions,
-    G_TYPE_INT, 0,
+    G_TYPE_STRING, "org.freedesktop.Telepathy.Connection", /* interface name */
+    G_TYPE_STRING, "SelfHandle", /* property name */
     G_TYPE_INVALID,
+    G_TYPE_VALUE,
     G_TYPE_INVALID);
-  g_hash_table_unref (actions);
-  actions = NULL;
 
   /* Run the main loop, 
    * to keep our application alive while we wait for responses from D-Bus.

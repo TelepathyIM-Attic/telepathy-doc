@@ -166,18 +166,39 @@ of the Telapathy specification.
     <sect2 id="sec-basics-dbus-glib">
       <title>Using D-Bus from C, with glib</title>
 
-      <para>This example uses dbus-glib's <ulink url="http://dbus.freedesktop.org/doc/api/html/group__DBusGLib.html#gbd4dab5f4d66ab052c15862028502caf">dbus_g_proxy_begin_call()</ulink> function to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path. Note that we must specify the types of each parameter.</para>
-      <para>We could have used the synchronous <ulink url="http://dbus.freedesktop.org/doc/api/html/group__DBusGLib.html#ge38c0fb788e874fcf88489c961480f38">dbus_g_proxy_call()</ulink> function instead but, as already mentioned, asynchronous calls are generally preferred with D-Bus.</para>
-      <para><ulink url="&url_examples_base;basics_dbus_glib">Source Code</ulink></para>
+      <sect3 id="sect-basics-dbus-glib-methods">
+        <title>Calling Methods</title>
+        <para>This example uses dbus-glib's <ulink url="http://dbus.freedesktop.org/doc/api/html/group__DBusGLib.html#gbd4dab5f4d66ab052c15862028502caf">dbus_g_proxy_begin_call()</ulink> function to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path. Note that we must specify the types of each parameter.</para>
+        <para>We could have used the synchronous <ulink url="http://dbus.freedesktop.org/doc/api/html/group__DBusGLib.html#ge38c0fb788e874fcf88489c961480f38">dbus_g_proxy_call()</ulink> function instead but, as already mentioned, asynchronous calls are generally preferred with D-Bus.</para>
+        <para><ulink url="&url_examples_base;basics_dbus_glib_methods">Source Code</ulink></para>
+      </sect3>
+
+     <sect3 id="sect-basics-dbus-glib-properties">
+        <title>Using Properties</title>
+        <para>D-Bus properties are available via an additional <ulink url="&url_dbus_spec_base;standard-interfaces-properties">org.freedesktop.DBus.Properties</ulink> interface on some objects, which provides <function>Get()</function>, <function>Set()</function> and <function>GetAll</function> methods. You can call these methods to get or set property values for the object's other interfaces.</para>
+        <para>As of this writing, telepathy-glib has no simple API for dealing with properties so you must call these functions directly. Therefore this example is therefore very similar to the <link linkend="sect-basics-dbus-glib-methods">Calling Methods</link> example.</para>
+        <para><ulink url="&url_examples_base;basics_dbus_glib_properties">Source Code</ulink></para>
+      </sect3>
+
 
     </sect2>
 
     <sect2 id="sec-basics-dbus-python">
       <title>Using D-Bus from Python</title>
 
-      <para>This example uses <indexterm><primary>Python</primary></indexterm>Python to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path.</para>
-      <para>Note that we specify reply and error handlers as keyword arguments, to call the method asynchronously because asynchronous calls are generally preferred with D-Bus.</para>
-      <para><ulink url="&url_examples_base;basics_dbus_python">Source Code</ulink></para>
+      <sect3 id="sect-basics-dbus-python-methods">
+        <title>Calling Methods</title>
+        <para>This example uses <indexterm><primary>Python</primary></indexterm>Python to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path.</para>
+        <para>Note that we specify reply and error handlers as keyword arguments, to call the method asynchronously because asynchronous calls are generally preferred with D-Bus.</para>
+        <para><ulink url="&url_examples_base;basics_dbus_python_methods">Source Code</ulink></para>
+      </sect3>
+
+      <sect3 id="sect-basics-dbus-python-properties">
+        <title>Using Propertie</title>
+        <para>D-Bus properties are available via an additional <ulink url="&url_dbus_spec_base;standard-interfaces-properties">org.freedesktop.DBus.Properties</ulink> interface on some objects, which provides <function>Get()</function>, <function>Set()</function> and <function>GetAll</function> methods. You can call these methods to get or set property values for the object's other interfaces.</para>
+        <para>As of this writing, Python has no simple API for dealing with D-Bus properties so you must call these functions directly. Therefore this example is therefore very similar to the <link linkend="sect-basics-dbus-python-methods">Calling Methods</link> example.</para>
+        <para><ulink url="&url_examples_base;basics_dbus_python_properties">Source Code</ulink></para>
+      </sect3>
 
     </sect2>
    </sect1>

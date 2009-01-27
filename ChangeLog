@@ -1,5 +1,11 @@
 2009-12-27  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/examples/: 
+	* docs/book/C/telepathy.xml: Basics: USing D-Bus: Added sections with 
+	examples of using D-Bus properties with dbus-glib and Python.
+
+2009-12-27  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention how 
 	to check with telepathy-glib. We need dbus-glib and Python examples 
 	here too.
