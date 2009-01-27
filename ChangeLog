@@ -1,36 +1,36 @@
-2009-12-27  Murray Cumming  <murrayc@murrayc.com>
+2009-01-27  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/: 
-	* docs/book/C/telepathy.xml: Basics: USing D-Bus: Added sections with 
+	* docs/book/C/telepathy.xml: Basics: Using D-Bus: Added sections with 
 	examples of using D-Bus properties with dbus-glib and Python.
 
-2009-12-27  Murray Cumming  <murrayc@murrayc.com>
+2009-01-27  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention how 
 	to check with telepathy-glib. We need dbus-glib and Python examples 
 	here too.
 	Connection: Added a Presence sub-section with the example.
 
-2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+2009-01-26  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention that 
 	ConnectionManager and Channel also have optional interfaces (not just 
 	Connection), and mention the new Interfaces property.
 
-2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+2009-01-26  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: API Conventions: Mention the 
 	Request/Get distinction and link to the telepathy-glib conventions.
 	Removed the Asynchronous Calls section because we dealt with that here 
 	and in the Using D-Bus section.
 
-2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+2009-01-26  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Handles: Write this section. 
 	Removed the main Handles chapter because a) It was planned to cover the 
 	same stuff and b) It should be covered very early.
 
-2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+2009-01-26  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: D-Bus, telepathy-glib: Explicitly 
 	point out that we are dealing with proxies, not the objects themselves.
@@ -41,18 +41,18 @@
 	Connection: Mention RequestConnection() and the telepathy-glib 
 	equivalent. 
 
-2009-12-23  Murray Cumming  <murrayc@murrayc.com>
+2009-01-23  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Correct the use of the indexterm 
 	tags. Their contents are not displayed in the main text.
 
-2009-12-23  Murray Cumming  <murrayc@murrayc.com>
+2009-01-23  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: telepathy-glib: Mention sync/async 
 	prefixes. Mention generated/hand-coded prefixes. Mention 
 	call_when_ready() functions.
 
-2009-12-23  Murray Cumming  <murrayc@murrayc.com>
+2009-01-23  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/basics_dbus_glib/main.c:
 	* docs/examples/basics_dbus_python/example.py: Call the D-Bus method 
@@ -63,18 +63,18 @@
 	Added an Installation chapter.
 	Added an index and sprinkled some indexterm tags around to fill it.
 
-2009-12-22  Murray Cumming  <murrayc@murrayc.com>
+2009-01-22  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Add a Language Bindings sub-section 
 	as a way to mention telepathy-glib, which we use (so far) for all our 
 	examples.
 
-2009-12-22  Murray Cumming  <murrayc@murrayc.com>
+2009-01-22  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Move the boring stuff about 
 	Introspect() into a notes section because it is too soon to get scary.
 
-2009-12-20  Murray Cumming  <murrayc@murrayc.com>
+2009-01-20  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Basics: Write some text about optional 
 	interfaces. Added a Connection Managers section before it, so that we 
@@ -84,7 +84,7 @@
 	* docs/book/C/figures/: Tried adding this again, adding a README because 
 	git seems to ignore it if it is empty.
 
-2009-12-20  Murray Cumming  <murrayc@murrayc.com>
+2009-01-20  Murray Cumming  <murrayc@murrayc.com>
 
 	* configure.ac:
 	* docs/examples/basics_dbus_python/Makefile.am:
@@ -95,7 +95,7 @@
 	* docs/book/insert-example-code.py: Read .py files as well as .h and .cc 
 	files.
 
-2009-12-15  Murray Cumming  <murrayc@murrayc.com>
+2009-01-15  Murray Cumming  <murrayc@murrayc.com>
 
 	* configure.ac:
 	* docs/examples/basics_dbus_glib/Makefile.am:
@@ -107,7 +107,7 @@
 	* docs/book/C/figures/: Added these directories to git. I forgot to do 
 	that until now.
 
-2009-12-15  Murray Cumming  <murrayc@murrayc.com>
+2009-01-15  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/book/C/telepathy.xml: Add a small part of the introduction. 
 	Add some sect structure.
