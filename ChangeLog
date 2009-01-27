@@ -1,10 +1,9 @@
-2009-12-26  Murray Cumming  <murrayc@murrayc.com>
+2009-12-27  Murray Cumming  <murrayc@murrayc.com>
 
-	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention that 
-	all interfaces are theoretically optional.
-	Connection, Channel: Arrange the lists of optional interfaces in 
-	variablelist blocks. Rearrange the notes to match where we probably want 
-	to mention things.
+	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention how 
+	to check with telepathy-glib. We need dbus-glib and Python examples 
+	here too.
+	Connection: Added a Presence sub-section with the example.
 
 2009-12-26  Murray Cumming  <murrayc@murrayc.com>
 

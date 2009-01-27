@@ -273,12 +273,16 @@ AC_SUBST(EXAMPLE_LIBS)
     <title>Optional Interfaces</title>
     <para>Although a core set of D-Bus interfaces is provided by all connection managers, some extra D-Bus interfaces are optional. For instance, some connection managers only provide extra interfaces when they discover that the remote server provides that optional functionality. Therefore, when using these interfaces, application code should first check that the interface is available, sometimes falling back to alternative interfaces.</para>
     <para>For instance, use the <classname>Connection</classname> interface's <ulink url="&url_spec_base;Connection.GetInterfaces"><function>GetInterfaces()</function></ulink> method. For <classname>ConnectionManager</classname>s and <classname>Channel</classname>s use their <property>Interfaces</property> D-Bus property. Eventually <classname>Connection</classname> will also have an <property>Interfaces</property> property, when its <function>GetInterfaces()</function> method will be deprecated.</para>
+
+    <para>When using telepathy-glib, you can simply call the <ulink url="&url_telepathy_glib_base;proxy.html#tp-proxy-has-interface"><function>tp_proxy_has_interface()</function></ulink> function for <classname>TpConnectionManager</classname>, <classname>TpConnection</classname>, or <classname>TpChannel</classname>.</para> 
     <para>Actually, the core interfaces are only &quot;recommended&quot; by the Telepathy D-Bus specification so you should check before using any interface even if it is not commonly considered to be optional.</para>
 
     <note>
     <para>Note that the <property>Interfaces</property> property (or the <ulink url="&url_spec_base;Connection.GetInterfaces"><function>Connection.GetInterfaces()</function></ulink> method) does more than the standard D-Bus <ulink url="&url_dbus_spec_base;standard-interfaces-introspectable"><function>Introspectable.Introspect()</function></ulink> method. The Telepathy-specific mechanism allows tools and language bindings to know about the possible availability of interfaces via <function>Introspect()</function> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
     </para>
     </note>
+
+    <!-- TODO: Add dbus-glib and Python examples of checking-for and using an Interface. -->
   </sect1>
 
   <!-- TODO: Should we even mention this before the new (5?) version is ready?
@@ -299,6 +303,8 @@ AC_SUBST(EXAMPLE_LIBS)
       <para>When a Telepathy object has finished with a handle that number may be forgotten and even reused later as a handle for a completely different item. However, your application may wish to &quot;hold&quot; the handle for a longer time. To do so, you should call the Connection's <ulink url="&url_spec_base;Connection.HoldHandles"><function>HoldHandles()</function></ulink> method and call <ulink url="&url_spec_base;Connection.ReleaseHandles"><function>ReleaseHandles()</function></ulink> when you have finished with the handle. However, a single <function>ReleaseHandles()</function> call will release a handle regardless of how many times <function>HoldHandles()</function> has been called, so be careful not to call it while other code may be using the handle.</para>
 
       <para>This is less necessary when using Telepathy <link linkend="sec-basics-language-bindings">language bindings</link>, such as telepathy-glib, because they may automatically hold and release handles for the lifetime of their objects, such as telepathy-glib's <classname>TpContact</classname> object. Additionally, telepathy-glib wraps the <function>HoldHandles()</function> and <function>ReleaseHandles()</function> D-Bus methods with the <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles()</function></ulink> functions which reference-count the client-side handle &quot;hold&quot;, allowing you to match each <function>tp_connection_hold_handles()</function> call with a call to <function>tp_connection_release_handles()</function>.</para>
+
+      <!-- TODO: On irc, smcv said: "perhaps "the user types in the name of a chatroom to join" would be a better example of when you want to use tp_connection_request_handles/tp_connection_unref_handles". Explain that more fully. -->
 
       <para>In the later sections we will mention when it actually makes sense to do this when using specific parts of the Telapathy API.</para>
     </sect2>
@@ -392,6 +398,18 @@ AC_SUBST(EXAMPLE_LIBS)
   </sect1>
 
   <sect1>
+    <title>Presence</title>
+    <para>If a protocol has a concept of presence, showing when users are online or available, then that <classname>ConnectionManager</classname>'s <classname>Connection</classname> will provide the <ulink url="&url_spec_base;Connection.Interface.SimplePresence"><classname>SimplePresence</classname></ulink> interface. This interface has functions to set and get the current presence for the connected account. It also has a <ulink url="&url_spec_base;Connection.Interface.SimplePresence.PresencesChanged">PresencesChanged</ulink> signal to detect changes to the presence caused by other clients.</para>
+
+    <sect2>
+      <title>Presence Example</title>
+      <para>This example sets the presence for a jabber account, by calling the <function>SetPresence()</function> method of the <classname>Connection</classname>'s <classname>SimplePresence</classname> interface, using telepathy-glib.</para>
+      <para><ulink url="&url_examples_base;set_presence">Source Code</ulink></para>
+    </sect2>
+
+  </sect1>
+
+  <sect1>
     <title>Optional Interfaces</title>
     <para>As mentioned in the <link linkend="sec-basics-optional-interfaces">Basics</link> section, the <classname>Connection</classname> may provide several optional interfaces, depending on the <classname>ConnectionManager</classname> used and depending on the capabilities of the remote server.</para>
 
@@ -443,7 +461,7 @@ AC_SUBST(EXAMPLE_LIBS)
            <ulink url="&url_spec_base;Connection.Interface.Requests"><classname>Requests</classname></ulink>
          </term>
          <listitem>
-           <para>TODO</para>
+           <para>TODO: Notes: improves a similar existing interface - instead of <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>.</para>
          </listitem>
        </varlistentry>
 
@@ -467,17 +485,8 @@ AC_SUBST(EXAMPLE_LIBS)
 
     </variablelist>
 
-    <para>
-     - And some optional interfaces that just improve similar existing interfaces, such as <ulink url="&url_spec_base;Connection.Interface.Requests">Connection.Interface.Requests</ulink>
-       instead of <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>
-    </para>
   </sect1>
 
-  <sect1>
-  <title>Presence Example</title>
-  <para>This example sets the presence for a jabber account.</para>
-  <para><ulink url="&url_examples_base;set_presence">Source Code</ulink></para>
-  </sect1>
 
 </chapter>
 

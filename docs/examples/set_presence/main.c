@@ -73,15 +73,15 @@ void on_connection_set_presence(TpConnection *proxy,
       return;
     }
 
-   g_printf ("Presence set.\n");
+  g_printf ("Presence set.\n");
 
 
-   /* Disconnect the connection now that our example has finished.
-      Otherwise it will be orphaned. */
-   g_printf ("DEBUG: Disconnecting.\n");
-   tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
-            NULL, NULL); /* Also destroys the connection object. */
-   connection = NULL;
+  /* Disconnect the connection now that our example has finished.
+     Otherwise it will be orphaned. */
+  g_printf ("DEBUG: Disconnecting.\n");
+  tp_cli_connection_call_disconnect (connection, -1, NULL, NULL,
+    NULL, NULL); /* Also destroys the connection object. */
+  connection = NULL;
 }
 
 
