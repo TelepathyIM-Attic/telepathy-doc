@@ -27,8 +27,10 @@ AC_OUTPUT([
     docs/examples/Makefile
       docs/examples/basics_dbus_glib_methods/Makefile
       docs/examples/basics_dbus_glib_properties/Makefile
+      docs/examples/basics_dbus_glib_signals/Makefile
       docs/examples/basics_dbus_python_methods/Makefile
       docs/examples/basics_dbus_python_properties/Makefile
+      docs/examples/basics_dbus_python_signals/Makefile
       docs/examples/connect/Makefile
       docs/examples/list_all_protocols/Makefile
       docs/examples/list_contacts/Makefile

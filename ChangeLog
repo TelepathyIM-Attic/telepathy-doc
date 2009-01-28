@@ -1,5 +1,14 @@
 2009-01-27  Murray Cumming  <murrayc@murrayc.com>
 
+	* docs/examples/: Added basics_dbus_glib_signals/ and 
+	basics_dbus_python_signals/
+	* docs/book/C/telepathy.xml: Basics: Using D-Bus: Added sections with 
+	examples of using D-Bus signals with dbus-glib and Python, though the 
+	dbus-glib one doe not seem to work yet.
+	Entities: Corrected the base URL for the dbus-glib API reference.
+
+2009-01-27  Murray Cumming  <murrayc@murrayc.com>
+
 	* docs/examples/: 
 	* docs/book/C/telepathy.xml: Basics: Using D-Bus: Added sections with 
 	examples of using D-Bus properties with dbus-glib and Python.
