@@ -297,27 +297,99 @@ of the Telapathy specification.
    </para>
 
    <!-- FIXME: what order do these go in? -->
+   <!-- FIXME: some of this information is too detailed for this glossary
+               and should be moved further down the manual -->
    <sect2>
     <title>ConnectionManager</title>
     <para>
+     Connection managers are simply factories for connections; new
+     connections are created using the RequestConnection method on the
+     org.freedesktop.Telepathy.ConnectionManager interface. The term
+     “connection manager” is often used to mean the process that provides
+     the connection manager service. Each connection has its own D-Bus
+     service name, but it's common for the connection manager service to run
+     in the same process as its connections. It's also common for the
+     connection manager object to provide only the main connection manager
+     interface (the common D-Bus introspection and properties interfaces
+     excepted).
+    </para>
+    <para>
+     Connection managers are typically started via D-Bus service activation,
+     when a Telepathy application would like to create a new connection.
     </para>
    </sect2>
 
    <sect2>
     <title>Connection</title>
     <para>
+     Connections represent active protocol sessions. A connection has a set
+     of parameters that it is requested with. Although the parameters used
+     vary from protocol to protocol, some parameter names have a standard
+     meaning. A notable example is the account parameter, used to specify a
+     persistent identity, usually stored on a server. Some protocols,
+     however, do not have accounts, in which case the account parameter will
+     be absent.
+    </para>
+    <para>
+     The connection interface (org.freedesktop.Telepathy.Connection) is
+     mainly concerned with the management of handles and channels. It's
+     common for connections to have a number of other interfaces, such as
+     the aliasing, avatars and presence interfaces.
+    </para>
+    <para>
+     Connection objects cease to exist when the Disconnect method is called.
+     If the connection wasn't already in the Disconnected state, a
+     StatusChanged signal is emitted.
     </para>
    </sect2>
 
    <sect2>
     <title>Channel</title>
     <para>
+     Channels are created using a connection's RequestChannel method, or are
+     created by the connection manager in response to communication
+     initiated by someone else, in which case their advent is heralded by
+     the NewChannel signal.
+    </para>
+    <para>
+     Channels always provide at least two interfaces:
+     org.freedesktop.telepathy.Channel, and another interface according to
+     which type of channel it is. For instance, a text channel provides the
+     org.freedesktop.telepathy.ChannelType.Text interface.
     </para>
    </sect2>
 
    <sect2>
     <title>Handle</title>
     <para>
+     Handles are used to represent various kinds of protocol resources. Each
+     handle has an associated string identifier. Handles are used to avoid
+     normalisation problems: by having the connection be responsible for
+     mapping equivalent resource identifiers to the same handle, Telepathy
+     clients need only compare handles for integer equality. For instance,
+     protocol X might consider the identifiers foobar@example.com and
+     fooBaR@example.com equivalent, in which case a connection speaking
+     protocol X, when asked to convert both into handles, would return the
+     same handle for both.
+    </para>
+    <para>
+     The handle 0 is never a valid handle, but may be used in the API to
+     indicate a special case.
+    </para>
+    <para>
+     Handles can be generated explicitly, using the RequestHandles method,
+     in which case the client owns a reference to those handles. The
+     reference can be relinquished using ReleaseHandles. In other cases, the
+     connection manager might generate handles implicitly, in which case
+     clients can obtain a reference using HoldHandles. Each client can only
+     obtain one reference to each handle; referencing a handle multiple
+     times is idempotent. A client's references are automatically released
+     when it exits.
+    </para>
+    <para>
+     Handles cease to exist when they have no implicit references (e.g. from
+     a channel that they are related to) and no explicit references from
+     clients.
     </para>
    </sect2>
 
