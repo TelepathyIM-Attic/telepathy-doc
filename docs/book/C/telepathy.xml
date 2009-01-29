@@ -143,6 +143,22 @@
    (instant messaging), voice and video conferencing, file transfer and
    Tubes (contact-to-contact network sockets brokered by Telepathy).
   </para>
+
+  <note>
+   <title>Is Telepathy a Specification or an Implementation?</title>
+   <para>
+    It's both.
+   </para>
+   <para>
+    There is one
+    <ulink url="http://telepathy.freedesktop.org/spec.html">specification</ulink>
+    which defines the D-Bus API for how one Telepathy component talks to
+    another. Additionally there are many implementations of this
+    specification in the form of libraries that wrap the D-Bus API in a
+    model that might be more familiar to you; and components (e.g. the
+    ConnectionManagers) that allow you to do useful things with Telepathy.
+   </para>
+  </note>
 </chapter>
 
 <chapter id="chapter-installation">
