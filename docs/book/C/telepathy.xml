@@ -468,6 +468,15 @@ of the Telapathy specification.
     <para>These programming languages allow you to call D-Bus methods synchronously, meaning that they block until they can return the method's result. However, that is generally disapproved of because the D-Bus service may take a long time to reply, and because of some fundamental technical problems with the use of blocking calls between processes. Therefore, the examples call the D-Bus method asynchronously, theoretically allowing the application to continue with other tasks while waiting for the result.</para> 
     <!-- TODO: Get the result asynchronously. --> 
 
+    <tip>
+     <title>Introspecting a Bus</title>
+     <para>
+      Many services on a D-Bus bus provide a mechanism to introspect their
+      available objects and associated interfaces. A good utility for doing
+      this in an interactive way is D-Feet... XXX WRITE MORE
+     </para>
+    </tip>
+
     <sect2 id="sec-basics-dbus-glib">
       <title>Using D-Bus from C, with glib</title>
 
