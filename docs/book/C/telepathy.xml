@@ -176,6 +176,33 @@
      <para>You can install the Telepathy packages from the command line <application>Terminal</application> with this command, as root: <command>yum install telepathy-glib-devel telepathy-gabble telepathty-butterfly telepathy-haze telepathy-salut telepathy-stream-engine</command></para>
   </sect1>
 
+  <sect1>
+    <title>Building from Source</title>
+    
+    <sect2>
+     <title>Getting the Source</title>
+
+       <sect3>
+         <title>Released Versions</title>
+	 <para>
+	   Releases of Telepathy components are made available as tarballs
+	   on the
+	   <ulink url="http://telepathy.freedesktop.org/releases/">Telepathy
+	   website</ulink>.
+	 </para>
+       </sect3>
+
+       <sect3>
+         <title>From Git</title>
+	 <para>
+	   Telepathy uses Git for revision control.
+	   XXX WRITE MORE ABOUT THIS
+	 </para>
+       </sect3>
+
+    </sect2>
+  </sect1>
+
 </chapter>
 
 <!--
