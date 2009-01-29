@@ -120,6 +120,16 @@
     developers can focus on an individual protocol.
    </para>
   </note>
+
+  <figure id="fig.introduction.telepathy-architecture-overview">
+   <title>
+    Example of Telepathy consumers (blue) and Connection Managers (green)
+   </title>
+   <mediaobject><imageobject>
+    <imagedata fileref="figures/telepathy-architecture-overview.png"
+               format="PNG" />
+   </imageobject></mediaobject>
+  </figure>
    
   <para>
    Backends for
