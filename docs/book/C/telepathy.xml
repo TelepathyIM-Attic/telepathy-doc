@@ -82,11 +82,55 @@
       
 <chapter id="chapter-introduction">
   <title>Introduction</title>
+  <!--
   <para>The Telepathy framework allows applications to use real-time communications via several common protocols, such as XMPP (Jabber). For instance, an instant messenger application might use Telepathy to allow chats with online contacts via accounts with various IM services. Or a  game might use Telepathy to simplify the implementation of its networking code, allowing users to play against each other.</para>
   <para>Telepathy is a <ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink> API so it may be used from most programming languages.</para>
   <para>All this functionality is available under an open source license, allowing people to make improvements and add new features.</para>
 
   <para>TODO:  What are the benefits? How is it better than the alternatives? (If there are any). Is it easier, robuster, more secure, more flexible, cheaper, free-er, what?</para>
+  -->
+  <para>
+   Telepathy is a modern, modular communications framework that enables
+   real-time communication via pluggable protocol backends. Telepathy
+   creates the idea of communication as a desktop service. It
+   uses
+   <ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink>
+   to separate components running separate processes. Telepathy consumers
+   use this D-Bus API (usually via a convenience library &mdash; e.g.
+   telepathy-glib) to share connections between multiple clients (e.g. an
+   instant messaging program, presence in email application, collaboration
+   in word processor).
+  </para>
+
+  <note>
+   <title>Do One Thing and Do It Will</title>
+   <para>
+    <blockquote>
+     This is the Unix philosophy: Write programs that do one thing and do it
+     well. Write programs to work together.
+     <attribution>Doug McIlroy</attribution>
+    </blockquote>
+    Telepathy components are modular, this means that developers can focus
+    on making each component being the best it can be.
+   </para>
+   <para>
+    Application developers can focus on user interaction whilst protocol
+    developers can focus on an individual protocol.
+   </para>
+  </note>
+   
+  <para>
+   Backends for
+   many popular instant messaging protocols already exist include XMPP
+   (Jabber), SIP, MSN and IRC. The development of a new protocol backend can be
+   utilised immediately by all Telepathy consumers.
+  </para>
+
+  <para>
+   Telepathy backends can support many modern features, including text chat
+   (instant messaging), voice and video conferencing, file transfer and
+   Tubes (contact-to-contact network sockets brokered by Telepathy).
+  </para>
 </chapter>
 
 <chapter id="chapter-installation">
