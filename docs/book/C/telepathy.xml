@@ -405,6 +405,16 @@ of the Telapathy specification.
     <para>Telepathy is a <indexterm><primary>D-Bus</primary></indexterm>D-Bus API. Telepathy components conform to the <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>, which is therefore also the main Telepathy API reference.</para>
     <para>D-Bus is an <indexterm><primary>IPC</primary></indexterm>IPC (Inter-process communication) system, allowing different software components to be implemented in different processes, with different programming languages. It also allows multiple applications to easily share functionality from a single process. Most examples in this book will use <link linkend="sec-basics-language-bindings">language bindings</link> instead of using D-Bus directly. However, an understanding of the following D-Bus concepts will help you even when using language bindings.</para>
  
+    <figure id="fig.basics.dbus.conceptual">
+     <title>
+      Programs connected to a D-Bus Bus
+     </title>
+     <mediaobject><imageobject>
+      <imagedata fileref="figures/bus-conceptual.png"
+                 format="PNG" />
+     </imageobject></mediaobject>
+    </figure>
+
      <variablelist>
 
        <varlistentry>
@@ -438,6 +448,16 @@ of the Telapathy specification.
        </varlistentry>
 
     </variablelist>
+    
+    <figure id="fig.basics.dbus.hierarchy-conceptual">
+     <title>
+      Methods and signals on an object
+     </title>
+     <mediaobject><imageobject>
+      <imagedata fileref="figures/bus-hierarchy-conceptual.png"
+                 format="PNG" />
+     </imageobject></mediaobject>
+    </figure>
 
     <para>Of course, for simple services with just one object that provides just one interface, these three names will often look very similar.</para>
 

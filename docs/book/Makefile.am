@@ -17,7 +17,9 @@ DOC_INCLUDES = legal.xml
 
 # these are figures that need to be rasterised
 DOC_FIGURES_SRC = \
-	telepathy-architecture-overview.svg
+	telepathy-architecture-overview.svg \
+	bus-conceptual.svg \
+	bus-hierarchy-conceptual.svg
 
 # The names of any pictures:
 DOC_FIGURES = 
