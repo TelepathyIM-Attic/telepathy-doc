@@ -1,0 +1,12 @@
+Makefile
+Makefile.in
+gnome-doc-utils.make
+install-sh
+missing
+aclocal.m4
+autom4te.cache/
+autoregen.sh
+config.log
+config.status
+configure
+depcomp
