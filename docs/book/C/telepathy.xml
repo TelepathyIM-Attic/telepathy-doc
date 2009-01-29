@@ -159,6 +159,62 @@
     ConnectionManagers) that allow you to do useful things with Telepathy.
    </para>
   </note>
+
+  <sect1>
+   <title>Rationale</title>
+   <!-- much of this was crimed from
+        http://telepathy.freedesktop.org/wiki/Rationale -->
+   <para>
+    The design of Telepathy, and its approach to real-time communications
+    comes from a very specific rationale:
+   </para>
+   <itemizedlist>
+     <listitem><para>
+       <emphasis>Robustness:</emphasis>
+       one component can crash without crashing others.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Ease of development:</emphasis>
+       components can be replaced within a running system; tools like
+       dbus-inspector can trace interactions between components.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Language independence:</emphasis>
+       components can be written in any language that has a D-Bus binding;
+       if the best free and open implementation of a given communications
+       protocol is in a certain language, you are able to write your
+       Connection Manager in that language and still have it available to
+       all Telepathy consumers.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Desktop independence:</emphasis>
+       D-Bus has been adopted by both GNOME and KDE. Multiple user
+       interfaces can be developed on top of the same Telepathy components.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>License independence:</emphasis>
+       Components can be under different licenses that would be incompatible
+       if all components were running in one process.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Code reuse:</emphasis>
+       Telepathy allows clients to ignore protocol details as much as
+       possible, easing transitions between different communications
+       systems.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Connection reuse:</emphasis>
+       Multiple Telepathy consumers can use the same connection simultaneously.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Security:</emphasis>
+       Components can run with very limited privileges; a typical connection
+       manager only needs access to the network and to the D-Bus session bus
+       (e.g. making it possible to use an SELinux policy to prevent protocol
+       code from accessing the disk).
+     </para></listitem>
+   </itemizedlist>
+  </sect1>
 </chapter>
 
 <chapter id="chapter-installation">
