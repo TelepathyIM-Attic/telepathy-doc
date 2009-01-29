@@ -15,6 +15,10 @@ DOC_ENTITIES =
 # The names of any files included by xincluded (preferred):
 DOC_INCLUDES = legal.xml
 
+# these are figures that need to be rasterised
+DOC_FIGURES_SRC = \
+	telepathy-architecture-overview.svg
+
 # The names of any pictures:
 DOC_FIGURES = 
 
@@ -94,6 +98,7 @@ validate: C/$(DOC_MODULE).xml
 	$(XMLLINT) --xinclude --postvalid --noout $<
 
 include $(top_srcdir)/docs/Makefile_web.am_fragment
+include $(top_srcdir)/docs/generate-figures.make
 
 post-online: post-html post-pdf
 
