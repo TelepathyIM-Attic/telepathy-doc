@@ -224,6 +224,54 @@ of the Telapathy specification.
 
   <para>This chapter introduces some basic techniques and concepts that you must understand to use Telepathy confidently. You should read through this chapter before proceeding, but you will probably want to refer back here again later.</para>
 
+  <sect1>
+   <title>Terminology</title>
+   <para>
+    This section aims to be a glossary of the different terms you will
+    encounter in Telepathy. Each of these concepts is explained in more
+    detail later in the manual.
+   </para>
+
+   <para>
+    The design of Telepathy is heavily influenced by D-Bus, so much of its
+    terminology is shared in common with D-Bus. For those unfamiliar with
+    D-Bus, a quick primer is presented in <xref linkend="sec-basics-dbus"/>.
+    For more indepth information, consult A MANUAL THAT PROBABLY HASN'T BEEN
+    WRITTEN YET.<!-- FIXME -->
+   </para>
+
+   <!-- FIXME: what order do these go in? -->
+   <sect2>
+    <title>ConnectionManager</title>
+    <para>
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Connection</title>
+    <para>
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Channel</title>
+    <para>
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Handle</title>
+    <para>
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Interface</title>
+    <para>
+    </para>
+   </sect2>
+  </sect1>
+
   <sect1 id="sec-basics-dbus">
     <title>Using D-Bus</title>
     <para>Telepathy is a <indexterm><primary>D-Bus</primary></indexterm>D-Bus API. Telepathy components conform to the <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>, which is therefore also the main Telepathy API reference.</para>
