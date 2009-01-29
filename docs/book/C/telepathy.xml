@@ -90,7 +90,7 @@
   <para>TODO:  What are the benefits? How is it better than the alternatives? (If there are any). Is it easier, robuster, more secure, more flexible, cheaper, free-er, what?</para>
   -->
   <para>
-   Telepathy is a modern, modular communications framework that enables
+   Telepathy is a flexible, modular communications framework that enables
    real-time communication via pluggable protocol backends. Telepathy
    creates the idea of communication as a desktop service. It
    uses
