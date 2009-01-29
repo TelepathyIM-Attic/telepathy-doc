@@ -95,7 +95,7 @@
    creates the idea of communication as a desktop service. It
    uses
    <ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink>
-   to separate components running separate processes. Telepathy consumers
+   to separate components running in separate processes. Telepathy consumers
    use this D-Bus API (usually via a convenience library &mdash; e.g.
    telepathy-glib) to share connections between multiple clients (e.g. an
    instant messaging program, presence in email application, collaboration
@@ -123,7 +123,8 @@
 
   <figure id="fig.introduction.telepathy-architecture-overview">
    <title>
-    Example of Telepathy consumers (blue) and Connection Managers (green)
+    Conceptual example of Telepathy consumers (blue) and
+    Connection Managers (green)
    </title>
    <mediaobject><imageobject>
     <imagedata fileref="figures/telepathy-architecture-overview.png"
@@ -133,15 +134,18 @@
    
   <para>
    Backends for
-   many popular instant messaging protocols already exist include XMPP
-   (Jabber), SIP, MSN and IRC. The development of a new protocol backend can be
-   utilised immediately by all Telepathy consumers.
+   many popular instant messaging protocols already exist including
+   XMPP/Jabber (telepathy-gabble), SIP (telepathy-sofiasip), MSN
+   (telepathy-butterfly) and IRC (telepathy-idle). The development of a
+   new protocol backend can be utilised immediately by all Telepathy consumers.
   </para>
 
   <para>
-   Telepathy backends can support many modern features, including text chat
-   (instant messaging), voice and video conferencing, file transfer and
-   Tubes (contact-to-contact network sockets brokered by Telepathy).
+   Telepathy backends can expose the different features of a communications
+   protocol, including presence (status), text chat (instant messaging),
+   voice and video conferencing, file transfer and
+   Tubes (contact-to-contact network sockets brokered by Telepathy); and do
+   this in a unified way via D-Bus interfaces.
   </para>
 
   <note>
