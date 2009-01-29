@@ -104,12 +104,14 @@
 
   <note>
    <title>Do One Thing and Do It Will</title>
-   <para>
     <blockquote>
-     This is the Unix philosophy: Write programs that do one thing and do it
-     well. Write programs to work together.
      <attribution>Doug McIlroy</attribution>
+     <para>
+      This is the Unix philosophy: Write programs that do one thing and do it
+      well. Write programs to work together.
+     </para>
     </blockquote>
+   <para>
     Telepathy components are modular, this means that developers can focus
     on making each component being the best it can be.
    </para>
