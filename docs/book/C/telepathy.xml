@@ -477,7 +477,22 @@ of the Telapathy specification.
      <para>
       Many services on a D-Bus bus provide a mechanism to introspect their
       available objects and associated interfaces. A good utility for doing
-      this in an interactive way is D-Feet... XXX WRITE MORE
+      this in an interactive way is
+      <ulink url="https://fedorahosted.org/d-feet/">D-Feet</ulink>.
+     </para>
+     <figure id="fig.dbus.d-feet">
+      <title>
+       D-Feet D-Bus Introspection Tool
+      </title>
+      <mediaobject><imageobject>
+       <imagedata fileref="figures/dfeet-dbus-introspection-tool.png"
+                  format="PNG" />
+      </imageobject></mediaobject>
+     </figure>
+     <para>
+      D-Feet shows each service connected to the bus and the objects,
+      interfaces, methods and signals available for that service.
+      It allows (synchronous) method calls to be made.
      </para>
     </tip>
 
