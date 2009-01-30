@@ -423,11 +423,40 @@ of the Telapathy specification.
 
        <varlistentry>
          <term>
+	   <indexterm><primary>Unique Name</primary></indexterm>
+	   Unique Name
+	 </term>
+	 <listitem>
+	   <para>
+	     This is an identifier assigned to a client by the D-Bus daemon
+	     (e.g. :1.3). Every client on the D-Bus has one, whether or not
+	     it is offering a named service.
+	     It is an analagous to an IP address in computer networking.
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
            <indexterm><primary>Bus Name</primary></indexterm>
            Bus Name
          </term>
+	 <!-- FIXME - what's the correct markup for bus names, etc? -->
          <listitem>
-           <para>A process can make a service available by connecting to a D-Bus <literal>bus</literal> and requesting a &quot;well-known&quot; <literal>bus name</literal> for the connection, such as &quot;com.mycompany.TextEditor&quot;, by which other processes, such as applications, can access it.</para>
+           <para>
+	     A process can make a service available by connecting to a
+	     D-Bus <literal>bus</literal> and requesting a
+	     &quot;well-known&quot; <literal>bus name</literal> for the
+	     connection, by which other processes, such as applications, can
+	     access it.
+	     If unique names are analagous to IP addresses, then
+	     bus names are like a DNS name.
+	   </para>
+	   <para>
+	     The example in
+	     <xref linkend="fig.basics.dbus.hierarchy-conceptual"/> provides
+	     the well-known bus name &quot;org.freedesktop.foo.Foo&quot;.
+	   </para>
          </listitem>
        </varlistentry>
 
@@ -437,7 +466,12 @@ of the Telapathy specification.
            Object Path
          </term>
          <listitem>
-           <para>The service process provides D-Bus objects on that bus name. Each object has an <literal>object path</literal>, such as &quot;/com/company/TextEditor&quot;, which a client application must specify to use that object.</para>
+           <para>
+	     The service process provides D-Bus objects on that bus name.
+	     Each object has an <literal>object path</literal>, such as
+	     &quot;/org/freedesktop/foo/jack&quot;
+	     (<xref linkend="fig.basics.dbus.hierarchy-conceptual"/>),
+	     which a client application must specify to use that object.</para>
          </listitem>
        </varlistentry>
 
@@ -447,8 +481,56 @@ of the Telapathy specification.
            Interface Name
          </term>
          <listitem>
-           <para>Each D-Bus object implements one or more D-Bus interface. Each interface has an <literal>interface name</literal>, such as &quot;com.mycompany.TextEditor&quot;. Each interface provides one or more method or signal, each with a member name.</para>
+           <para>Each D-Bus object implements one or more D-Bus interfaces.
+	   Each interface has an <literal>interface name</literal>, such as
+	   &quot;org.freedesktop.foo.Jack&quot;
+	   (<xref linkend="fig.basics.dbus.hierarchy-conceptual"/>).
+	   Each interface provides one
+	   or more methods or signals, each with a member name.</para>
          </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Method</primary></indexterm>
+	   Method
+	 </term>
+	 <listitem>
+	   <para>
+	     A D-Bus interface can expose a number of methods that can be
+	     called by a client. They have parameters and return types that
+	     are given as a D-Bus type signature.
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Signal</primary></indexterm>
+	   Signal
+	 </term>
+	 <listitem>
+	   <para>
+	     A D-Bus interface can also expose a number of signals that can be
+	     connected to by a client. Connecting a signal involves
+	     providing a callback that matches the signal's type signature
+	     that can be called by the mainloop (unlike
+	     UNIX signals, D-Bus signals are not asynchronous).
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Property</primary></indexterm>
+	   Property
+	 </term>
+	 <listitem>
+	   <para>
+	     D-Bus objects implementing the org.freedesktop.DBus.Properties
+	     interface may also expose typed properties.
+	   </para>
+	 </listitem>
        </varlistentry>
 
     </variablelist>
@@ -462,6 +544,37 @@ of the Telapathy specification.
                  format="PNG" />
      </imageobject></mediaobject>
     </figure>
+
+    <tip>
+     <title>Naming in D-Bus</title>
+     <para>
+      A D-Bus bus is shared with lots of other clients and services, some of
+      which will not have been thought of yet. It is important to ensure
+      that your well-known names, objects and interfaces all have unique
+      names.
+     </para>
+     <para>
+      When choosing a bus name, object name or interface name
+      it is best practice to use your domain name reversed (as
+      is done for Java packages) to avoid possible conflicts.
+     </para>
+     <para>
+      For example for bus names or interfaces:
+     </para>
+     <itemizedlist>
+      <listitem><para>org.freedesktop.Telepathy.ConnectionManager</para></listitem>
+      <listitem><para>org.gnome.Project</para></listitem>
+      <listitem><para>com.mycompany.MyProduct</para></listitem>
+     </itemizedlist>
+     <para>
+      For objects:
+     </para>
+     <itemizedlist>
+      <listitem><para>/org/freedesktop/Telepathy/ConnectionManager/gabble</para></listitem>
+      <listitem><para>/org/gnome/Project/adaptor</para></listitem>
+      <listitem><para>/com/mycompany/MyProduct/object0</para></listitem>
+     </itemizedlist>
+    </tip>
 
     <para>Of course, for simple services with just one object that provides just one interface, these three names will often look very similar.</para>
 
