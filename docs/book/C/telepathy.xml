@@ -501,6 +501,11 @@ of the Telapathy specification.
 	     called by a client. They have parameters and return types that
 	     are given as a D-Bus type signature.
 	   </para>
+	   <para>
+	    <xref linkend="fig.basics.dbus.hierarchy-conceptual"/> gives the
+	    example of the &quot;Fetch&quot; method (telling Jack to fetch a
+	    pail of water).
+	   </para>
 	 </listitem>
        </varlistentry>
 
@@ -516,6 +521,11 @@ of the Telapathy specification.
 	     providing a callback that matches the signal's type signature
 	     that can be called by the mainloop (unlike
 	     UNIX signals, D-Bus signals are not asynchronous).
+	   </para>
+	   <para>
+	    <xref linkend="fig.basics.dbus.hierarchy-conceptual"/> gives the
+	    example of the &quot;Broken&quot; signal (which is triggered
+	    when Jack falls down and breaks his crown).
 	   </para>
 	 </listitem>
        </varlistentry>
