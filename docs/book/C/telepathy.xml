@@ -95,7 +95,7 @@
    creates the idea of communication as a desktop service. It
    uses
    <ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink>
-   to separate components running in separate processes. Telepathy consumers
+   to separate components running in separate processes. Telepathy clients
    use this D-Bus API (usually via a convenience library &mdash; e.g.
    telepathy-glib) to share connections between multiple clients (e.g. an
    instant messaging program, presence in email application, collaboration
@@ -103,7 +103,7 @@
   </para>
 
   <note>
-   <title>Do One Thing and Do It Will</title>
+   <title>Do One Thing and Do It Well</title>
     <blockquote>
      <attribution>Doug McIlroy</attribution>
      <para>
@@ -123,7 +123,7 @@
 
   <figure id="fig.introduction.telepathy-architecture-overview">
    <title>
-    Conceptual example of Telepathy consumers (blue) and
+    Conceptual example of Telepathy clients (blue) and
     Connection Managers (green)
    </title>
    <mediaobject><imageobject>
@@ -160,7 +160,7 @@
     another. Additionally there are many implementations of this
     specification in the form of libraries that wrap the D-Bus API in a
     model that might be more familiar to you; and components (e.g. the
-    ConnectionManagers) that allow you to do useful things with Telepathy.
+    Connection Managers) that allow you to do useful things with Telepathy.
    </para>
   </note>
 
@@ -188,7 +188,7 @@
        if the best free and open implementation of a given communications
        protocol is in a certain language, you are able to write your
        Connection Manager in that language and still have it available to
-       all Telepathy consumers.
+       all Telepathy clients.
      </para></listitem>
      <listitem><para>
        <emphasis>Desktop independence:</emphasis>
@@ -208,7 +208,7 @@
      </para></listitem>
      <listitem><para>
        <emphasis>Connection reuse:</emphasis>
-       Multiple Telepathy consumers can use the same connection simultaneously.
+       Multiple Telepathy clients can use the same connection simultaneously.
      </para></listitem>
      <listitem><para>
        <emphasis>Security:</emphasis>
@@ -304,7 +304,7 @@ of the Telapathy specification.
    <!-- FIXME: some of this information is too detailed for this glossary
                and should be moved further down the manual -->
    <sect2>
-    <title>ConnectionManager</title>
+    <title>Connection Manager</title>
     <para>
      Connection managers are simply factories for connections; new
      connections are created using the RequestConnection method on the
