@@ -592,8 +592,75 @@ of the Telapathy specification.
 
     <para>In these examples, we use the FreeDesktop <literal>Notification</literal> system, which should be available on most modern Linux installations. The examples should cause a message to popup from your desktop panel. Note that, like Telepathy, this service is available on the <indexterm><primary>Session Bus</primary></indexterm><literal>Session Bus</literal> rather than the <indexterm><primary>System Bus</primary></indexterm><literal>System Bus</literal>. Services on the <literal>Session Bus</literal> are for the current user's session only. Services on the <literal>System Bus</literal> are shared between all users.</para>
 
+<!--
     <para>These programming languages allow you to call D-Bus methods synchronously, meaning that they block until they can return the method's result. However, that is generally disapproved of because the D-Bus service may take a long time to reply, and because of some fundamental technical problems with the use of blocking calls between processes. Therefore, the examples call the D-Bus method asynchronously, theoretically allowing the application to continue with other tasks while waiting for the result.</para> 
+-->
     <!-- TODO: Get the result asynchronously. --> 
+    <warning id="warning.dbus.sync">
+      <title>Always Avoid Synchronous D-Bus Calls</title>
+      <!-- this information came from
+      http://smcv.pseudorandom.co.uk/2008/11/nonblocking/ -->
+
+      <para>
+        The <ulink
+	url="http://dbus.freedesktop.org/doc/dbus-specification.html">D-Bus
+	specification</ulink> defines D-Bus as an asynchronous
+	message-passing system, and provides no mechanism for blocking calls
+	at the protocol level. However <literal>libdbus</literal> and most
+	D-Bus bindings (dbus-glib, dbus-python and QtDBus) provide a
+	&quot;blocking&quot; API
+	(<function>dbus_do_something_and_block</function>) that implements a
+	&quot;pseudo-blocking&quot; behaviour. In this mode only the D-Bus
+	socket is polled for new I/O and any D-Bus messages that are not the
+	reply to the original message are put on a queue for later
+	processing once the reply has been received.
+      </para>
+
+      <para>
+       This causes several major problems:
+      </para>
+      <itemizedlist>
+       <listitem>
+        <para>
+         Messages can be reordered. Any message received before the reply and
+	 placed on the queue will be delivered to the client after the reply,
+	 which violates the ordering guarentee the D-Bus daemon provides.
+        </para>
+        <para>
+	 This can cause practical problems where a signal indicating an
+	 object's destruction is delayed. The client gets a method reply
+	 &quot;UnknownMethod&quot; and doesn't know why until the signal is
+	 delivered with more information.
+        </para>
+       </listitem>
+       <listitem><para>
+        The client is completely unresponsive until the service replies
+	(include the user interface). If the service you're calling into has
+	locked up (this can happen, even in services that are designed to be
+	purely non-blocking and asynchronous), the client will be
+	unresponsive for 25 seconds until the call times out.
+       </para></listitem>
+       <listitem><para>
+        The client cannot parallelize calls &mdash; if a signal causes
+	method calls to be made, a client that uses pseudo-blocking calls
+	can't start processing the next message until those method calls
+	return.
+       </para></listitem>
+       <listitem>
+        <para>
+         If two processes make pseudo-blocking calls on each other, a
+	 deadlock occurs.
+        </para>
+	<para>
+	 This sort of scenario occurs with plugin architectures and shared
+	 D-Bus connections. One plugin "knows" it's a client, not a service;
+	 and another plugin, shaing the same connection, "knows" it's a
+	 service, not a client. This results in a process that is both a
+	 service and a client (and hence deadlock-prone).
+	</para>
+       </listitem>
+      </itemizedlist>
+    </warning>
 
     <tip>
      <title>Introspecting a Bus</title>
