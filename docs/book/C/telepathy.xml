@@ -755,7 +755,13 @@ of the Telapathy specification.
       <sect3 id="sec-basics-language-bindings-telepathy-glib-async">
         <title>Asynchronous Calls</title>
         <para>For each Telepathy D-Bus method, telepathy-glib generally provides both a &quot;run&quot; and a &quot;call&quot; function. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_run_connect()</ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-call-connect">tp_cli_connection_call_connect()</ulink>. The &quot;run&quot; function is synchronous, blocking until the D-Bus service has returned the value, whereas the &quot;call&quot; function is asynchronous, immediately returning and later providing the result to a callback function.</para>
-        <para>However, the Telepathy developers strongly discourage the use of the &quot;run&quot; functions, so all examples in this book will use the asynchronous &quot;call&quot; functions. This complicates application code but it is more robust and allows the application to be more responsive, doing more than one thing at a time.</para>
+        <para>
+	 However, the use of the &quot;run&quot; functions is strongly
+	 discouraged (see <xref linkend="warning.dbus.sync"/>), so all
+	 examples in this book will use the asynchronous &quot;call&quot;
+	 functions. While this might seem to complicate the examples,
+	 it is more robust and means the applications will be more responsive.
+	</para>
       </sect3>
 
       <sect3 id="sec-basics-language-bindings-telepathy-glib-generated">
