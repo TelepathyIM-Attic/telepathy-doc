@@ -347,20 +347,25 @@ of the Telapathy specification.
      be absent.
     </para>
     <para>
-     The connection interface (org.freedesktop.Telepathy.Connection) is
-     mainly concerned with the management of handles and channels. It's
+     The connection interface
+     <!-- FIXME - link to spec ? -->
+     (<interface>org.freedesktop.Telepathy.Connection</interface>) is
+     mainly concerned with the management of Handles and Channels. It's
      common for connections to have a number of other interfaces, such as
      the aliasing, avatars and presence interfaces.
     </para>
     <para>
-     Connection objects cease to exist when the Disconnect method is called.
+     Connection objects cease to exist when the
+     <methodname>Disconnect</methodname> method is called.
      If the connection wasn't already in the Disconnected state, a
+     <!-- FIXME - is there a way to markup signals? -->
      StatusChanged signal is emitted.
     </para>
    </sect2>
 
    <sect2>
     <title>Channel</title>
+    <!-- FIXME - need a concise definition of what a channel is -->
     <para>
      Channels are created using a connection's RequestChannel method, or are
      created by the connection manager in response to communication
