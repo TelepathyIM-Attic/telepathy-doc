@@ -933,11 +933,8 @@ AC_SUBST(EXAMPLE_LIBS)
   <title>Connection Manager</title>
 
 <!-- these paragraphs came from Basics -->
-  <sect1 id="sec-basics-connection-managers">
-    <title>Connection Managers</title>
     <para>Support for the various communication protocols is provided by several <literal>Connection Managers</literal>. For instance, the <literal>telepathy-gabble</literal> Connection Manager provides support for the <acronym>XMPP</acronym> protocol, also known as <literal>Jabber</literal>.</para>
     <para>There is no central &app; D-Bus service. Instead there are several connection manager services, activated on demand, and each of these connection managers provide the same core set of D-Bus interfaces, such as <ulink url="&url_spec_base;Connection"><interfacename>Connection</interfacename></ulink> and <ulink url="&url_spec_base;Channel"><interfacename>Channel</interfacename></ulink>, allowing application code to be written generically for all connection managers.</para>
-  </sect1>
 
 <!-- these paragraphs have always been here -->
 <!--
