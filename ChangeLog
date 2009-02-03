@@ -1,8 +1,15 @@
+2009-02-03  Murray Cumming  <murrayc@openismus.com>
+
+	* Use <methodname> instead of <function> for D-Bus method names, 
+	as seen in Davyd's branch.
+	Likewise, use <interfacename> (not <interface> which is a deprecated 
+	GUI tag) instead of <classname> for D-Bus interface names.
+
 2009-02-03  Davyd Madeley  <davyd.madeley@collabora.co.uk>
 
 	* Added .gitignore files, cherry-pick -ed from Davyd's remote branch.
 
-2009-01-27  Murray Cumming  <murrayc@murrayc.com>
+2009-01-27  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/: Added basics_dbus_glib_signals/ and 
 	basics_dbus_python_signals/
@@ -11,39 +18,39 @@
 	dbus-glib one doe not seem to work yet.
 	Entities: Corrected the base URL for the dbus-glib API reference.
 
-2009-01-27  Murray Cumming  <murrayc@murrayc.com>
+2009-01-27  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/: 
 	* docs/book/C/telepathy.xml: Basics: Using D-Bus: Added sections with 
 	examples of using D-Bus properties with dbus-glib and Python.
 
-2009-01-27  Murray Cumming  <murrayc@murrayc.com>
+2009-01-27  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention how 
 	to check with telepathy-glib. We need dbus-glib and Python examples 
 	here too.
 	Connection: Added a Presence sub-section with the example.
 
-2009-01-26  Murray Cumming  <murrayc@murrayc.com>
+2009-01-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: Optional Interfaces: Mention that 
 	ConnectionManager and Channel also have optional interfaces (not just 
 	Connection), and mention the new Interfaces property.
 
-2009-01-26  Murray Cumming  <murrayc@murrayc.com>
+2009-01-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: API Conventions: Mention the 
 	Request/Get distinction and link to the telepathy-glib conventions.
 	Removed the Asynchronous Calls section because we dealt with that here 
 	and in the Using D-Bus section.
 
-2009-01-26  Murray Cumming  <murrayc@murrayc.com>
+2009-01-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: Handles: Write this section. 
 	Removed the main Handles chapter because a) It was planned to cover the 
 	same stuff and b) It should be covered very early.
 
-2009-01-26  Murray Cumming  <murrayc@murrayc.com>
+2009-01-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: D-Bus, telepathy-glib: Explicitly 
 	point out that we are dealing with proxies, not the objects themselves.
@@ -54,18 +61,18 @@
 	Connection: Mention RequestConnection() and the telepathy-glib 
 	equivalent. 
 
-2009-01-23  Murray Cumming  <murrayc@murrayc.com>
+2009-01-23  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: Correct the use of the indexterm 
 	tags. Their contents are not displayed in the main text.
 
-2009-01-23  Murray Cumming  <murrayc@murrayc.com>
+2009-01-23  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: telepathy-glib: Mention sync/async 
 	prefixes. Mention generated/hand-coded prefixes. Mention 
 	call_when_ready() functions.
 
-2009-01-23  Murray Cumming  <murrayc@murrayc.com>
+2009-01-23  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/basics_dbus_glib/main.c:
 	* docs/examples/basics_dbus_python/example.py: Call the D-Bus method 
@@ -76,18 +83,18 @@
 	Added an Installation chapter.
 	Added an index and sprinkled some indexterm tags around to fill it.
 
-2009-01-22  Murray Cumming  <murrayc@murrayc.com>
+2009-01-22  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: Add a Language Bindings sub-section 
 	as a way to mention telepathy-glib, which we use (so far) for all our 
 	examples.
 
-2009-01-22  Murray Cumming  <murrayc@murrayc.com>
+2009-01-22  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: Move the boring stuff about 
 	Introspect() into a notes section because it is too soon to get scary.
 
-2009-01-20  Murray Cumming  <murrayc@murrayc.com>
+2009-01-20  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Basics: Write some text about optional 
 	interfaces. Added a Connection Managers section before it, so that we 
@@ -97,7 +104,7 @@
 	* docs/book/C/figures/: Tried adding this again, adding a README because 
 	git seems to ignore it if it is empty.
 
-2009-01-20  Murray Cumming  <murrayc@murrayc.com>
+2009-01-20  Murray Cumming  <murrayc@openismus.com>
 
 	* configure.ac:
 	* docs/examples/basics_dbus_python/Makefile.am:
@@ -108,7 +115,7 @@
 	* docs/book/insert-example-code.py: Read .py files as well as .h and .cc 
 	files.
 
-2009-01-15  Murray Cumming  <murrayc@murrayc.com>
+2009-01-15  Murray Cumming  <murrayc@openismus.com>
 
 	* configure.ac:
 	* docs/examples/basics_dbus_glib/Makefile.am:
@@ -120,31 +127,31 @@
 	* docs/book/C/figures/: Added these directories to git. I forgot to do 
 	that until now.
 
-2009-01-15  Murray Cumming  <murrayc@murrayc.com>
+2009-01-15  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Add a small part of the introduction. 
 	Add some sect structure.
 
-2009-01-16  Murray Cumming  <murrayc@murrayc.com>
+2009-01-16  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/send_message/main.c: on_get_contacts_by_id(): Ref the 
 	TpContact so we can use it later, avoiding the crash when calling 
 	tp_contact_get_handle().
 
-2009-01-12  Murray Cumming  <murrayc@murrayc.com>
+2009-01-12  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/send_message/main.c: Set the TargetHandleType too, 
 	though this then crashes: 
 	https://bugs.freedesktop.org/show_bug.cgi?id=19523
 	(The previous mentioned error was fixed by upgrading telepathy-gabble.)
 
-2008-01-05  Murray Cumming  <murrayc@murrayc.com>
+2008-01-05  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Do not null-terminated the array 
 	given to tp_connection_get_contacts_by_handle() though I still get an 
 	error about handle #2 having no contact-id.
 
-2008-12-23  Murray Cumming  <murrayc@murrayc.com>
+2008-12-23  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/insert_example_code.pl: Base this on the gtkmm-documentation 
 	one rather than the flumotion-doc one (but using .c, not .cc), to 
@@ -154,12 +161,12 @@
 	* doc/book/C/telepathy.xml: Add the examples at some vaguely 
 	appropriate places, to check that this works.
 
-2008-12-23  Murray Cumming  <murrayc@murrayc.com>
+2008-12-23  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/book/C/telepathy.xml: Define a base URL entity and use ulink to 
 	link to types, interfaces and methods in the Telepathy specification.
 
-2008-12-22  Murray Cumming  <murrayc@murrayc.com>
+2008-12-22  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/send_message/main.c: Implement code to get a text 
 	channel and send a message on it, though (like the list_contacts example) 
@@ -167,55 +174,55 @@
 	tp_connection_get_contacts_by_id():
         Connection manager :1.171 is broken: contact #2 in the GetContactAttributes result has no contact-id
 
-2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+2008-12-15  Murray Cumming  <murrayc@openismus.com>
 
 	* configure.ac:
 	* docs/examples/Makefile.am
 	* docs/examples/send_message/main.c:  Added the beginnings of a 
 	an example to send a single message to a single specific contact.
 
-2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+2008-12-15  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/set_presence/main.c: 
 	* docs/examples/list_contacts/main.c: Use the *_call_when_ready() 
 	functions instead of *_run_until_ready().
 
-2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+2008-12-15  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/set_presence/main.c: Wait until the connection is 
 	ready, so that setting of the presence can succeed. 
 
-2008-12-15  Murray Cumming  <murrayc@murrayc.com>
+2008-12-15  Murray Cumming  <murrayc@openismus.com>
 
 	* configure.ac:
 	* docs/examples/Makefile.am
 	* docs/examples/set_presence/: Added a (nonworking) example of 
 	setting presence, by copying the connect example and adding a call.
 
-2008-12-01  Murray Cumming  <murrayc@murrayc.com>
+2008-12-01  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Use *_call_* functions instead 
 	of *_run_* functions because everybody says they should never be used.
 
-2008-11-14  Murray Cumming  <murrayc@murrayc.com>
+2008-11-14  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Get other contact features, 
 	to show aliases and presence.
 
-2008-11-14  Murray Cumming  <murrayc@murrayc.com>
+2008-11-14  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Examine the actual contacts 
 	handles as before rather than the handle for the list of contacts.
 	This now works.
 
-2008-11-14  Murray Cumming  <murrayc@murrayc.com>
+2008-11-14  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Use the new TpContacts API 
 	instead, which seems much simpler than all that channel stuff.
 	However, this currently gives this GError:
 	handle 2 is not currently a valid contact handle (type 1)
 
-2008-11-13  Murray Cumming  <murrayc@murrayc.com>
+2008-11-13  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Still trying to read the subscribed 
 	contacts details. Without code changes, I now get a non-null list of 
@@ -223,24 +230,24 @@
 	I upgrade to Ubuntu Intrepid. However, the attribures GHashTable is empty 
 	for all contacts. 
 
-2008-09-31  Murray Cumming  <murrayc@murrayc.com>
+2008-09-31  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Trying to read the subscribed 
 	contacts details.
 
-2008-09-31  Murray Cumming  <murrayc@murrayc.com>
+2008-09-31  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Get the ContactsList interface, 
 	though I do not yet know how to get details for each contact via 
 	the handle.
 
-2008-09-31  Murray Cumming  <murrayc@murrayc.com>
+2008-09-31  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/connect/: Added this as a copy of the current 
 	list_contacts. Connecting is complex enough that it deserves its own 
 	example, before we make it more complex by adding other stuff.
 
-2008-09-26  Murray Cumming  <murrayc@murrayc.com>
+2008-09-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: printf the reason as text.
 
@@ -250,24 +257,24 @@
 	status has been received in the callback, so the connection actually 
 	has a chance to happen.
 
-2008-09-26  Murray Cumming  <murrayc@murrayc.com>
+2008-09-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/main.c: Try to catch connection problems 
 	via the status_changed callback. 
 
-2008-09-26  Murray Cumming  <murrayc@murrayc.com>
+2008-09-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_contacts/: Added the beginnings of another example.
 	So far it just tries to create the connection so it can later get the 
 	contacts from it.
 
-2008-09-26  Murray Cumming  <murrayc@murrayc.com>
+2008-09-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_all_protocols/main.c: Asynchronously introspect 
         the connection manager for the protocols information if necessary, 
 	though this raises many more questions. 
 
-2008-09-26  Murray Cumming  <murrayc@murrayc.com>
+2008-09-26  Murray Cumming  <murrayc@openismus.com>
 
 	* docs/examples/list_all_protocols/main.c: Check whether the protocol 
 	information has been introspected. Added TODOs wondering how/when to 
