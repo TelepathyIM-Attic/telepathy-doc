@@ -1,3 +1,7 @@
+2009-02-03  Davyd Madeley  <davyd.madeley@collabora.co.uk>
+
+	* Added .gitignore files, cherry-pick -ed from Davyd's remote branch.
+
 2009-01-27  Murray Cumming  <murrayc@murrayc.com>
 
 	* docs/examples/: Added basics_dbus_glib_signals/ and 
