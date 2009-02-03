@@ -310,7 +310,7 @@ of the Telapathy specification.
      connections are created using the
      <methodname>RequestConnection</methodname> method on the
      <!-- FIXME - link to spec ? -->
-     <interface>org.freedesktop.Telepathy.ConnectionManager</interface>
+     <interfacename>org.freedesktop.Telepathy.ConnectionManager</interfacename>
      interface.
     </para>
     <para>
@@ -349,7 +349,7 @@ of the Telapathy specification.
     <para>
      The connection interface
      <!-- FIXME - link to spec ? -->
-     (<interface>org.freedesktop.Telepathy.Connection</interface>) is
+     (<interfacename>org.freedesktop.Telepathy.Connection</interfacename>) is
      mainly concerned with the management of Handles and Channels. It's
      common for connections to have a number of other interfaces, such as
      the aliasing, avatars and presence interfaces.
