@@ -1222,8 +1222,8 @@ AC_SUBST(EXAMPLE_LIBS)
      <para>
       Choosing when to always create a new channel, or when to use an
       existing channel can usually be deduced based on the function of the
-      channel. If we want to share the state of our channel with other
-      clients, use <methodname>EnsureChannel</methodname>, otherwise use
+      channel. If it would make sense to reuse an existing channel then
+      use <methodname>EnsureChannel</methodname>, otherwise use
       <methodname>CreateChannel</methodname>.
      </para>
      <para>
