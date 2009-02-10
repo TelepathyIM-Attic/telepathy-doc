@@ -1420,13 +1420,6 @@ AC_SUBST(EXAMPLE_LIBS)
     </variablelist>
 
   </sect1>
-
-  <sect1>
-  <title>Message Send Example</title>
-  <para>This example sends a text message to a jabber contact via a text channel.</para>
-  <para><ulink url="&url_examples_base;send_message">Source Code</ulink></para>
-  </sect1>
-
 </chapter>
 
 <chapter id="chapter-group">
