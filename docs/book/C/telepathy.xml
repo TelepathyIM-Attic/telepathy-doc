@@ -1188,18 +1188,112 @@ AC_SUBST(EXAMPLE_LIBS)
   <sect1 id="sec-channel-requesting">
     <title>Requesting Channels</title>
 
-    <para><interfacename>Channel</interfacename>s can be obtained via the <interfacename>Connection</interfacename>'s <ulink url="&url_spec_base;Connection.Interface.Requests"><interfacename>Requests</interfacename></ulink> interface. This provides the <ulink url="&url_spec_base;Connection.Interface.Requests.CreateChannel"><methodname>CreateChannel()</methodname></ulink> D-Bus method for creating new <interfacename>Channel</interfacename>s. Note that this method will fail if a suitable channel already exists.</para>
-    <para>The <ulink url="&url_spec_base;Connection.Interface.Requests.EnsureChannel"><methodname>EnsureChannel()</methodname></ulink> method, however, returns a suitable existing <interfacename>Channel</interfacename> where possible, only creating a new <interfacename>Channel</interfacename> when necessary. You should therefore use <methodname>EnsureChannel()</methodname> when requesting a server-defined <interfacename>ContactList</interfacename> Channel, such as the &quot;subscribe&quot; remote list. See the <link linkend="sec-channel-contactlist-server-defined">Server-Defined Lists</link> section.</para>
-    <para>Both methods can take a previously-obtained <property>TargetID</property> <link linkend="sec-basics-handles">Handle</link> that identifies the Channel. This handle identifies either the desired <interfacename>ContactList</interfacename>'s corresponding remote contact list or the remote contact (or contact list) with which the channel will communicate, depending on the requested channel type.</para>
-  <para>Alternatively, many Connection Managers allow you to specify an <indexterm><primary>Identifier</primary></indexterm><literal>Identifier</literal> (via the <property>TargetID</property> property) for the target contact or target list, instead of the <literal>Handle</literal> (via the <property>TargetHandle</property> property), if you do not yet have a <literal>Handle</literal>. For instance, this might be an individual's jabber address, a chat room name or the standard identifier for a server-defined list (see the <link linkend="sec-channel-contactlist-server-defined">Server-Defined Lists</link> section.</para>
+    <para>
+     Channels are requested from a <classname>Connection</classname> object
+     using the <ulink url="&url_spec_base;Connection.Interface.Requests"><interfacename>Requests</interfacename></ulink>
+     interface.
+    </para>
 
+    <para>
+     This interface provides two methods:
+     <methodname>CreateChannel</methodname> and
+     <methodname>EnsureChannel</methodname>.
+     Both methods take the same parameter, a dictionary containing the
+     desired properties for the channel.
+    </para>
 
-    <para>Telepathy-glib provides the <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-create-channel"><function>tp_cli_connection_interface_requests_call_create_channel()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-ensure-channel"><function>tp_cli_connection_interface_requests_call_ensure_channel()</function></ulink> functions for this purpose.</para>
+    <para>
+     <methodname>CreateChannel</methodname> will attempt to create a new
+     channel with the requested properties. Depending on the protocol, some
+     types of channels are exclusive, and only one such channel can exist at
+     a time (e.g. a XMPP chatroom). If a second channel is requested, the
+     error <errorname>NotAvailable</errorname> is returned.
+    </para>
+
+    <para>
+     Conversely, <methodname>EnsureChannel</methodname> will attempt to reuse an
+     existing channel with the same properties wherever possible, else it
+     will create a new channel. It's possible that another client is also
+     utilising this channel. <!-- FIXME: write more on this -->
+    </para>
+
+    <tip>
+     <title>When to Create and when to Ensure</title>
+     <para>
+      Choosing when to always create a new channel, or when to use an
+      existing channel can usually be deduced based on the function of the
+      channel. If we want to share the state of our channel with other
+      clients, use <methodname>EnsureChannel</methodname>, otherwise use
+      <methodname>CreateChannel</methodname>.
+     </para>
+     <para>
+      <methodname>EnsureChannel</methodname> is usually used for
+      <interfacename>Text</interfacename>,
+      <interfacename>StreamedMedia</interfacename> and
+      <interfacename>ContactList</interfacename> channels.
+     </para>
+     <para>
+      <methodname>CreateChannel</methodname> is usually used for
+      <interfacename>FileTransfer</interfacename>,
+      <interfacename>Tubes</interfacename>,
+      <interfacename>RoomList</interfacename> and
+      <interfacename>ContactSearch</interfacename> channels.
+     </para>
+    </tip>
+
+    <para>
+     XXX THIS PARAGRAPH WOULD EXPLAIN HOW TO CONSTRUCT THE DICTIONARY
+    </para>
+
+    <para>
+     Telepathy-glib provides the
+     <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-create-channel"><function>tp_cli_connection_interface_requests_call_create_channel()</function></ulink>
+     and <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-ensure-channel"><function>tp_cli_connection_interface_requests_call_ensure_channel()</function></ulink>
+     functions for this purpose.
+    </para>
   <!-- TODO: This is complex enough that this is an ideal place for Davyd's snippet-of-a-full-example feature. --> 
 
-    <note>
-      <para>The <interfacename>Requests</interfacename> D-Bus interface is relatively new, so it might not be implemented by all Connection Managers. You should therefore check that the interface is really available and fall back to the <interfacename>Connection</interfacename> interface's <ulink url="&url_spec_base;Connection.RequestChannel"><methodname>RequestChannel()</methodname></ulink> method if necessary. Telepathy-glib provides the <ulink url="&url_telepathy_glib_base;connection.html#tp_cli_connection_call_request_channel"><function>tp_cli_connection_call_request_channel()</function></ulink> function for this purpose.</para>
-    </note>
+   <warning>
+    <title>RequestChannel</title>
+    <para>
+     Some Connection Managers might not yet implement the
+     <interfacename>Requests</interfacename> interface on their
+     <classname>Connection</classname>s. In these cases you can
+     use the <methodname>RequestChannel</methodname> method on the
+     <interfacename>Connection</interfacename> interface, but you do so at
+     your own risk.
+    </para>
+    <para>
+     <methodname>CreateChannel</methodname> and
+     <methodname>EnsureChannel</methodname> fix several flaws that were
+     present in <methodname>RequestChannel</methodname>:
+    </para>
+    <itemizedlist>
+     <listitem><para>
+      <methodname>RequestChannel</methodname> doesn't provide a way to insist
+      on a new channel or prefer an existing channel;
+     </para></listitem>
+     <listitem><para>
+      If <methodname>RequestChannel</methodname> returns an existing
+      channel, the caller is not told whether the channel can be safely
+      handled or if something else is handling it already;
+     </para></listitem>
+     <listitem><para>
+      <methodname>RequestChannel</methodname> can request a channel type,
+      a handle type and a handle, but nothing more elaborate
+      (e.g. you can't request a <interfacename>RoomList</interfacename>
+      with a particular server); and
+     </para></listitem>
+     <listitem><para>
+      <methodname>RequestChannel</methodname> doesn't return the channel's
+      immutable properties (which is a useful optimization).
+     </para></listitem>
+    </itemizedlist>
+
+    <para>
+     If you must call <methodname>RequestChannel</methodname>, XXX WRITE ME
+    </para>
+   </warning>
 
   </sect1>
 
