@@ -365,18 +365,18 @@ of the Telapathy specification.
 
    <sect2>
     <title>Channel</title>
-    <!-- FIXME - need a concise definition of what a channel is -->
     <para>
-     Channels are created using a connection's RequestChannel method, or are
-     created by the connection manager in response to communication
-     initiated by someone else, in which case their advent is heralded by
-     the NewChannel signal.
+     A <interfacename>Channel</interfacename> is used by Telepathy to
+     exchange data between local applications and remote servers. A
+     <interfacename>Channel</interfacename> has a type, depending on what
+     it's used for (e.g. Text, ContactList, StreamedMedia).
+     Channels are either created automatically by a
+     <interfacename>Connection</interfacename>, created by request of the
+     client application or created in response to incoming communication.
     </para>
     <para>
-     Channels always provide at least two interfaces:
-     org.freedesktop.telepathy.Channel, and another interface according to
-     which type of channel it is. For instance, a text channel provides the
-     org.freedesktop.telepathy.ChannelType.Text interface.
+     A complete explanation channels is presented in
+     <xref linkend="chapter-channel"/>.
     </para>
    </sect2>
 
@@ -1071,19 +1071,33 @@ AC_SUBST(EXAMPLE_LIBS)
 
 <chapter id="chapter-channel">
   <title>Channel</title>
-
   <para>
    Each <interfacename>Connection</interfacename> provides
    <ulink url="&url_spec_base;Channel"><interfacename>Channel</interfacename></ulink>s,
    which allow the local application to exchange data with the remote server,
    for instance to retrieve a list of contacts in a chat room, or to send a
-   message to a contact. There are various types of
-   <interfacename>Channel</interfacename> for each type of data that might be
-   exchanged, some of which are mentioned in detail in subsequent chapters.
-   These D-Bus interfaces have names prefixed by
-   &quot;org.freedesktop.Telepathy.Channel.Type&quot;. For instance:
+   message to a contact.
   </para>
+  <para>
+   Channels always provide at least two D-Bus interfaces interfaces:
+   <interfacename>org.freedesktop.telepathy.Channel</interfacename>,
+   and another interface according to the type of channel it is (which can
+   be retrieved using the <property>ChannelType</property> property).
+   For instance, a text channel provides the
+   <interfacename>org.freedesktop.telepathy.ChannelType.Text</interfacename>
+   interface.
+  </para>
+  
+  <!-- para>
+   Channels are created using a connection's RequestChannel method, or are
+   created by the connection manager in response to communication
+   initiated by someone else, in which case their advent is heralded by
+   the NewChannel signal.
+  </para -->
 
+  <para>
+   The channel types currently available in Telepathy are:
+  </para>
   <variablelist>
 
      <varlistentry>
@@ -1092,17 +1106,27 @@ AC_SUBST(EXAMPLE_LIBS)
          <ulink url="&url_spec_base;Channel.Type.ContactList"><interfacename>ContactList</interfacename></ulink>
        </term>
        <listitem>
-         <para>This channel provides a list of people on the server, such as the contacts to whose presence information you are subscribed or the contacts to whom you publish your presence information. See the <link linkend="chapter-channel-contactlist">ContactList Channel</link> chapter.</para>
+         <para>
+	  This channel provides a list of people on the server, such as the
+	  contacts to whose presence information you are subscribed or the
+	  contacts to whom you publish your presence information.
+	 </para>
+	 <para>
+	  See <xref linkend="sect-channel-contactlist"/>.
+	 </para>
        </listitem>
      </varlistentry>
-
+     
      <varlistentry>
        <term>
-         <indexterm><primary>StreamedMedia</primary></indexterm>
-         <ulink url="&url_spec_base;Channel.Type.StreamedMedia"><interfacename>StreamedMedia</interfacename></ulink>
+         <indexterm><primary>RoomList</primary></indexterm>
+         <ulink url="&url_spec_base;Channel.Type.RoomList"><interfacename>RoomList</interfacename></ulink>
        </term>
        <listitem>
-         <para>This channel sends and receives streamed audio or video, such as a video call.</para>
+         <para>
+	  A channel type for listing named channels (e.g. chatrooms)
+	  available on the server.
+	 </para>
        </listitem>
      </varlistentry>
 
@@ -1112,7 +1136,50 @@ AC_SUBST(EXAMPLE_LIBS)
          <ulink url="&url_spec_base;Channel.Type.Text"><interfacename>Text</interfacename></ulink>
        </term>
        <listitem>
-         <para>This channel sends and receives plain text messages, such as instant messages. See the <link linkend="chapter-channel-text">Text Channel</link> chapter.</para>
+         <para>
+	  This channel sends and receives plain text messages, such as instant
+	  messages.
+	 </para>
+	 <para>
+	  See <xref linkend="sect-channel-text"/>.
+	 </para>
+       </listitem>
+     </varlistentry>
+
+     <varlistentry>
+       <term>
+         <indexterm><primary>StreamedMedia</primary></indexterm>
+         <ulink url="&url_spec_base;Channel.Type.StreamedMedia"><interfacename>StreamedMedia</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	  This channel sends and receives streamed audio or video,
+	  such as a video call.
+	 </para>
+       </listitem>
+     </varlistentry>
+     
+     <!--varlistentry>
+       <term>
+         <indexterm><primary>Tubes</primary></indexterm>
+         <ulink url="&url_spec_base;Channel.Type.Tubes"><interfacename>Tubes</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	 </para>
+       </listitem>
+     </varlistentry-->
+     
+     <varlistentry>
+       <term>
+         <indexterm><primary>FileTransfer</primary></indexterm>
+         <ulink
+	 url="&url_spec_base;Channel.Type.FileTransfer"><interfacename>FileTransfer</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	  A channel type for transferring files.
+	 </para>
        </listitem>
      </varlistentry>
 
@@ -1139,7 +1206,7 @@ AC_SUBST(EXAMPLE_LIBS)
   <sect1>
     <title>Channel Types</title>
 
-    <sect2 id="chapter-channel-contactlist">
+    <sect2 id="sect-channel-contactlist">
       <title>ContactList Channel</title>
       <indexterm><primary>ContactList</primary></indexterm>
     
@@ -1243,7 +1310,7 @@ AC_SUBST(EXAMPLE_LIBS)
     
     </sect2>
 
-    <sect2 id="chapter-channel-text">
+    <sect2 id="sect-channel-text">
       <title>Text Channel</title>
       <indexterm><primary>Text</primary></indexterm>
     
