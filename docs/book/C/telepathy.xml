@@ -925,20 +925,35 @@ AC_SUBST(EXAMPLE_LIBS)
 
   </sect1>
 
-  <!-- Just plain wrong
   <sect1 id="sec-basics-api-conventions">
-    <title>API conventions</title>
-    <para>Telepathy's method names follow a simple convention.</para>
-    <orderedlist>
-      <listitem><simpara>Methods prefixed with <literal>Request</literal> are aysnchronous, meaning that the result will be provided later and your application should not block while it waits. For instance, <ulink url="&url_spec_base;Connection.RequestChannel"><methodname>Connection.RequestChannel()</methodname></ulink>.</simpara></listitem>
-      <listitem><simpara>Methods prefixed with <literal>Get</literal> are synchronous, meaning that the result will be returned immediately. These methods generally access local information and do not need to make any contact with the remote server. For instance, <ulink url="&url_spec_base;Connection.GetStatus"><methodname>Connection.GetStatus()</methodname></ulink>.</simpara></listitem>
-    </orderedlist>
+   <title>API conventions</title>
 
-    <para>See the <link linkend="sec-basics-dbus">Using D-Bus</link> section to learn more about asynchronous D-Bus method calls. Note that many <literal>Get</literal> methods may be replaced with D-Bus properties in future, which will also be syncronous.</para>
+   <para>
+    There is a general convention for method names in Telepathy.
+   </para>
 
-    <para>See also the <link linkend="sec-basics-language-bindings-telepathy-glib">telepathy-glib</link> section about its function naming conventions.</para>
+   <para>
+    Many method names begin with <emphasis>Get</emphasis> (e.g.
+    <methodname>GetAliases</methodname>, <methodname>GetParameters</methodname>,
+    <methodname>GetInterfaces</methodname>, etc.).
+    <emphasis>Get</emphasis> methods
+    will only ever return immutable or cached data. They never make a
+    network request to a remote service; so data should be available
+    immediately.
+   </para>
+   <para>
+    Method names beginning with <emphasis>Request</emphasis> (e.g.
+    <methodname>RequestAliases</methodname>,
+    <methodname>RequestAvatars</methodname>,
+    <methodname>RequestContactInfo</methodname>, etc.) may make network
+    requests (but not always, this depends on the Connection Manager).
+    Depending on the network service, its latency and the size of the
+    reply, it may be some time before data is available (or the network
+    might fail and eventually an error will be returned).
+   </para>
+   <!-- FIXME: should Ensure/Create methods be mentioned?
+               what about any types of signals? -->
   </sect1>
-  -->
 
 </chapter>
 
