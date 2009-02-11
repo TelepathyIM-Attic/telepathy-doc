@@ -20,6 +20,8 @@ from lxml import etree
 doc = etree.parse (sys.stdin)
 examplesdir = sys.argv[1]
 
+included_files = {}
+
 # find all example elements that have the 'file' attribute
 examples = doc.xpath ("//example[@file]")
 
@@ -27,7 +29,9 @@ for example in examples:
 
 	id = example.get ('id')
 
-	filename = os.path.join (examplesdir, example.get ('file'))
+	nicename = example.get ('file')
+	filename = os.path.join (examplesdir, nicename)
+
 	# del (example.attrib['file']) # unset the file property
 
 	# attempt to load the file
@@ -38,6 +42,11 @@ for example in examples:
 		print >> sys.stderr, e
 		continue
 	
+	if nicename not in included_files:
+		included_files[nicename] = []
+	if id is not None:
+		included_files[nicename].append (id)
+
 	if id:
 		print >> sys.stderr, "Including `%s' from `%s'..." % (id, filename)
 		
@@ -57,11 +66,29 @@ for example in examples:
 	else:
 		print >> sys.stderr, "Including file `%s'..." % filename
 
-	n = etree.Element ('programlisting')
-	n.text = etree.CDATA (contents)
-
-	example.append (n)
+	etree.SubElement (example, 'programlisting').text = etree.CDATA (contents)
+	p = etree.SubElement (example, 'para')
+	etree.SubElement (p, 'link', linkend='appendix.source-code.%s' % nicename).text = "Complete Source Code"
 
 	f.close ()
+
+# build an appendix of source files
+appendix = doc.xpath ('/book/appendix[@id="source-code"]')[0]
+for nicename in included_files:
+	filename = os.path.join (examplesdir, nicename)
+
+	s = etree.SubElement (appendix, 'sect1',
+				id='appendix.source-code.%s' % nicename)
+	etree.SubElement (s, 'title').text = nicename
+
+	try:
+		f = open (filename)
+		contents = f.read ().rstrip ()
+	except IOError, e:
+		print >> sys.stderr, e
+		continue
+	
+	# FIXME - we want to rewrite begin/end comments with xrefs
+	etree.SubElement (s, 'programlisting').text = etree.CDATA (contents)
 
 sys.stdout.write (etree.tostring (doc))
