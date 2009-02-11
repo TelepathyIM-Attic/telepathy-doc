@@ -97,13 +97,11 @@ for nicename in included_files:
 		  map (lambda id: get_tuple ('end', id),
 		  	included_files[nicename])
 	offsets.sort () # sort into ascending order
-	print >> sys.stderr, offsets
 	
 	pl = etree.SubElement (s, 'programlisting')
 	cumoff = 0
 	elem = None
 
-	print >> sys.stderr, 'bing'
 	for (offset, prefix, id, l) in offsets:
 		# append the CDATA to elem
 		cdata = contents[cumoff:offset]
