@@ -456,19 +456,21 @@ of the Telapathy specification.
 
        <varlistentry>
          <term>
-           <indexterm><primary>Bus Name</primary></indexterm>
-           Bus Name
+           <indexterm><primary>Well-Known Name</primary></indexterm>
+           Well-Known Name
          </term>
 	 <!-- FIXME - what's the correct markup for bus names, etc? -->
          <listitem>
            <para>
 	     A process can make a service available by connecting to a
 	     D-Bus <literal>bus</literal> and requesting a
-	     &quot;well-known&quot; <literal>bus name</literal> for the
-	     connection, by which other processes, such as applications, can
+	     &quot;well-known&quot; bus name for the
+	     connection (this is sometimes referred to as a
+	     <literal>service name</literal>),
+	     by which other processes, such as applications, can
 	     access it.
 	     If unique names are analagous to IP addresses, then
-	     bus names are like a DNS name.
+	     well-known names are like a DNS name.
 	   </para>
 	   <para>
 	     The example in
@@ -582,12 +584,12 @@ of the Telapathy specification.
       names.
      </para>
      <para>
-      When choosing a bus name, object name or interface name
-      it is best practice to use your domain name reversed (as
+      When choosing a well-known bus name, object name or interface name
+      it is best practice to use a reversed domain name (as
       is done for Java packages) to avoid possible conflicts.
      </para>
      <para>
-      For example for bus names or interfaces:
+      For example for well-known bus names or interfaces:
      </para>
      <itemizedlist>
       <listitem><para>org.freedesktop.Telepathy.ConnectionManager</para></listitem>
@@ -602,9 +604,11 @@ of the Telapathy specification.
       <listitem><para>/org/gnome/Project/adaptor</para></listitem>
       <listitem><para>/com/mycompany/MyProduct/object0</para></listitem>
      </itemizedlist>
+     <para>
+      For simple services, with just one object that provides just one
+      interface, these three names will often look very similar.
+     </para>
     </tip>
-
-    <para>Of course, for simple services with just one object that provides just one interface, these three names will often look very similar.</para>
 
     <para>In the following sections you will see how a D-Bus API can be used from some common programming languages. Remember that these examples only create <literal>proxies</literal> to the D-Bus objects, providing a way to use their API. The actual objects are instantiated in the service's process.</para>
 
