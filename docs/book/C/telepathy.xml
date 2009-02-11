@@ -953,6 +953,40 @@ AC_SUBST(EXAMPLE_LIBS)
    </para>
    <!-- FIXME: should Ensure/Create methods be mentioned?
                what about any types of signals? -->
+   
+   <warning>
+    <title>Always Use Asynchronous Method Calls</title>
+    <para>
+     Even when using a <emphasis>Get</emphasis> call, for which the
+     information will already be available, you must
+     <emphasis>always</emphasis> make asynchronous requests via D-Bus for the
+     reasons outlined in <xref linkend="warning.dbus.sync"/>.
+    </para>
+   </warning>
+
+   <note>
+    <title>Get Calls Can Trigger Network Traffic</title>
+
+    <para>
+     Telepathy interprets <emphasis>Get</emphasis> calls as a way for a
+     client to show interest in information.
+    </para>
+    <para>
+     In the case where there is no information cached in a Connection
+     Manager, <emphasis>Get</emphasis> calls may choose to trigger a
+     network request. The current (empty) cache will be returned as the
+     reply, but upon completion of the request a signal will be emitted to
+     indicate new data is available.
+    </para>
+    <para>
+     For example, if there is no cached data,
+     <methodname>GetAliases</methodname> will return no information, but a
+     request for alias information will be made to the remote service.
+     Once that information has been retrieved the AliasesChanged signal will be
+     emitted.
+    </para>
+   </note>
+
   </sect1>
 
 </chapter>
