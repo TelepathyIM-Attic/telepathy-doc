@@ -925,12 +925,12 @@ AC_SUBST(EXAMPLE_LIBS)
 
   </sect1>
 
+  <!-- Just plain wrong
   <sect1 id="sec-basics-api-conventions">
     <title>API conventions</title>
     <para>Telepathy's method names follow a simple convention.</para>
     <orderedlist>
       <listitem><simpara>Methods prefixed with <literal>Request</literal> are aysnchronous, meaning that the result will be provided later and your application should not block while it waits. For instance, <ulink url="&url_spec_base;Connection.RequestChannel"><methodname>Connection.RequestChannel()</methodname></ulink>.</simpara></listitem>
-      <!-- TODO: What is the D-Bus convention for the separator? . or :: ? -->
       <listitem><simpara>Methods prefixed with <literal>Get</literal> are synchronous, meaning that the result will be returned immediately. These methods generally access local information and do not need to make any contact with the remote server. For instance, <ulink url="&url_spec_base;Connection.GetStatus"><methodname>Connection.GetStatus()</methodname></ulink>.</simpara></listitem>
     </orderedlist>
 
@@ -938,6 +938,7 @@ AC_SUBST(EXAMPLE_LIBS)
 
     <para>See also the <link linkend="sec-basics-language-bindings-telepathy-glib">telepathy-glib</link> section about its function naming conventions.</para>
   </sect1>
+  -->
 
 </chapter>
 
