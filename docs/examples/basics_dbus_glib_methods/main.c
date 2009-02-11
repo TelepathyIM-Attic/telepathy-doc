@@ -52,6 +52,7 @@ main (int argc, char **argv)
   /* Create the main loop: */
   mainloop = g_main_loop_new (NULL, FALSE);
 
+  /* begin dbus-glib-methods-get-bus */
   /* Connect to the bus: */
   GError *error = 0;
   DBusGConnection *connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
@@ -62,16 +63,19 @@ main (int argc, char **argv)
       g_main_loop_quit (mainloop);
       return 1;
     }
+  /* end dbus-glib-methods-get-bus */
 
+  /* begin dbus-glib-methods-get-proxy */
   /* Get a proxy for the remote object: */
   DBusGProxy *proxy = dbus_g_proxy_new_for_name (connection,
     "org.freedesktop.Notifications", /* name */
     "/org/freedesktop/Notifications", /* path */
     "org.freedesktop.Notifications"); /* interface */
-
+  /* end dbus-glib-methods-get-proxy */
 
   /* Call a method on the interface  of the remote object: */
 
+  /* begin dbus-glib-methods-call-method */
   /* Create an empty GHashTable for one of the parameters: */
   GHashTable* actions = g_hash_table_new (NULL, NULL);  
 
@@ -92,6 +96,7 @@ main (int argc, char **argv)
     G_TYPE_INVALID);
   g_hash_table_unref (actions);
   actions = NULL;
+  /* end dbus-glib-methods-call-method */
 
   /* Run the main loop, 
    * to keep our application alive while we wait for responses from D-Bus.

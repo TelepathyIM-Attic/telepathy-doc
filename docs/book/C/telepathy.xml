@@ -711,6 +711,43 @@ of the Telapathy specification.
     <sect2 id="sec-basics-dbus-glib">
       <title>Using D-Bus from C, with glib</title>
 
+      <!-- FIXME: something about dbus-glib
+                  link to
+		  http://dbus.freedesktop.org/doc/dbus-tutorial.html#glib-client
+       -->
+
+      <para>
+       Before any method calls can be made or signals connected, via
+       D-Bus, we need to make a connection to the message bus we wish to
+       use (e.g. the system bus, the session bus or some private bus).
+       Generally an application only makes one connection to each bus.
+       <xref linkend="dbus-glib-methods-get-bus"/> shows how to create a
+       connection to a user's session bus.
+      </para>
+
+      <example id="dbus-glib-methods-get-bus"
+               file="basics_dbus_glib_methods/main.c">
+       <title>Connecting to a Message Bus</title>
+      </example>
+
+      <para>
+       In order to interact with a D-Bus object (i.e. call methods or
+       connect signals) we need to create a proxy object for it. A proxy
+       object is a <classname>GObject</classname> that we call methods on
+       in our application. <xref linkend="dbus-glib-methods-get-proxy"/>
+       shows connecting up a proxy object for the desktop notification
+       service.
+      </para>
+      <example id="dbus-glib-methods-get-proxy"
+               file="basics_dbus_glib_methods/main.c">
+       <title>Acquiring a Proxy Object</title>
+      </example>
+      
+      <example id="dbus-glib-methods-call-method"
+               file="basics_dbus_glib_methods/main.c">
+       <title>Calling a Method</title>
+      </example>
+
       <sect3 id="sect-basics-dbus-glib-methods">
         <title>Calling Methods</title>
         <para>This example uses dbus-glib's <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-begin-call"><function>dbus_g_proxy_begin_call()</function></ulink> function to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path. Note that we must specify the types of each parameter. The specified callback function then calls <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-end-call"><function>dbus_g_proxy_end_call()</function></ulink> to retreive the result.</para>
