@@ -937,9 +937,10 @@ AC_SUBST(EXAMPLE_LIBS)
     <methodname>GetAliases</methodname>, <methodname>GetParameters</methodname>,
     <methodname>GetInterfaces</methodname>, etc.).
     <emphasis>Get</emphasis> methods
-    will only ever return immutable or cached data. They never make a
+    will only ever return immutable or cached data. They never block on a
     network request to a remote service; so data should be available
-    immediately.
+    immediately (see <xref linkend="note.basics-api-conventions.get-triggers"/>
+    below).
    </para>
    <para>
     Method names beginning with <emphasis>Request</emphasis> (e.g.
@@ -964,7 +965,7 @@ AC_SUBST(EXAMPLE_LIBS)
     </para>
    </warning>
 
-   <note>
+   <note id="note.basics-api-conventions.get-triggers">
     <title>Get Calls Can Trigger Network Traffic</title>
 
     <para>
