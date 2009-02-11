@@ -12,6 +12,7 @@
        Use the date entity to specify the release date of this manual.
        Use the app entity to specify the name of the application. -->
   <!ENTITY legal SYSTEM "legal.xml">
+  <!ENTITY mdash "&#8212;">
   <!ENTITY appversion "0.7">
   <!ENTITY manrevision "0.2">
   <!ENTITY date "12 August 2008">
