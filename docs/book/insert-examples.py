@@ -88,7 +88,37 @@ for nicename in included_files:
 		print >> sys.stderr, e
 		continue
 	
-	# FIXME - we want to rewrite begin/end comments with xrefs
-	etree.SubElement (s, 'programlisting').text = etree.CDATA (contents)
+	# find the starting offsets for each id in the file
+	def get_tuple (prefix, id):
+		str = '%s %s' % (prefix, id)
+		return (contents.find (str), prefix, id, len (str))
+	offsets = map (lambda id: get_tuple ('begin', id),
+			included_files[nicename]) + \
+		  map (lambda id: get_tuple ('end', id),
+		  	included_files[nicename])
+	offsets.sort () # sort into ascending order
+	print >> sys.stderr, offsets
+	
+	pl = etree.SubElement (s, 'programlisting')
+	cumoff = 0
+	elem = None
+
+	print >> sys.stderr, 'bing'
+	for (offset, prefix, id, l) in offsets:
+		# append the CDATA to elem
+		cdata = contents[cumoff:offset]
+		if elem is not None: elem.tail = cdata
+		else: pl.text = cdata
+
+		cumoff = offset + l
+
+		# FIXME - I'd like something better than emphasis
+		em = etree.Element ('emphasis')
+		em.text = prefix.title () + " "
+		etree.SubElement (em, 'xref', linkend=id)
+		pl.append (em)
+
+		elem = em
+	elem.tail = contents[cumoff:]
 
 sys.stdout.write (etree.tostring (doc))
