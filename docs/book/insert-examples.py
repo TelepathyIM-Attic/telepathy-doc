@@ -13,34 +13,33 @@
 #
 # Authors: Davyd Madeley <davyd.madeley@collabora.co.uk>
 
-import libxml2
-import sys, os.path
+import sys
+import os.path
+from lxml import etree
 
-doc = libxml2.parseFile (sys.argv[1])
-examplesdir = sys.argv[2]
+doc = etree.parse (sys.stdin)
+examplesdir = sys.argv[1]
 
 # find all example elements that have the 'file' attribute
-examples = doc.xpathEval ("//example[@file]")
+examples = doc.xpath ("//example[@file]")
 
 for example in examples:
 
-	if example.hasProp ('id'): id = example.prop ('id')
-	else: id = None
+	id = example.get ('id')
 
-	filename = os.path.join (examplesdir, example.prop ('file'))
-	example.unsetProp ('file') # unset the file property
-
+	filename = os.path.join (examplesdir, example.get ('file'))
+	# del (example.attrib['file']) # unset the file property
 
 	# attempt to load the file
 	try:
 		f = open (filename)
 		contents = f.read ().rstrip ()
 	except IOError, e:
-		print e
+		print >> sys.stderr, e
 		continue
 	
 	if id:
-		print "Including `%s' from `%s'..." % (id, filename)
+		print >> sys.stderr, "Including `%s' from `%s'..." % (id, filename)
 		
 		begin = False
 		lines = []
@@ -56,12 +55,13 @@ for example in examples:
 		if lines != []: contents = '\n'.join (lines)
 
 	else:
-		print "Including file `%s'..." % filename
+		print >> sys.stderr, "Including file `%s'..." % filename
 
-	n = example.newChild (None, 'programlisting', None)
-	cdata = doc.newCDataBlock (contents, len (contents))
-	n.addChild (cdata)
+	n = etree.Element ('programlisting')
+	n.text = etree.CDATA (contents)
+
+	example.append (n)
 
 	f.close ()
 
-doc.saveFormatFile (sys.argv[3], True)
+sys.stdout.write (etree.tostring (doc))
