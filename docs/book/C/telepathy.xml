@@ -789,11 +789,28 @@ of the Telapathy specification.
        </example>
       </sect3>
 
-     <sect3 id="sect-basics-dbus-glib-properties">
-        <title>Using Properties</title>
-        <para>D-Bus properties are available via an additional <ulink url="&url_dbus_spec_base;standard-interfaces-properties">org.freedesktop.DBus.Properties</ulink> interface on some objects, which provides <methodname>Get()</methodname>, <methodname>Set()</methodname> and <methodname>GetAll</methodname> methods. You can call these methods to get or set property values for the object's other interfaces.</para>
-        <para>As of this writing, telepathy-glib has no simple API for dealing with properties so you must call these functions directly. Therefore this example is therefore very similar to the <link linkend="sect-basics-dbus-glib-methods">Calling Methods</link> example.</para>
-        <para><ulink url="&url_examples_base;basics_dbus_glib_properties">Source Code</ulink></para>
+      <sect3 id="sect-basics-dbus-glib-properties">
+       <title>Using Properties</title>
+       <para>
+        D-Bus properties are available via an additional
+        <ulink url="&url_dbus_spec_base;standard-interfaces-properties"><interfacename>org.freedesktop.DBus.Properties</interfacename></ulink>
+        interface on some objects, which provides the methods
+        <methodname>Get</methodname>, <methodname>Set</methodname> and
+        <methodname>GetAll</methodname> to get or set property values for the
+        object's other interfaces.
+       </para>
+       <para>
+        Currently <literal>dbus-glib</literal> has no specific API for handling
+        properties, so they can only be accessed using the D-Bus method calls.
+        <xref linkend="example.dbus-glib-properties"/> is therefore very
+	similar to <xref linkend="sect-basics-dbus-glib-methods"/> presented
+	above.
+       </para>
+
+       <example id="example-dbus-glib-properties"
+                file="basics_dbus_glib_properties/main.c">
+        <title>Accessing D-Bus Properties Using Methods</title>
+       </example>
       </sect3>
 
       <sect3 id="sect-basics-dbus-glib-signals">
