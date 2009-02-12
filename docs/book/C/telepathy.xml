@@ -277,7 +277,7 @@ they at least compile with the latest API, and making it easier to test that
 they really work.
 - Wherever interfaces are mentioned, there will be a links to online API 
 reference documentation (assuming that it exists) and links to relevant parts 
-of the Telapathy specification. 
+of the Telepathy specification. 
 -->
 
 <chapter id="chapter-basics">
@@ -971,7 +971,7 @@ AC_SUBST(EXAMPLE_LIBS)
 
       <!-- TODO: On irc, smcv said: "perhaps "the user types in the name of a chatroom to join" would be a better example of when you want to use tp_connection_request_handles/tp_connection_unref_handles". Explain that more fully. -->
 
-      <para>In the later sections we will mention when it actually makes sense to do this when using specific parts of the Telapathy API.</para>
+      <para>In the later sections we will mention when it actually makes sense to do this when using specific parts of the Telepathy API.</para>
     </sect2>
 
   </sect1>
