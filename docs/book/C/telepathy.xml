@@ -424,8 +424,29 @@ of the Telepathy specification.
 
   <sect1 id="sec-basics-dbus">
     <title>Using D-Bus</title>
-    <para>Telepathy is a <indexterm><primary>D-Bus</primary></indexterm>D-Bus API. Telepathy components conform to the <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>, which is therefore also the main Telepathy API reference.</para>
-    <para>D-Bus is an <indexterm><primary>IPC</primary></indexterm>IPC (Inter-process communication) system, allowing different software components to be implemented in different processes, with different programming languages. It also allows multiple applications to easily share functionality from a single process. Most examples in this book will use <link linkend="sec-basics-language-bindings">language bindings</link> instead of using D-Bus directly. However, an understanding of the following D-Bus concepts will help you even when using language bindings.</para>
+    <para>
+     Telepathy is a <indexterm><primary>D-Bus</primary></indexterm>D-Bus API.
+     Telepathy components conform to the
+     <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>,
+     which is therefore also the main Telepathy API reference.
+    </para>
+    
+    <para>
+     D-Bus is an <indexterm><primary>IPC</primary></indexterm>IPC
+     (Inter-process communication) system, allowing different software
+     components running in different processes and implemented in different
+     programming languages to communicate. D-Bus is primarily used as a
+     server/client architecture, but one-to-one communication via a private
+     bus is also possible. D-Bus is the defacto standard IPC mechanism for
+     Linux.
+    </para>
+
+    <para>
+    Most of the Telepathy examples in this book will use a
+    <link linkend="sec-basics-language-bindings">language binding</link>
+    instead of using D-Bus directly. However, an understanding of D-Bus is
+    very helpful when learning Telepathy.
+    </para>
  
     <figure id="fig.basics.dbus.conceptual">
      <title>
@@ -438,6 +459,23 @@ of the Telepathy specification.
     </figure>
 
      <variablelist>
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Message Bus</primary></indexterm>
+	   Message Bus
+	 </term>
+	 <listitem>
+	   <para>
+	    A message bus is a bus that D-Bus messages are transmitted over,
+	    brokered by a D-Bus daemon. There are two main buses that
+	    programs communicate with: the <literal>system bus</literal>
+	    (for machine wide services, e.g. HAL, NetworkManager, Avahi) and
+	    the <literal>session bus</literal> (for user/session specific
+	    services, e.g. notification messages, Telepathy, desktop session
+	    management).
+	   </para>
+	 </listitem>
+       </varlistentry>
 
        <varlistentry>
          <term>
@@ -711,6 +749,19 @@ of the Telepathy specification.
       It allows (synchronous) method calls to be made.
      </para>
     </tip>
+
+    <sect2 id="sect.basics-dbus-glib.types">
+     <title>D-Bus Type Signatures</title>
+
+     <para>
+      D-Bus methods and signals are strongly typed with types given by a
+      D-Bus type signature. The complete documentation for D-Bus type
+      signatures is presented in the
+      <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-signatures">D-Bus specification</ulink>.
+     </para>
+
+     <!-- FIXME: should write more here -->
+    </sect2>
 
     <sect2 id="sec-basics-dbus-glib">
       <title>Using D-Bus from C, with glib</title>
