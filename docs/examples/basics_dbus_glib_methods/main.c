@@ -19,6 +19,7 @@
 
 GMainLoop *mainloop = NULL;
 
+/* begin dbus-glib-methods-call-method-subroutine */
 void on_proxy_call_notify (DBusGProxy *proxy,
   DBusGProxyCall *call_id,
   void *user_data)
@@ -39,6 +40,7 @@ void on_proxy_call_notify (DBusGProxy *proxy,
       g_printf ("dbus_g_proxy_begin_call() succeeded, returning %u\n", result);
     }
 
+/* end dbus-glib-methods-call-method-subroutine */
   /* Stop the main loop to allow main() to finish, 
    * stopping the program: */
   g_main_loop_quit (mainloop);

@@ -742,17 +742,51 @@ of the Telapathy specification.
                file="basics_dbus_glib_methods/main.c">
        <title>Acquiring a Proxy Object</title>
       </example>
-      
-      <example id="dbus-glib-methods-call-method"
-               file="basics_dbus_glib_methods/main.c">
-       <title>Calling a Method</title>
-      </example>
 
       <sect3 id="sect-basics-dbus-glib-methods">
-        <title>Calling Methods</title>
-        <para>This example uses dbus-glib's <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-begin-call"><function>dbus_g_proxy_begin_call()</function></ulink> function to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path. Note that we must specify the types of each parameter. The specified callback function then calls <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-end-call"><function>dbus_g_proxy_end_call()</function></ulink> to retreive the result.</para>
-        <para>We could have used the synchronous <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-call"><function>dbus_g_proxy_call()</function></ulink> function instead but, as already mentioned, asynchronous calls are generally preferred with D-Bus.</para>
-        <para><ulink url="&url_examples_base;basics_dbus_glib_methods">Source Code</ulink></para>
+       <title>Calling Methods</title>
+       <para>
+        Method calls in D-Bus should <emphasis>always</emphasis> be made
+        asynchronously, for the reasons
+	outlined in <xref linkend="warning.dbus.sync"/>.
+	<literal>dbus-glib</literal> offers a synchronous way
+	to make method calls, but you should never use it,
+       </para>
+       <para>
+	In <literal>dbus-glib</literal>, method calls are made with the function
+        <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-begin-call"><function>dbus_g_proxy_begin_call</function></ulink>,
+        which takes as its arguments the name of a D-Bus method to call,
+        a callback function to handle the reply, optional user data and the
+        parameters (and types) for the D-Bus method.
+       </para>
+       <para>
+        <xref linkend="dbus-glib-methods-call-method"/> shows calling the
+        D-Bus method <methodname>Notify</methodname> on the previously
+        acquired proxy.
+       </para>
+       
+       <example id="dbus-glib-methods-call-method"
+                file="basics_dbus_glib_methods/main.c">
+        <title>Calling a Method</title>
+       </example>
+
+       <para>
+        In your reply callback, use the function
+        <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-end-call"><function>dbus_g_proxy_end_call</function></ulink>
+        to collect the return values from the method call. This function can
+        be called outside of the reply callback, but if it is called before
+        the reply has been received, it will block; causing the same problems
+        as synchronous D-Bus calls.
+       </para>
+       <para>
+        <xref linkend="dbus-glib-methods-call-method-subroutine"/> shows a
+        reply callback for the method call above.
+       </para>
+       
+       <example id="dbus-glib-methods-call-method-subroutine"
+                file="basics_dbus_glib_methods/main.c">
+        <title>Calling a Method: Reply Callback</title>
+       </example>
       </sect3>
 
      <sect3 id="sect-basics-dbus-glib-properties">
