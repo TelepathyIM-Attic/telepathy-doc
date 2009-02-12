@@ -29,13 +29,16 @@ def on_notify_error(error):
 
 if __name__ == '__main__':
 
+    # begin dbus-python-get-bus
     # Tell the dbus python module to use the Glib mainloop, 
     # which we will start and stop later:
     dbus.mainloop.glib.DBusGMainLoop(set_as_default = True)
 
     # Connect to the bus:
     bus = dbus.SessionBus()
+    # end dbus-python-get-bus
 
+    # begin dbus-python-get-proxy
     # Get a proxy for the remote object:
     try:
         proxy = bus.get_object('org.freedesktop.Notifications',
@@ -44,10 +47,12 @@ if __name__ == '__main__':
     except dbus.DBusException:
         traceback.print_exc()
         sys.exit(1)
+    # end dbus-python-get-proxy
 
 
     # Call a method on the interface of the remote object: */
 
+    # begin dbus-python-call-method
     # Create empty objects needed for some parameters:
     actions = dbus.Array('s')
     hints = dbus.Dictionary({}, signature=dbus.Signature('sv'))
@@ -63,6 +68,7 @@ if __name__ == '__main__':
         hints, 
         0,
         reply_handler = on_notify_reply, error_handler = on_notify_error)
+    # end dbus-python-call-method
 
     # Start the mainloop so we can wait until the D-Bus method 
     # returns. We stop the mainloop in our handlers.

@@ -610,14 +610,18 @@ of the Telepathy specification.
      </para>
     </tip>
 
-    <para>In the following sections you will see how a D-Bus API can be used from some common programming languages. Remember that these examples only create <literal>proxies</literal> to the D-Bus objects, providing a way to use their API. The actual objects are instantiated in the service's process.</para>
+    <para>
+     In the following sections you will see how a D-Bus API can be used from
+     some common programming languages. Remember that these examples only
+     create <literal>proxies</literal> to the D-Bus objects, providing a way
+     to use their API. The actual objects are instantiated in the service's
+     process.
+    </para>
 
+    <!--
     <para>In these examples, we use the FreeDesktop <literal>Notification</literal> system, which should be available on most modern Linux installations. The examples should cause a message to popup from your desktop panel. Note that, like Telepathy, this service is available on the <indexterm><primary>Session Bus</primary></indexterm><literal>Session Bus</literal> rather than the <indexterm><primary>System Bus</primary></indexterm><literal>System Bus</literal>. Services on the <literal>Session Bus</literal> are for the current user's session only. Services on the <literal>System Bus</literal> are shared between all users.</para>
+    -->
 
-<!--
-    <para>These programming languages allow you to call D-Bus methods synchronously, meaning that they block until they can return the method's result. However, that is generally disapproved of because the D-Bus service may take a long time to reply, and because of some fundamental technical problems with the use of blocking calls between processes. Therefore, the examples call the D-Bus method asynchronously, theoretically allowing the application to continue with other tasks while waiting for the result.</para> 
--->
-    <!-- TODO: Get the result asynchronously. --> 
     <warning id="warning.dbus.sync">
       <title>Always Avoid Synchronous D-Bus Calls</title>
       <!-- this information came from
@@ -814,9 +818,28 @@ of the Telepathy specification.
       </sect3>
 
       <sect3 id="sect-basics-dbus-glib-signals">
-        <title>Handling Signals</title>
-        <para>D-Bus signal handlers may be specified with dbus-glib with the <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-connect-signal"><function>dbus_g_proxy_connect_signal()</function></ulink> function. As when calling D-Bus methods, you must specify the expected types, but for signals you must do this in a previous call to <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-add-signal"><function>dbus_g_proxy_add_signal()</function></ulink>. The specified callback function will then be called when the signal is emitted. This example connects to the &quot;DeviceAdded&quot; signal of the &quot;org.freedesktop.Hal.Manager&quot; interface so it can print a message to the terminal when, for instance, you plug in a USB stick.</para>
-        <para><ulink url="&url_examples_base;basics_dbus_glib_signals">Source Code</ulink></para>
+       <title>Handling Signals</title>
+       <para>
+        Handlers for D-Bus signals may be connected with the function
+	<ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-connect-signal"><function>dbus_g_proxy_connect_signal</function></ulink>.
+	As when calling D-Bus methods, you must specify the expected
+	types, but for signals you must do this in a previous call to
+	<ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-add-signal"><function>dbus_g_proxy_add_signal</function></ulink>.
+	The specified callback function will then be called when the signal is
+	emitted.
+       </para>
+       <para>
+        <xref linkend="dbus-glib-signals"/>
+	connects to the &quot;DeviceAdded&quot; signal of
+	the <interface>org.freedesktop.Hal.Manager</interface> interface so it
+	can print a message to the terminal when, for instance, you plug in a
+	USB stick.
+       </para>
+
+       <example id="dbus-glib-signals"
+                file="basics_dbus_glib_signals/main.c">
+	<title>Connecting and Receiving a Signal</title>
+       </example>
       </sect3>
 
     </sect2>
@@ -824,11 +847,68 @@ of the Telepathy specification.
     <sect2 id="sec-basics-dbus-python">
       <title>Using D-Bus from Python</title>
 
+      <para>
+       Using D-Bus from Python is done using the <literal>dbus</literal>
+       module. If you're planning on using the GLib mainloop you'll also
+       need the <literal>dbus.mainloop.glib</literal> module.
+      </para>
+
+      <para>
+       <xref linkend="dbus-python-get-bus"/> shows how to configure D-Bus to
+       use the GLib mainloop for its event dispatching and then makes a
+       connection to the session bus.
+      </para>
+
+      <example id="dbus-python-get-bus"
+               file="basics_dbus_python_methods/example.py">
+       <title>Connecting to a Message Bus</title>
+      </example>
+
+      <para>
+       In order to interact with a D-Bus object (i.e. call methods or
+       connect signals) we need to create a proxy object for it. A proxy
+       object is a Python object that we call methods on
+       in our application.
+      </para>
+
+      <para>
+       <xref linkend="dbus-python-get-proxy"/> shows how to acquire a proxy
+       object <classname>/org/freedesktop/Notifications</classname> binding
+       the <interfacename>org.freedesktop.Notifications</interfacename>
+       interface.
+      </para>
+
+      <example id="dbus-python-get-proxy"
+               file="basics_dbus_python_methods/example.py">
+       <title>Acquiring a Proxy Object</title>
+      </example>
+
       <sect3 id="sect-basics-dbus-python-methods">
-        <title>Calling Methods</title>
-        <para>This example uses <indexterm><primary>Python</primary></indexterm>Python to call the <literal>Notify()</literal> method on the <literal>org.freedesktop.Notification</literal> interface of the desktop notification service at the <literal>/org/freedesktop/Notification</literal> path.</para>
-        <para>Note that we specify reply and error handlers as keyword arguments, to call the method asynchronously because asynchronous calls are generally preferred with D-Bus.</para>
-        <para><ulink url="&url_examples_base;basics_dbus_python_methods">Source Code</ulink></para>
+       <title>Calling Methods</title>
+       <para>
+	<xref linkend="dbus-python-call-method"/>
+	uses <indexterm><primary>Python</primary></indexterm>
+	Python to call the <methodname>Notify</methodname> method on the
+	proxy object acquired in <xref linkend="dbus-python-get-proxy"/>
+	above. Proxy objects in Python bind D-Bus methods into their local
+	namespace (unlike when using dbus-glib, where the method name is
+	passed as a string).
+       </para>
+
+       <para>
+        The <literal>reply_handler</literal> and
+	<literal>error_handler</literal> keywords are important to make your
+	method call asynchronous. Method calls in D-Bus should
+	<emphasis>always</emphasis> be made asynchronously, for the reasons
+	outlined in <xref linkend="warning.dbus.sync"/>. Python features
+	such as inline functions and lambdas are permitted as callback
+	functions.
+       </para>
+
+       <example id="dbus-python-call-method"
+                file="basics_dbus_python_methods/example.py">
+        <title>Calling a Method</title>
+       </example>
       </sect3>
 
       <sect3 id="sect-basics-dbus-python-properties">
