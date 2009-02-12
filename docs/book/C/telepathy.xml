@@ -802,12 +802,12 @@ of the Telapathy specification.
        <para>
         Currently <literal>dbus-glib</literal> has no specific API for handling
         properties, so they can only be accessed using the D-Bus method calls.
-        <xref linkend="example.dbus-glib-properties"/> is therefore very
-	similar to <xref linkend="sect-basics-dbus-glib-methods"/> presented
+        <xref linkend="dbus-glib-properties"/> is therefore very
+	similar to <xref linkend="dbus-glib-methods-call-method"/> presented
 	above.
        </para>
 
-       <example id="example-dbus-glib-properties"
+       <example id="dbus-glib-properties"
                 file="basics_dbus_glib_properties/main.c">
         <title>Accessing D-Bus Properties Using Methods</title>
        </example>
