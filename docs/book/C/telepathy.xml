@@ -1211,6 +1211,11 @@ AC_SUBST(EXAMPLE_LIBS)
     in <application>Mission Control 5</application> exactly as they are
     specified in the Telepathy API specification.
    </para>
+
+   <para>
+    <application>Mission Control 4</application> implements a completely
+    different interface which is not documented here.
+   </para>
   </note>
 
   <para>
@@ -1503,24 +1508,108 @@ AC_SUBST(EXAMPLE_LIBS)
 
 <chapter id="chapter-connection">
   <title>Connection</title>
+
+  <para>
+   A <interfacename>Connection</interfacename> object in Telepathy
+   represents an active (or activatable) protocol session. Connections are
+   created by the appropriate
+   <link xref="chapter-connection-manager">Connection Manager</link>
+   but, depending on the Connection Manager, may not be running in the same
+   process.
+  </para>
+
+  <para>
+   For this reason, a connection can be located on the D-Bus
+   session bus via the well-known name
+   <literal>org.freedesktop.Telepathy.Connection.cm.proto.account</literal>,
+   where <literal>cm</literal> is the name of the Connection Manager that
+   created the connection (e.g. gabble, salut) and <literal>proto</literal>
+   is the name of a Telepathy <type>Protocol</type> (e.g. jabber, msn, irc).
+   The connection object can then be retrieved from the path
+   <literal>/org/freedesktop/Telepathy/Connection/cm/proto/account</literal>.
+  </para>
   
   <sect1>
-    <title>Connecting</title>
-    <para>To attempt a connection to the remote server, for instance to your Jabber IM account, call a <interfacename>ConnectionManager</interfacename>'s <ulink url="&url_spec_base;ConnectionManager.RequestConnection"><methodname>RequestConnection()</methodname></ulink> D-Bus method, providing the connection details. If the connection succeeds then this method returns the <literal>bus name</literal> and <literal>object path</literal> of a Telepathy <ulink url="&url_spec_base;Connection"><interfacename>Connection</interfacename></ulink> object.</para>
+    <title>Obtaining a Connection</title>
 
-    <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
+    <sect2>
+     <title>From the Account Manager</title>
 
-    <note><para>See the <link linkend="sec-basics-language-bindings-telepathy-glib-generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
+     <note>
+      <para>
+       The <interfacename>AccountManager</interfacename> and
+       <interfacename>Account</interfacename> interfaces are not implemented
+       in <application>Mission Control 5</application> exactly as they are
+       specified in the Telepathy API specification.
+      </para>
+      <para>
+       <application>Mission Control 4</application> implements a completely
+       different interface which is not documented here.
+      </para>
+     </note>
 
-    <para>See the <link linkend="chapter-channel">Channels</link> section about obtaining and using <interfacename>Channel</interfacename>s from the <interfacename>Connection</interfacename> with which you can list groups of contacts .</para>
+     <para>
+      In general, Telepathy clients will want to share the same set of
+      already-configured accounts rather than managing their own accounts
+      and setting up their own connections. The
+      <link linkend="chapter-accounts">Account Manager</link> manages
+      connections for configured accounts which can be retrieved as a
+      property from each <interfacename>Account</interfacename> object.
+     </para>
+    </sect2>
+
+    <sect2>
+     <title>From a Connection Manager</title>
+     <para>
+      There might be times when you are using Telepathy without an
+      Account Manager and need to manually set up your own connections using
+      the Connection Manager. For example, a status reporting client that
+      runs as its own user without a desktop session might only run itself,
+      <application>dbus-daemon</application> and a Connection Manager.
+     </para>
+
+     <para>
+      To setup your own connection to the remote server (e.g. your Jabber
+      IM account) you need to call <methodname>RequestConnection</methodname>
+      on the appropriate <link xref="chapter-connection-manager">Connection
+      Manager</link> (e.g. gabble), providing the connection details.
+      Assuming the connection succeeds this method will return the
+      <literal>bus name</literal> and <literal>object path</literal>
+      of a newly created Telepathy <interfacename>Connection</interfacename>
+      object.
+     </para>
+
+     <para>
+      The new connection will not actually attempt to establish a network
+      connection until its <methodname>Connect</methodname> method has been
+      called. The connection will be ready to use after the
+      <methodname>StatusChanged</methodname> signal returns a
+      <type>Connection_Status</type> of <literal>Connected</literal>.
+     </para>
+
+     <para>
+      <xref linkend="example.connection.establish-connection"/> shows how to
+      manually establish a connection.
+     </para>
+
+     <!--
+     <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
+ 
+     <note><para>See the <link linkend="sec-basics-language-bindings-telepathy-glib-generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
+ 
+     <para>See the <link linkend="chapter-channel">Channels</link> section about obtaining and using <interfacename>Channel</interfacename>s from the <interfacename>Connection</interfacename> with which you can list groups of contacts .</para>
+     -->
 
     <!-- TODO: Mention these interfaces, mentioned by smcv on irc: Requests and Contacts are "recommended" (every protocol ought to be able to support them), and are only non-core because they're new (so clients can discover whether they're present)
  murrayc: when we eventually remove deprecated stuff, it's likely that Requests and Contacts will become part of Connection -->
 
-    <sect2>
-      <title>Connection Example</title>
-      <para>This example connects to a jabber account.</para>
+     <example id="example.connection.establish-connection">
+      <title>Establishing a Connection</title>
+      <!--
       <para><ulink url="&url_examples_base;connect">Source Code</ulink></para>
+      -->
+     </example>
+
     </sect2>
   </sect1>
 
