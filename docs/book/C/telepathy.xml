@@ -1572,12 +1572,119 @@ AC_SUBST(EXAMPLE_LIBS)
       To setup your own connection to the remote server (e.g. your Jabber
       IM account) you need to call <methodname>RequestConnection</methodname>
       on the appropriate <link xref="chapter-connection-manager">Connection
-      Manager</link> (e.g. gabble), providing the connection details.
+      Manager</link> (e.g. gabble), providing a map of connection details.
       Assuming the connection succeeds this method will return the
       <literal>bus name</literal> and <literal>object path</literal>
       of a newly created Telepathy <interfacename>Connection</interfacename>
       object.
      </para>
+
+     <para>
+      To determine what parameters are required or optional for a given
+      Connection Manager its <methodname>GetParameters</methodname> method
+      should be called with the relevant protocol.
+      <xref linkend="example.connection.get_parameters"/> shows how this is
+      done. Some common, &quot;well-known&quot; parameters names are shown
+      in <xref linkend="table.connection.well_known_parameters"/>.
+     </para>
+
+     <example id="example.connection.get_parameters"
+              file="python_get_parameters/example.py">
+      <title>Getting Connection Parameters</title>
+     </example>
+
+     <table id="table.connection.well_known_parameters">
+      <title>Well-Known Connection Parameters for RequestConnection</title>
+      <tgroup cols="4">
+       <colspec colname="property"/>
+       <colspec colname="type"/>
+       <colspec colname="description"/>
+       <colspec colname="example"/>
+
+       <thead>
+        <row>
+         <entry>Property</entry><entry>Type</entry>
+         <entry>Description</entry><entry>Example</entry>
+        </row>
+       </thead>
+
+       <tbody>
+        <row>
+	 <entry>account</entry><entry>String</entry>
+	 <entry>
+	  The identifier for the user's account on the server.
+	 </entry>
+	 <entry>bob@example.com</entry>
+        </row>
+
+	<row>
+	 <entry>server</entry><entry>String</entry>
+	 <entry>
+	  A fully qualified domain name or numeric IPv4 or IPv6 address.
+	 </entry>
+	 <entry>xmpp.example.com</entry>
+        </row>
+
+	<row>
+	 <entry>port</entry><entry>uint16</entry>
+	 <entry>
+	  A TCP/UDP network port.
+	 </entry>
+	 <entry>8080</entry>
+	</row>
+
+	<row>
+	 <entry>require-encryption</entry><entry>Boolean</entry>
+	 <entry>
+	  Require encryption for this connection.
+	 </entry>
+	 <entry>False</entry>
+        </row>
+
+	<row>
+	 <entry>register</entry><entry>Boolean</entry>
+	 <entry>
+	  This account should be created on the server if it does not
+	  already exist.
+	 </entry>
+	 <entry>False</entry>
+	</row>
+
+	<row>
+	 <entry>ident</entry><entry>String</entry>
+	 <entry>
+	  The local username to report to the server.
+	 </entry>
+	 <entry>bmcbadgers</entry>
+	</row>
+
+	<row>
+	 <entry>fullname</entry><entry>String</entry>
+	 <entry>
+	  The user's full name.
+	 </entry>
+	 <entry>Bob McBadgers</entry>
+	</row>
+
+	<row>
+	 <entry>stun-server</entry><entry>String</entry>
+	 <entry>
+	  A fully qualified domain name or numeric IPv4 or IPv6 address of a
+	  STUN server to use for NAT traversal.
+	 </entry>
+	 <entry>stun.example.com</entry>
+	</row>
+
+	<row>
+	 <entry>stun-port</entry><entry>uint16</entry>
+	 <entry>
+	  A UDP network port for the STUN server.
+	 </entry>
+	 <entry>1337</entry>
+	</row>
+       </tbody>
+      </tgroup>
+     </table>
 
      <para>
       The new connection will not actually attempt to establish a network
