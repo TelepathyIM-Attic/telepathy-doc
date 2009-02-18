@@ -1513,14 +1513,11 @@ AC_SUBST(EXAMPLE_LIBS)
    A <interfacename>Connection</interfacename> object in Telepathy
    represents an active (or activatable) protocol session. Connections are
    created by the appropriate
-   <link xref="chapter-connection-manager">Connection Manager</link>
-   but, depending on the Connection Manager, may not be running in the same
-   process.
+   <link xref="chapter-connection-manager">Connection Manager</link>.
   </para>
 
   <para>
-   For this reason, a connection can be located on the D-Bus
-   session bus via the well-known name
+   A connection can be located on the D-Bus session bus via the well-known name
    <literal>org.freedesktop.Telepathy.Connection.cm.proto.account</literal>,
    where <literal>cm</literal> is the name of the Connection Manager that
    created the connection (e.g. gabble, salut) and <literal>proto</literal>
