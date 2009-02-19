@@ -1827,13 +1827,47 @@ AC_SUBST(EXAMPLE_LIBS)
      </para>
     </warning>
 
-    <para>
-     The user sets their own presence via the
-     <methodname>SetPresence</methodname> method. Parameters are a status
-     identifier (e.g. available, away, hidden) and an optional status message
-     (e.g. &quot;At the Movies&quot;). Valid status identifiers for this
-     connection can be retrieved using the <property>Statuses</property>.
-    </para>
+    <sect2>
+     <title>Setting the User's Presence</title>
+
+     <sect3>
+      <title>Via the Account Manager</title>
+      <note>
+       <para>
+        The <interfacename>AccountManager</interfacename> and
+        <interfacename>Account</interfacename> interfaces are not implemented
+        in <application>Mission Control 5</application> exactly as they are
+        specified in the Telepathy API specification.
+       </para>
+
+       <para>
+        <application>Mission Control 4</application> implements a completely
+        different interface which is not documented here.
+       </para>
+      </note>
+
+      <para>
+       If this Connection was obtained from the
+       <link linkend="chapter-accounts">Account Manager</link>, then the
+       user's presence can be set on the appropriate
+       <link linkend="sect.accounts.accounts">Account</link> object using
+       the <property>RequestPresence</property> property of the
+       <interfacename>Account</interfacename> interface. This property takes
+       a <type>SimplePresence</type> as its value.
+      </para>
+     </sect3>
+
+     <sect3>
+      <title>Via the Connection</title>
+      <para>
+       The user sets their own presence via the
+       <methodname>SetPresence</methodname> method. Parameters are a status
+       identifier (e.g. available, away, hidden) and an optional status message
+       (e.g. &quot;At the Movies&quot;). Valid status identifiers for this
+       connection can be retrieved using the <property>Statuses</property>.
+      </para>
+     </sect3>
+    </sect2>
 
     <!--
     <sect2>
