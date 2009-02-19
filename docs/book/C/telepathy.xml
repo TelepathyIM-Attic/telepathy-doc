@@ -1719,13 +1719,41 @@ AC_SUBST(EXAMPLE_LIBS)
 
   <sect1>
     <title>Presence</title>
-    <para>If a protocol has a concept of presence, showing when users are online or available, then that <interfacename>ConnectionManager</interfacename>'s <interfacename>Connection</interfacename> will provide the <ulink url="&url_spec_base;Connection.Interface.SimplePresence"><interfacename>SimplePresence</interfacename></ulink> interface. This interface has functions to set and get the current presence for the connected account. It also has a <ulink url="&url_spec_base;Connection.Interface.SimplePresence.PresencesChanged">PresencesChanged</ulink> signal to detect changes to the presence caused by other clients.</para>
+    <para>
+     If a protocol has the concept of presence, showing when users are
+     online or available, then its <interfacename>Connection</interfacename>
+     will provide the <interfacename>SimplePresence</interfacename> interface.
+     This interface provides functions to set and get the user's current
+     presence as well as the presence of other accounts (usually accounts
+     the on the user's roster).
+    </para>
 
+    <warning>
+     <title>Presence vs. SimplePresence</title>
+     <para>
+      The Telepathy API specification also specifies another presence interface
+      <interfacename>Presence</interfacename>. This interface was deemed too
+      complex and has summarily been deprecated. Telepathy clients should
+      not use <interfacename>Presence</interfacename> and instead use
+      <interfacename>SimplePresence</interfacename>.
+     </para>
+    </warning>
+
+    <para>
+     The user sets their own presence via the
+     <methodname>SetPresence</methodname> method. Parameters are a status
+     identifier (e.g. available, away, hidden) and an optional status message
+     (e.g. &quot;At the Movies&quot;). Valid status identifiers for this
+     connection can be retrieved using the <property>Statuses</property>.
+    </para>
+
+    <!--
     <sect2>
       <title>Presence Example</title>
       <para>This example sets the presence for a jabber account, by calling the <methodname>SetPresence()</methodname> method of the <interfacename>Connection</interfacename>'s <interfacename>SimplePresence</interfacename> interface, using telepathy-glib.</para>
       <para><ulink url="&url_examples_base;set_presence">Source Code</ulink></para>
     </sect2>
+    -->
 
   </sect1>
 
