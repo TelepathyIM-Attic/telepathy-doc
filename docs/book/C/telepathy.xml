@@ -1525,6 +1525,97 @@ AC_SUBST(EXAMPLE_LIBS)
    The connection object can then be retrieved from the path
    <literal>/org/freedesktop/Telepathy/Connection/cm/proto/account</literal>.
   </para>
+     
+  <para>
+   Depending on what features are supported by the protocol, a given
+   connection will implement more interfaces than just
+   <interfacename>Connection</interfacename>. The interfaces supported by
+   a given connection can be retreived using the
+   <methodname>GetInterfaces</methodname> method once the connection is in
+   the <literal>CONNECTED</literal> state. The supported list of interfaces
+   doesn't change during the life on a connection, so it is expected that a
+   client will retreive this once the connection is
+   <literal>CONNECTED</literal>.
+  </para>
+
+  <para>
+   Interfaces that a connection might support are:
+  </para>
+  <itemizedlist>
+   <listitem>
+    <para><interfacename>Requests</interfacename></para>
+    <para>
+     The <interfacename>Requests</interfacename> interface is used to
+     obtain <link linkend="chapter-channel">channels</link>, which are how
+     data is exchanged in Telepathy. Its use is documented in
+     <xref linkend="sec-channel-requesting"/>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>Contacts</para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>SimplePresence</interfacename></para>
+    <para>
+     The <interfacename>SimplePresence</interfacename> interface is used to
+     set and obtain presence information on a given Connection. It is
+     documented in <xref linkend="sect1.connection.presence"/>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>Avatars</para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+   <listitem>
+    <para>Capabilities</para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+   <!--
+   <listitem>
+    <para>ContactCapabilities</para>
+    <para>
+     Draft
+    </para>
+   </listitem>
+    -->
+   <!--
+   <listitem>
+    <para>ContactInfo</para>
+    <para>
+     Draft
+    </para>
+   </listitem>
+    -->
+   <!--
+   <listitem>
+    <para>Location</para>
+    <para>
+     Draft
+    </para>
+   </listitem>
+    -->
+   <!--
+   <listitem>
+    <para>Presence</para>
+    <para>
+     Deprecated with extreme prejudice.
+    </para>
+   </listitem>
+    -->
+   <listitem>
+    <para>Renaming</para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+  </itemizedlist>
   
   <sect1>
     <title>Obtaining a Connection</title>
@@ -1704,20 +1795,17 @@ AC_SUBST(EXAMPLE_LIBS)
      <para>See the <link linkend="chapter-channel">Channels</link> section about obtaining and using <interfacename>Channel</interfacename>s from the <interfacename>Connection</interfacename> with which you can list groups of contacts .</para>
      -->
 
-    <!-- TODO: Mention these interfaces, mentioned by smcv on irc: Requests and Contacts are "recommended" (every protocol ought to be able to support them), and are only non-core because they're new (so clients can discover whether they're present)
- murrayc: when we eventually remove deprecated stuff, it's likely that Requests and Contacts will become part of Connection -->
-
      <example id="example.connection.establish-connection">
       <title>Establishing a Connection</title>
       <!--
       <para><ulink url="&url_examples_base;connect">Source Code</ulink></para>
       -->
      </example>
-
+     
     </sect2>
   </sect1>
 
-  <sect1>
+  <sect1 id="sect1.connection.presence">
     <title>Presence</title>
     <para>
      If a protocol has the concept of presence, showing when users are
@@ -1756,85 +1844,6 @@ AC_SUBST(EXAMPLE_LIBS)
     -->
 
   </sect1>
-
-  <sect1>
-    <title>Optional Interfaces</title>
-    <para>As mentioned in the <link linkend="sec-basics-optional-interfaces">Basics</link> section, the <interfacename>Connection</interfacename> may provide several optional interfaces, depending on the <interfacename>ConnectionManager</interfacename> used and depending on the capabilities of the remote server.</para>
-
-    <para>For instance, these interfaces are present if the remote server or its protocol provides that functionality:</para>
-
-    <!-- TODO: Are there other potential optional Connection interfaces. I can't tell from the Spec. murrayc. -->
-    <variablelist>
-
-       <varlistentry>
-         <term>
-           <indexterm><primary>Aliasing</primary></indexterm>
-           <ulink url="&url_spec_base;Connection.Interface.Aliasing"><interfacename>Aliasing</interfacename></ulink>
-         </term>
-         <listitem>
-           <para>TODO: Notes: provides other information about contacts, and notifications when they change.</para>
-         </listitem>
-       </varlistentry>
-
-       <varlistentry>
-         <term>
-           <indexterm><primary>Avatars</primary></indexterm>
-           <ulink url="&url_spec_base;Connection.Interface.Avatars"><interfacename>Avatars</interfacename></ulink>
-         </term>
-         <listitem>
-           <para>TODO: Notes: provides other information about contacts, and notifications when they change.</para>
-         </listitem>
-       </varlistentry>
-
-       <varlistentry>
-         <term>
-           <indexterm><primary>Presence</primary></indexterm>
-           <ulink url="&url_spec_base;Connection.Interface.Presence"><interfacename>Presence</interfacename></ulink>
-         </term>
-         <listitem>
-           <para>TODO</para>
-         </listitem>
-       </varlistentry>
-
-    </variablelist>
-
-    <para>These newer interfaces are present if the <interfacename>ConnectionManager</interfacename> has implemented them already. They generally replace older deprecated interfaces. They must be optional to avoid forcing all <interfacename>ConnectionManager</interfacename>s and all client code to use the new interfaces immediately.</para>
-
-    <!-- TODO: Are there other potential optional Connection interfaces. I can't tell from the Spec. murrayc. -->
-    <variablelist>
-
-       <varlistentry>
-         <term>
-           <indexterm><primary>Requests</primary></indexterm>
-           <ulink url="&url_spec_base;Connection.Interface.Requests"><interfacename>Requests</interfacename></ulink>
-         </term>
-         <listitem>
-           <para>TODO: Notes: improves a similar existing interface - instead of <ulink url="&url_spec_base;Connection.RequestChannel">Connection.RequestChannel</ulink>.</para>
-         </listitem>
-       </varlistentry>
-
-       <varlistentry>
-         <term>
-           <indexterm><primary>SimplePresence</primary></indexterm>
-           <ulink url="&url_spec_base;Connection.Interface.SimplePresence"><interfacename>SimplePresence</interfacename></ulink>
-         </term>
-         <listitem>
-           <para>TODO: Notes: to which I can give a contact handle 
-     to discover if that contact is online. The SimplePresence interface emits 
-     signals when contacts' presence changes.
-     (SimplePresence replaces the <ulink url="&url_spec_base;Connection.Interface.Presence">Presence</ulink> interface, to be deprecated soon.)</para>
-         </listitem>
-       </varlistentry>
-
-       <!-- TODO: Mention this when it is out of draft: - A new <ulink url="&url_spec_base;Connection.Interface.ContactCapabilities.DRAFT">ContactCapabilities</ulink> interface will allow retrieving of multiple 
-     types of information at once (string of handle, alias, avatar, presence, etc), 
-     which is more efficient.
-       -->
-
-    </variablelist>
-
-  </sect1>
-
 
 </chapter>
 
