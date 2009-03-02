@@ -493,18 +493,47 @@
        <methodname>SetPresence</methodname> method. Parameters are a status
        identifier (e.g. available, away, hidden) and an optional status message
        (e.g. &quot;At the Movies&quot;). Valid status identifiers for this
-       connection can be retrieved using the <property>Statuses</property>.
+       connection can be retrieved using the <property>Statuses</property>
+       property. This is shown in
+       <xref linkend="ex.connection.presence.set-presence"/>.
       </para>
+
+      <example id="ex.connection.presence.set-presence"
+               file="python_simple_presence/example.py">
+       <title>Requesting the Statuses and Setting Our Presence</title>
+      </example>
+
      </sect3>
     </sect2>
 
-    <!--
     <sect2>
-      <title>Presence Example</title>
-      <para>This example sets the presence for a jabber account, by calling the <methodname>SetPresence()</methodname> method of the <interfacename>Connection</interfacename>'s <interfacename>SimplePresence</interfacename> interface, using telepathy-glib.</para>
-      <para><ulink url="&url_examples_base;set_presence">Source Code</ulink></para>
+     <title>Retrieving Contacts' Presence</title>
+
+     <tip>
+      <para>
+       Many of the common requests that are made when a Telepathy client
+       starts up (e.g. aliases, avatars, presence) can be batched together
+       in a call to <methodname>Contacts.GetContactAttributes</methodname>.
+      </para>
+      <para>
+       See <xref linkend="sect.connection.contacts"/> for more information.
+      </para>
+     </tip>
+
+     <para>
+      The presence for a list of contact handles can be retrieved with the
+      <methodname>GetPresences</methodname> method call. This method call
+      takes an array of handles of type <type>Handle_Type_Contact</type>
+      and returns a map of those handles to <type>Simple_Presence</type>
+      structs.
+     </para>
+
+     <para>
+      Presence updates can be tracked by connecting the
+      <methodname>PresencesChanged</methodname> signal.
+     </para>
+
     </sect2>
-    -->
 
   </sect1>
 

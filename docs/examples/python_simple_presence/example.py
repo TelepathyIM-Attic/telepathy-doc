@@ -169,6 +169,7 @@ class Example (object):
                                       'known')
 
         if CONNECTION_INTERFACE_SIMPLE_PRESENCE in interfaces:
+            # begin ex.connection.presence.set-presence
             # request the statuses
             print 'Requesting statuses...'
             conn[DBUS_PROPERTIES].Get(CONNECTION_INTERFACE_SIMPLE_PRESENCE,
@@ -177,13 +178,13 @@ class Example (object):
                                     error_handler = self.error_cb)
 
             # set our presence
-            # FIXME: doesn't like this interface
             print 'Setting presence...'
             conn[CONNECTION_INTERFACE_SIMPLE_PRESENCE].SetPresence(
                                     'away',
                                     'At the Movies',
                                     reply_handler = self.generic_reply,
                                     error_handler = self.error_cb)
+            # end ex.connection.presence.set-presence
 
         if CONNECTION_INTERFACE_CONTACTS in interfaces:
             print 'Requesting contact attribute interfaces...'
