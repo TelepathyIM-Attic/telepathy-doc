@@ -2079,8 +2079,43 @@ AC_SUBST(EXAMPLE_LIBS)
     </tip>
 
     <para>
-     XXX THIS PARAGRAPH WOULD EXPLAIN HOW TO CONSTRUCT THE DICTIONARY
+     The properties argument for <methodname>RequestChannel</methodname> and
+     <methodname>EnsureChannel</methodname> is a map of property names on
+     the desired channel, and their values.
+     In general every channel requires at least three channel
+     properties: the type of channel we wish to create
+     (<property>ChannelType</property>), the handle/id of the contact/room/list
+     we wish to create a channel for (<property>TargetHandle</property> or
+     <property>TargetID</property>) and the type of that handle
+     (<property>TargetHandleType</property>). Specific channel types may
+     require additional properties in order to be created, this is noted in
+     the specification.
     </para>
+
+    <para>
+     For example, to create a <interfacename>ContactList</interfacename>
+     channel (this is the type of channel that is used to get a list of
+     subscribed contacts from a service), we might provide a map like so:
+    </para>
+
+    <informaltable>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+	<entry>org.freedesktop.Telepathy.Channel.Type.ContactList</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+	<entry>Handle_Type_List</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.TargetID</entry>
+	<entry>"subscribe"</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
 
     <para>
      Telepathy-glib provides the
@@ -2088,7 +2123,6 @@ AC_SUBST(EXAMPLE_LIBS)
      and <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-ensure-channel"><function>tp_cli_connection_interface_requests_call_ensure_channel()</function></ulink>
      functions for this purpose.
     </para>
-  <!-- TODO: This is complex enough that this is an ideal place for Davyd's snippet-of-a-full-example feature. --> 
 
    <warning>
     <title>RequestChannel</title>
