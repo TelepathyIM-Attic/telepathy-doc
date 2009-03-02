@@ -35,13 +35,6 @@
    interface.
   </para>
   
-  <!-- para>
-   Channels are created using a connection's RequestChannel method, or are
-   created by the connection manager in response to communication
-   initiated by someone else, in which case their advent is heralded by
-   the NewChannel signal.
-  </para -->
-
   <para>
    The channel types currently available in Telepathy are:
   </para>
@@ -279,111 +272,172 @@
   </sect1>
 
   <sect1 id="sect-channel-contactlist">
-    <title>ContactList Channel</title>
+    <title>Contact Lists</title>
     <indexterm><primary>ContactList</primary></indexterm>
   
     <para>
-     The <ulink url="&url_spec_base;Channel.Type.ContactList"><interfacename>ContactList</interfacename></ulink>
-     channel provides a list of people on the server, such as the contacts
+     The <interfacename>ContactList</interfacename>
+     channel type provides a list of people on the server, such as the contacts
      in a chat room, or the contacts to whose presence information you are
      subscribed.
     </para>
   
     <para>
      Like individual remote contacts themselves, lists of remote contacts
-     can be referred to by numeric
-     <link linkend="sec-basics-handles"><literal>Handles</literal></link>.
-     Each <interfacename>ContactList</interfacename> represents one of these
-     remote contact lists, which it identifies by the remote list's handle.
-     This <property>TargetHandle</property> may be supplied when obtaining
-     the <interfacename>ContactList</interfacename>, for instance via the
-     <methodname>CreateChannel()</methodname> or
-     <methodname>EnsureChannel()</methodname> D-Bus method, as described in
-     the <link linkend="sec-channel-requesting">Requesting Channels</link>
-     section. The handle may also be discovered by reading the
-     <property>TargetHandle</property> D-Bus property of the
-     <ulink url="&url_spec_base;Channel"><interfacename>Channel</interfacename></ulink>
-     interface.
+     is referred to by numeric
+     <link linkend="sec-basics-handles">handle</link> of type
+     <type>Handle_Type_List</type> (for
+     <link linkend="sect.channel.contactlist.server-defined">server defined
+     lists</link>) or
+     <type>Handle_Type_Group</type> (for a user defined list of contacts).
+     The handle can be retrieved using the
+     <methodname>RequestHandles</methodname> method on the Connection.
+    </para>
+
+    <para>
+     Two request a contact list, 3 properties must be provided to
+     <methodname>EnsureChannel</methodname>
+     (see <xref linkend="sec-channel-requesting"/>): the channel type
+     (org.freedesktop.Telepathy.Channel.Type.ContactList), the target handle
+     type (either <type>Handle_Type_List</type> or
+     <type>Handle_Type_Group</type>) and
+     either a target handle retrieved by
+     <methodname>RequestHandles</methodname> or the ID.
     </para>
   
+    <example id="example.channel.contactlist.examplemaps">
+     <title>Example Maps For Requesting a Contact List</title>
+     <informaltable>
+      <tgroup cols="2">
+       <tbody>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+ 	<entry>org.freedesktop.Telepathy.Channel.Type.ContactList</entry>
+        </row>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+ 	<entry>Handle_Type_List</entry>
+        </row>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.TargetID</entry>
+ 	<entry>"subscribe"</entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </informaltable>
+     
+     <informaltable>
+      <tgroup cols="2">
+       <tbody>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+ 	<entry>org.freedesktop.Telepathy.Channel.Type.ContactList</entry>
+        </row>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+ 	<entry>Handle_Type_List</entry>
+        </row>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.TargetHandle</entry>
+ 	<entry>&lt;handle&gt;</entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </informaltable>
+     
+     <informaltable>
+      <tgroup cols="2">
+       <tbody>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+ 	<entry>org.freedesktop.Telepathy.Channel.Type.ContactList</entry>
+        </row>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+ 	<entry>Handle_Type_Group</entry>
+        </row>
+        <row>
+         <entry>org.freedesktop.Telepathy.Channel.TargetHandle</entry>
+ 	<entry>&lt;handle&gt;</entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </informaltable>
+    </example>
+
     <para>
-     Alternatively, many Connection Managers allow you to specify an
-     <indexterm><primary>Identifier</primary></indexterm>
-     <literal>Identifier</literal> (via the <property>TargetID</property>
-     property) for the contact list, instead of the <literal>Handle</literal>
-     (via the <property>TargetHandle</property> property), if you do not yet
-     have a <literal>Handle</literal> for the contact list. For
-     <interfacename>ContactList</interfacename> channels this only makes
-     sense for named chat rooms or server-defined lists
-     (see the
-     <link linkend="sec-channel-contactlist-server-defined">Server-Defined Lists</link>
-     section.
-    </para>
-  
-    <para>
-     The <interfacename>ContactList</interfacename>'s functionality is
-     actually provided by the
-     <ulink url="&url_spec_base;Channel.Interface.Group"><interfacename>Group</interfacename></ulink>
+     Gaining access to the contacts listed in a contact list is actually
+     achieved using the Channel's <interfacename>Group</interfacename>
      interface, which all <interfacename>ContactList</interfacename> objects
-     implement.
+     implement. See <xref linkend="sect.channel.groups"/>.
     </para>
-    <!-- Mention the Group chapter if that becomes useful. -->
-  
-    <!-- TODO: One day, I would expect a nice language binding to provide the Group API as a base class (or implemented interface) of the ContactList class, so the separation is less of an issue. murrayc. -->
-  
-    <note><para>
-     If a person has multiple instant message accounts, for instance via
-     different protocols, Telepathy has no way of knowing that these are
-     actually the same person, and no way for your application to tell
-     Telepathy this. Therefore, client applications should track this
-     information if necessary.
-    </para></note>
-    <!-- TODO: (We need to call them something other than "IM accounts" because it is not just IM. It can be "people nearby", for instance.) -->
-  
-    <sect2 id="sec-channel-contactlist-server-defined">
-      <title>Server-Defined Lists</title>
-      <indexterm><primary>Server-Defined Lists</primary></indexterm>
-  
-      <para>
-       Depending on the capabilities of the remote server and its protocol,
-       the Connection Manager may provide some standard
-       &quot;server-defined&quot; remote lists, such as the
-       &quot;subscribe&quot; remote list, which lists all the contacts to
-       whose presence you are subscribed. See the
-       <ulink url="&url_spec_base;Channel.Type.ContactList"><interfacename>ContactList</interfacename></ulink>
-       documentation for more server-defined identifiers, and remember to use
-       <methodname>EnsureChannel()</methodname> rather than
-       <methodname>CreateChannel()</methodname> when obtaining
-       <interfacename>ContactList</interfacename>s for these
-       server-defined lists, as described in the
-       <link linkend="sec-channel-requesting">Requesting Channels</link>
-       section.
-      </para>
-  
-      <para>
-       When calling <interfacename>EnsureChannel()</interfacename>, you may
-       specify a standard identifier for a server-defined remote list, such
-       as &quot;, via the <property>TargetID</property> propety.
-       Alternatively, the <property>TargetHandle</property> for
-       server-defined lists can be obtained from the
-       <ulink url="&url_spec_base;Connection.RequestHandles"><methodname>RequestHandle()</methodname></ulink>
-       D-Bus method, to which you may specify the server-defined identifier.
-      </para>
-    </sect2>
-  
-    <sect2>
-      <title>Example</title>
-      <para>
-       This example connects to a Jabber account and lists all contacts for
-       that account.
-      </para>
-      <para><ulink url="&url_examples_base;list_contacts">Source Code</ulink></para>
+
+    <sect2 id="sect.channel.contactlist.server-defined">
+     <title>Server Defined Lists</title>
+     <para>
+      A particular messaging protocol will likely provide a number of
+      contact lists to a client, e.g. the list of subscribed contacts. These
+      are the server defined lists (Handle_Type_List).
+     </para>
+
+     <para>
+      Telepathy provides for several server-defined lists, but not all of
+      them may be implemented by a given protocol, or even a given version
+      of a protocol server. If you attempt to open a channel for a list that
+      doesn't exists, an error will be returned. This error is not fatal, it
+      simply means that list doesn't exist.
+     </para>
+
+     <para>
+      Telepathy knows about the following server-defined lists:
+     </para>
+
+     <variablelist>
+      <varlistentry><term>subscribe</term>
+       <listitem><para>
+        the group of contacts for whom you receive presence
+       </para></listitem>
+      </varlistentry>
+
+      <varlistentry><term>publish</term>
+       <listitem><para>
+        the group of contacts who may receive your presence
+       </para></listitem>
+      </varlistentry>
+
+      <varlistentry><term>hide</term>
+       <listitem><para>
+        a group of contacts who are on the publish list but are temporarily
+	disallowed from receiving your presence
+       </para></listitem>
+      </varlistentry>
+
+      <varlistentry><term>allow</term>
+       <listitem><para>
+        a group of contacts who may send you messages
+       </para></listitem>
+      </varlistentry>
+
+      <varlistentry><term>deny</term>
+       <listitem><para>
+        a group of contacts who may not send you messages
+       </para></listitem>
+      </varlistentry>
+
+      <varlistentry><term>stored</term>
+       <listitem><para>
+        on protocols where the user's contacts are stored, this contact list
+	contains all stored contacts regardless of subscription status
+       </para></listitem>
+      </varlistentry>
+
+     </variablelist>
     </sect2>
   
   </sect1>
 
-  <sect1 id="chapter-group">
-     <title>Group Interface</title>
+  <sect1 id="sect.channel.groups">
+     <title>Contact Groups</title>
      <para>TODO:
      (used in lots of different channels)
      - This is partitioned into:
@@ -394,6 +448,14 @@
      - Unusually, one-to-one calls use the <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface to indicate call 
        progression (explain in call section?).
     </para>
+    <note><para>
+     If a person has multiple instant message accounts, for instance via
+     different protocols, Telepathy has no way of knowing that these are
+     actually the same person, and no way for your application to tell
+     Telepathy this. Therefore, client applications should track this
+     information if necessary.
+    </para></note>
+  
   </sect1>
   
   <sect1 id="sect-channel-text">
