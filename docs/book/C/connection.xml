@@ -419,6 +419,19 @@
     </informaltable>
    </example>
 
+   <sect2>
+    <title>Receiving Updates</title>
+    <para>
+     While <interfacename>Contacts</interfacename>/
+     <methodname>GetContactAttributes</methodname> allows us to
+     bulk-request lots of information about a contact. It does not provide a
+     mechanism to receive signals to notify the client of changes to a contact
+     (e.g., their alias, avatar, location, status, etc.).
+     Instead the client should connect to the various signals provided by
+     the interfaces its interested in.
+    </para>
+   </sect2>
+
   </sect1>
 
   <sect1 id="sect.connection.presence">
