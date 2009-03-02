@@ -289,13 +289,14 @@
      <type>Handle_Type_List</type> (for
      <link linkend="sect.channel.contactlist.server-defined">server defined
      lists</link>) or
-     <type>Handle_Type_Group</type> (for a user defined list of contacts).
+     <type>Handle_Type_Group</type> (for a
+     <link linkend="sect.channel.contactlist.user-defined">user defined list of contacts</link>).
      The handle can be retrieved using the
      <methodname>RequestHandles</methodname> method on the Connection.
     </para>
 
     <para>
-     To request a contact list, 3 properties must be provided to
+     To request a contact list, three properties must be provided to
      <methodname>EnsureChannel</methodname>
      (see <xref linkend="sec-channel-requesting"/>): the channel type
      (org.freedesktop.Telepathy.Channel.Type.ContactList), the target handle
@@ -439,6 +440,41 @@
       </varlistentry>
 
      </variablelist>
+    </sect2>
+
+    <sect2 id="sect.channel.contactlist.user-defined">
+     <title>User Defined Groups</title>
+
+     <para>
+      User-defined groups are the groups that a user places their contacts
+      into. Not all protocols may support the concept of user-defined
+      groups. In some protocols (e.g. XMPP) a contact may possibly be in
+      more than one group.
+     </para>
+
+     <para>
+      Channels will be set up for user-defined groups as they are discovered
+      by the connection. Thus the currently configured groups can be
+      discovered at any time by checking the <property>Channels</property>
+      property or connecting to the <methodname>NewChannels</methodname>
+      signal on the <interfacename>Requests</interfacename> interface.
+     </para>
+
+     <para>
+      This returns a list of <type>Channel_Details</type>, which gives the
+      channel object and a map of properties for the channel. This map
+      always contains the properties
+      <property>Channel.ChannelType</property>,
+      <property>Channel.TargetHandleType</property>,
+      <property>Channel.TargetHandle</property>,
+      <property>Channel.TargetID</property>, and
+      <property>Channel.Requested</property>.
+      Filtering on <property>Channel.ChannelType</property> equals
+      <interfacename>Channel.Type.ContactList</interfacename> and
+      <property>Channel.TargetHandleType</property> equals
+      <type>Handle_Type_Group</type> will yield the user-defined contact
+      groups.
+     </para>
     </sect2>
   
   </sect1>

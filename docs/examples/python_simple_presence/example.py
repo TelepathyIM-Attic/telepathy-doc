@@ -19,7 +19,8 @@ from telepathy.interfaces import CONNECTION_MANAGER, \
                                  CHANNEL_INTERFACE_GROUP
 from telepathy.constants import CONNECTION_STATUS_CONNECTED, \
                                 CONNECTION_STATUS_DISCONNECTED, \
-                                CONNECTION_HANDLE_TYPE_LIST
+                                HANDLE_TYPE_LIST, \
+                                HANDLE_TYPE_GROUP
 
 DBUS_PROPERTIES = 'org.freedesktop.DBus.Properties'
 
@@ -127,6 +128,8 @@ class Example (object):
                 # end ex.channel.groups.getting-members
 
             def get_contact_attributes_cb (self, attributes):
+                return # DEBUG
+
                 print '-' * 78
                 print self.group
                 print '-' * 78
@@ -146,7 +149,7 @@ class Example (object):
             print "Ensuring channel to %s..." % group
             conn[CONNECTION_INTERFACE_REQUESTS].EnsureChannel({
                 CHANNEL + '.ChannelType'     : CHANNEL_TYPE_CONTACT_LIST,
-                CHANNEL + '.TargetHandleType': CONNECTION_HANDLE_TYPE_LIST,
+                CHANNEL + '.TargetHandleType': HANDLE_TYPE_LIST,
                 CHANNEL + '.TargetID'        : group,
                 },
                 reply_handler = ensure_channel_cb(self, group),
@@ -167,6 +170,15 @@ class Example (object):
                                       'allow',
                                       'deny',
                                       'known')
+
+            # get the open channels
+            conn[CONNECTION_INTERFACE_REQUESTS].connect_to_signal(
+                                    'NewChannels',
+                                    self.get_channels_cb)
+            conn[DBUS_PROPERTIES].Get(CONNECTION_INTERFACE_REQUESTS,
+                                    'Channels',
+                                    reply_handler = self.get_channels_cb,
+                                    error_handler = self.error_cb)
 
         if CONNECTION_INTERFACE_SIMPLE_PRESENCE in interfaces:
             # begin ex.connection.presence.set-presence
@@ -192,6 +204,15 @@ class Example (object):
                                     'ContactAttributeInterfaces',
                                     reply_handler = self.get_contact_ifaces_cb,
                                     error_handler = self.error_cb)
+
+    def get_channels_cb (self, channels):
+        for channel, props in channels:
+            # find the group channels
+            if props[CHANNEL + '.ChannelType'] != CHANNEL_TYPE_CONTACT_LIST or \
+               props[CHANNEL + '.TargetHandleType'] != HANDLE_TYPE_GROUP:
+                continue
+
+            print 'GROUP: Got channel %s: %s' % (channel, props[CHANNEL + '.TargetID'])
 
     def get_statuses_cb (self, value):
         print "Statuses:"
