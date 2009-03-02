@@ -438,7 +438,8 @@
 
   <sect1 id="sect.channel.groups">
      <title>Contact Groups</title>
-     <para>TODO:
+     <!--
+     TODO:
      (used in lots of different channels)
      - This is partitioned into:
        - Current members
@@ -447,7 +448,48 @@
        - Remote pending members, awaiting approval remotely by the other user)
      - Unusually, one-to-one calls use the <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface to indicate call 
        progression (explain in call section?).
+    -->
+    <para>
+     The <interfacename>Group</interfacename> interface is implemented by
+     several channel types including contact list channels and multi-user
+     chat channels.
     </para>
+
+    <para>
+     For any given group there may be current members, local pending members
+     and remote pending members. These are respectively accessed via the
+     <property>Members</property>, <property>LocalPendingMembers</property>
+     and <property>RemotePendingMembers</property> D-Bus properties.
+    </para>
+
+    <para>
+     <property>Members</property> is a list of handles of members who are
+     currently part of this channel. This might be contacts in a contact list
+     or participants in a multi-user chat. The
+     <methodname>AddMembers</methodname> and
+     <methodname>RemoveMembers</methodname> (or
+     <methodname>RemoveMembersWithReason</methodname>) may be used to
+     manipulate this list. Note that <methodname>AddMembers</methodname> may
+     move a member onto the <property>RemotePendingMembers</property> list.
+    </para>
+
+    <para>
+     <property>LocalPendingMembers</property> is a list of members who are
+     pending the user's approval (e.g. to subscribe to your presence, join
+     a chatroom, etc.). Members are approved using the
+     <methodname>AddMembers</methodname> method, and declined using the
+     <methodname>RemoveMembers</methodname> method.
+     As well as handles, the <property>LocalPendingMembers</property>
+     provides a handle to the actor that made the request and a reason for
+     the change (which may be empty).
+    </para>
+
+    <para>
+     <property>RemotePendingMembers</property> is a list of contacts who
+     are pending another approval to be added to the channel (e.g. a remote
+     user allowing subscription to their presence).
+    </para>
+
     <note><para>
      If a person has multiple instant message accounts, for instance via
      different protocols, Telepathy has no way of knowing that these are
