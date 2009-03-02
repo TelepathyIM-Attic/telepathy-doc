@@ -1,0 +1,417 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY appversion "0.7">
+  <!ENTITY manrevision "0.2">
+  <!ENTITY date "12 August 2008">
+  <!ENTITY app_no_markup "Telepathy">
+  <!ENTITY app "<application>&app_no_markup;</application>">
+  <!ENTITY url_examples_base "./examples/">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
+  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
+  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
+  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
+  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
+  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
+]>
+
+<chapter id="chapter-connection">
+  <title>Connection</title>
+
+  <para>
+   A <interfacename>Connection</interfacename> object in Telepathy
+   represents an active (or activatable) protocol session. Connections are
+   created by the appropriate
+   <link xref="chapter-connection-manager">Connection Manager</link>.
+  </para>
+
+  <para>
+   A connection can be located on the D-Bus session bus via the well-known name
+   <literal>org.freedesktop.Telepathy.Connection.cm.proto.account</literal>,
+   where <literal>cm</literal> is the name of the Connection Manager that
+   created the connection (e.g. gabble, salut) and <literal>proto</literal>
+   is the name of a Telepathy <type>Protocol</type> (e.g. jabber, msn, irc).
+   The connection object can then be retrieved from the path
+   <literal>/org/freedesktop/Telepathy/Connection/cm/proto/account</literal>.
+  </para>
+     
+  <para>
+   Depending on what features are supported by the protocol, a given
+   connection will implement more interfaces than just
+   <interfacename>Connection</interfacename>. The interfaces supported by
+   a given connection can be retreived using the
+   <methodname>GetInterfaces</methodname> method once the connection is in
+   the <literal>CONNECTED</literal> state. The supported list of interfaces
+   doesn't change during the life on a connection, so it is expected that a
+   client will retreive this once the connection is
+   <literal>CONNECTED</literal>.
+  </para>
+
+  <para>
+   Interfaces that a connection might support are:
+  </para>
+  <itemizedlist>
+   <listitem>
+    <para><interfacename>Requests</interfacename></para>
+    <para>
+     The <interfacename>Requests</interfacename> interface is used to
+     obtain <link linkend="chapter-channel">channels</link>, which are how
+     data is exchanged in Telepathy. Its use is documented in
+     <xref linkend="sec-channel-requesting"/>.
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>Contacts</interfacename></para>
+    <para>
+     The <interfacename>Contacts</interfacename> interface is a sort of
+     proxy to other interfaces on the connection. It is used to gather as
+     much information about a contact as required in a single D-Bus
+     roundtrip. It is documented in <xref linkend="sect.connection.contacts"/>.
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>SimplePresence</interfacename></para>
+    <para>
+     The <interfacename>SimplePresence</interfacename> interface is used to
+     set and obtain presence information on a given Connection. It is
+     documented in <xref linkend="sect.connection.presence"/>.
+    </para>
+   </listitem>
+   <listitem>
+    <para>Avatars</para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+   <listitem>
+    <para>Capabilities</para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+   <!--
+   <listitem>
+    <para>ContactCapabilities</para>
+    <para>
+     Draft
+    </para>
+   </listitem>
+    -->
+   <!--
+   <listitem>
+    <para>ContactInfo</para>
+    <para>
+     Draft
+    </para>
+   </listitem>
+    -->
+   <!--
+   <listitem>
+    <para>Location</para>
+    <para>
+     Draft
+    </para>
+   </listitem>
+    -->
+   <!--
+   <listitem>
+    <para>Presence</para>
+    <para>
+     Deprecated with extreme prejudice.
+    </para>
+   </listitem>
+    -->
+   <listitem>
+    <para>Renaming</para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+  </itemizedlist>
+  
+  <sect1>
+    <title>Obtaining a Connection</title>
+
+    <sect2>
+     <title>From the Account Manager</title>
+
+     <note>
+      <para>
+       The <interfacename>AccountManager</interfacename> and
+       <interfacename>Account</interfacename> interfaces are not implemented
+       in <application>Mission Control 5</application> exactly as they are
+       specified in the Telepathy API specification.
+      </para>
+      <para>
+       <application>Mission Control 4</application> implements a completely
+       different interface which is not documented here.
+      </para>
+     </note>
+
+     <para>
+      In general, Telepathy clients will want to share the same set of
+      already-configured accounts rather than managing their own accounts
+      and setting up their own connections. The
+      <link linkend="chapter-accounts">Account Manager</link> manages
+      connections for configured accounts which can be retrieved as a
+      property from each <interfacename>Account</interfacename> object.
+     </para>
+    </sect2>
+
+    <sect2>
+     <title>From a Connection Manager</title>
+     <para>
+      There might be times when you are using Telepathy without an
+      Account Manager and need to manually set up your own connections using
+      the Connection Manager. For example, a status reporting client that
+      runs as its own user without a desktop session might only run itself,
+      <application>dbus-daemon</application> and a Connection Manager.
+     </para>
+
+     <para>
+      To setup your own connection to the remote server (e.g. your Jabber
+      IM account) you need to call <methodname>RequestConnection</methodname>
+      on the appropriate <link xref="chapter-connection-manager">Connection
+      Manager</link> (e.g. gabble), providing a map of connection details.
+      Assuming the connection succeeds this method will return the
+      <literal>bus name</literal> and <literal>object path</literal>
+      of a newly created Telepathy <interfacename>Connection</interfacename>
+      object.
+     </para>
+
+     <para>
+      To determine what parameters are required or optional for a given
+      Connection Manager its <methodname>GetParameters</methodname> method
+      should be called with the relevant protocol.
+      <xref linkend="example.connection.get_parameters"/> shows how this is
+      done. Some common, &quot;well-known&quot; parameters names are shown
+      in <xref linkend="table.connection.well_known_parameters"/>.
+     </para>
+
+     <example id="example.connection.get_parameters"
+              file="python_get_parameters/example.py">
+      <title>Getting Connection Parameters</title>
+     </example>
+
+     <table id="table.connection.well_known_parameters">
+      <title>Well-Known Connection Parameters for RequestConnection</title>
+      <tgroup cols="4">
+       <colspec colname="property"/>
+       <colspec colname="type"/>
+       <colspec colname="description"/>
+       <colspec colname="example"/>
+
+       <thead>
+        <row>
+         <entry>Property</entry><entry>Type</entry>
+         <entry>Description</entry><entry>Example</entry>
+        </row>
+       </thead>
+
+       <tbody>
+        <row>
+	 <entry>account</entry><entry>String</entry>
+	 <entry>
+	  The identifier for the user's account on the server.
+	 </entry>
+	 <entry>bob@example.com</entry>
+        </row>
+
+	<row>
+	 <entry>server</entry><entry>String</entry>
+	 <entry>
+	  A fully qualified domain name or numeric IPv4 or IPv6 address.
+	 </entry>
+	 <entry>xmpp.example.com</entry>
+        </row>
+
+	<row>
+	 <entry>port</entry><entry>uint16</entry>
+	 <entry>
+	  A TCP/UDP network port.
+	 </entry>
+	 <entry>8080</entry>
+	</row>
+
+	<row>
+	 <entry>require-encryption</entry><entry>Boolean</entry>
+	 <entry>
+	  Require encryption for this connection.
+	 </entry>
+	 <entry>False</entry>
+        </row>
+
+	<row>
+	 <entry>register</entry><entry>Boolean</entry>
+	 <entry>
+	  This account should be created on the server if it does not
+	  already exist.
+	 </entry>
+	 <entry>False</entry>
+	</row>
+
+	<row>
+	 <entry>ident</entry><entry>String</entry>
+	 <entry>
+	  The local username to report to the server.
+	 </entry>
+	 <entry>bmcbadgers</entry>
+	</row>
+
+	<row>
+	 <entry>fullname</entry><entry>String</entry>
+	 <entry>
+	  The user's full name.
+	 </entry>
+	 <entry>Bob McBadgers</entry>
+	</row>
+
+	<row>
+	 <entry>stun-server</entry><entry>String</entry>
+	 <entry>
+	  A fully qualified domain name or numeric IPv4 or IPv6 address of a
+	  STUN server to use for NAT traversal.
+	 </entry>
+	 <entry>stun.example.com</entry>
+	</row>
+
+	<row>
+	 <entry>stun-port</entry><entry>uint16</entry>
+	 <entry>
+	  A UDP network port for the STUN server.
+	 </entry>
+	 <entry>1337</entry>
+	</row>
+       </tbody>
+      </tgroup>
+     </table>
+
+     <para>
+      The new connection will not actually attempt to establish a network
+      connection until its <methodname>Connect</methodname> method has been
+      called. The connection will be ready to use after the
+      <methodname>StatusChanged</methodname> signal returns a
+      <type>Connection_Status</type> of <literal>Connected</literal>.
+     </para>
+
+     <para>
+      <xref linkend="example.connection.establish-connection"/> shows how to
+      manually establish a connection.
+     </para>
+
+     <!--
+     <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
+ 
+     <note><para>See the <link linkend="sec-basics-language-bindings-telepathy-glib-generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
+ 
+     <para>See the <link linkend="chapter-channel">Channels</link> section about obtaining and using <interfacename>Channel</interfacename>s from the <interfacename>Connection</interfacename> with which you can list groups of contacts .</para>
+     -->
+
+     <example id="example.connection.establish-connection">
+      <title>Establishing a Connection</title>
+      <!--
+      <para><ulink url="&url_examples_base;connect">Source Code</ulink></para>
+      -->
+     </example>
+     
+    </sect2>
+  </sect1>
+
+  <sect1 id="sect.connection.contacts">
+   <title>Contacts</title>
+   <para>
+    It is often the case that a Telepathy client will want to learn as much
+    information about a list of contacts as it can, e.g. their alias, avatar,
+    presence, capabilities, location. Requesting data from each of the
+    interfaces individually results in n D-Bus method calls on the
+    connection. The <interfacename>Contacts</interfacename> interface
+    acts as a sort of proxy to the other interfaces of the connection,
+    allowing the client to request the most common information in a single
+    D-Bus method call (thus saving on D-Bus roundtrips).
+   </para>
+
+   <para>
+    Depending on a connection's capabilities, it may not implement the full
+    set of available interfaces (e.g. IRC provides no avatars). Thus the
+    interfaces available for use with the
+    <interfacename>Contacts</interfacename> interface are available through
+    the <property>ContractAttributeInterfaces</property> property.
+   </para>
+  </sect1>
+
+  <sect1 id="sect.connection.presence">
+    <title>Presence</title>
+    <para>
+     If a protocol has the concept of presence, showing when users are
+     online or available, then its <interfacename>Connection</interfacename>
+     will provide the <interfacename>SimplePresence</interfacename> interface.
+     This interface provides functions to set and get the user's current
+     presence as well as the presence of other accounts (usually accounts
+     the on the user's roster).
+    </para>
+
+    <warning>
+     <title>Presence vs. SimplePresence</title>
+     <para>
+      The Telepathy API specification also specifies another presence interface
+      <interfacename>Presence</interfacename>. This interface was deemed too
+      complex and has summarily been deprecated. Telepathy clients should
+      not use <interfacename>Presence</interfacename> and instead use
+      <interfacename>SimplePresence</interfacename>.
+     </para>
+    </warning>
+
+    <sect2>
+     <title>Setting the User's Presence</title>
+
+     <sect3>
+      <title>Via the Account Manager</title>
+      <note>
+       <para>
+        The <interfacename>AccountManager</interfacename> and
+        <interfacename>Account</interfacename> interfaces are not implemented
+        in <application>Mission Control 5</application> exactly as they are
+        specified in the Telepathy API specification.
+       </para>
+
+       <para>
+        <application>Mission Control 4</application> implements a completely
+        different interface which is not documented here.
+       </para>
+      </note>
+
+      <para>
+       If this Connection was obtained from the
+       <link linkend="chapter-accounts">Account Manager</link>, then the
+       user's presence can be set on the appropriate
+       <link linkend="sect.accounts.accounts">Account</link> object using
+       the <property>RequestPresence</property> property of the
+       <interfacename>Account</interfacename> interface. This property takes
+       a <type>SimplePresence</type> as its value.
+      </para>
+     </sect3>
+
+     <sect3>
+      <title>Via the Connection</title>
+      <para>
+       The user sets their own presence via the
+       <methodname>SetPresence</methodname> method. Parameters are a status
+       identifier (e.g. available, away, hidden) and an optional status message
+       (e.g. &quot;At the Movies&quot;). Valid status identifiers for this
+       connection can be retrieved using the <property>Statuses</property>.
+      </para>
+     </sect3>
+    </sect2>
+
+    <!--
+    <sect2>
+      <title>Presence Example</title>
+      <para>This example sets the presence for a jabber account, by calling the <methodname>SetPresence()</methodname> method of the <interfacename>Connection</interfacename>'s <interfacename>SimplePresence</interfacename> interface, using telepathy-glib.</para>
+      <para><ulink url="&url_examples_base;set_presence">Source Code</ulink></para>
+    </sect2>
+    -->
+
+  </sect1>
+
+</chapter>

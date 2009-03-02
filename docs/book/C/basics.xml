@@ -1,0 +1,939 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY appversion "0.7">
+  <!ENTITY manrevision "0.2">
+  <!ENTITY date "12 August 2008">
+  <!ENTITY app_no_markup "Telepathy">
+  <!ENTITY app "<application>&app_no_markup;</application>">
+  <!ENTITY url_examples_base "./examples/">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
+  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
+  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
+  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
+  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
+  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
+]>
+
+<chapter id="chapter-basics">
+  <title>Basics</title>
+
+  <para>This chapter introduces some basic techniques and concepts that you must understand to use Telepathy confidently. You should read through this chapter before proceeding, but you will probably want to refer back here again later.</para>
+
+  <sect1>
+   <title>Terminology</title>
+   <para>
+    This section aims to be a glossary of the different terms you will
+    encounter in Telepathy. Each of these concepts is explained in more
+    detail later in the manual.
+   </para>
+
+   <para>
+    The design of Telepathy is heavily influenced by D-Bus, so much of its
+    terminology is shared in common with D-Bus. For those unfamiliar with
+    D-Bus, a quick primer is presented in <xref linkend="sec-basics-dbus"/>.
+    For more indepth information, consult A MANUAL THAT PROBABLY HASN'T BEEN
+    WRITTEN YET.<!-- FIXME -->
+   </para>
+
+   <!-- FIXME: what order do these go in? -->
+   <!-- FIXME: some of this information is too detailed for this glossary
+               and should be moved further down the manual -->
+   <sect2>
+    <title>Connection Manager</title>
+    <para>
+     Connection managers are simply factories for connections; new
+     connections are created using the
+     <methodname>RequestConnection</methodname> method on the
+     <!-- FIXME - link to spec ? -->
+     <interfacename>org.freedesktop.Telepathy.ConnectionManager</interfacename>
+     interface.
+    </para>
+    <para>
+     The term
+     “connection manager” is often used to mean the process that provides
+     the connection manager service. Each connection has its own D-Bus
+     service name (e.g.
+     <literal>org.freedesktop.Telepathy.ConnectionManager.gabble</literal>),
+     but it's common for the connection manager service to run
+     in the same process as its connections. It's also common for the
+     connection manager object to provide only the main connection manager
+     interface (the common D-Bus introspection and properties interfaces
+     excepted).
+    </para>
+    <para>
+     Connection managers are typically started via D-Bus service activation,
+     when a Telepathy application would like to create a new connection.
+    </para>
+    <para>
+     Connection managers are discussed in more detail in
+     <xref linkend="chapter-connection-manager"/>.
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Connection</title>
+    <para>
+     Connections represent active protocol sessions. A connection has a set
+     of parameters that it is requested with. Although the parameters used
+     vary from protocol to protocol, some parameter names have a standard
+     meaning. A notable example is the account parameter, used to specify a
+     persistent identity, usually stored on a server. Some protocols,
+     however, do not have accounts, in which case the account parameter will
+     be absent.
+    </para>
+    <para>
+     The connection interface
+     <!-- FIXME - link to spec ? -->
+     (<interfacename>org.freedesktop.Telepathy.Connection</interfacename>) is
+     mainly concerned with the management of Handles and Channels. It's
+     common for connections to have a number of other interfaces, such as
+     the aliasing, avatars and presence interfaces.
+    </para>
+    <para>
+     Connection objects cease to exist when the
+     <methodname>Disconnect</methodname> method is called.
+     If the connection wasn't already in the Disconnected state, a
+     <!-- FIXME - is there a way to markup signals? -->
+     StatusChanged signal is emitted.
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Channel</title>
+    <para>
+     A <interfacename>Channel</interfacename> is used by Telepathy to
+     exchange data between local applications and remote servers. A
+     <interfacename>Channel</interfacename> has a type, depending on what
+     it's used for (e.g. Text, ContactList, StreamedMedia).
+     Channels are either created automatically by a
+     <interfacename>Connection</interfacename>, created by request of the
+     client application or created in response to incoming communication.
+    </para>
+    <para>
+     A complete explanation channels is presented in
+     <xref linkend="chapter-channel"/>.
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Handle</title>
+    <para>
+     Handles are used to represent various kinds of protocol resources. Each
+     handle has an associated string identifier. Handles are used to avoid
+     normalisation problems: by having the connection be responsible for
+     mapping equivalent resource identifiers to the same handle, Telepathy
+     clients need only compare handles for integer equality. For instance,
+     protocol X might consider the identifiers foobar@example.com and
+     fooBaR@example.com equivalent, in which case a connection speaking
+     protocol X, when asked to convert both into handles, would return the
+     same handle for both.
+    </para>
+    <para>
+     The handle 0 is never a valid handle, but may be used in the API to
+     indicate a special case.
+    </para>
+    <para>
+     Handles can be generated explicitly, using the RequestHandles method,
+     in which case the client owns a reference to those handles. The
+     reference can be relinquished using ReleaseHandles. In other cases, the
+     connection manager might generate handles implicitly, in which case
+     clients can obtain a reference using HoldHandles. Each client can only
+     obtain one reference to each handle; referencing a handle multiple
+     times is idempotent. A client's references are automatically released
+     when it exits.
+    </para>
+    <para>
+     Handles cease to exist when they have no implicit references (e.g. from
+     a channel that they are related to) and no explicit references from
+     clients.
+    </para>
+   </sect2>
+
+   <sect2>
+    <title>Interface</title>
+    <para>
+    </para>
+   </sect2>
+  </sect1>
+
+  <sect1 id="sec-basics-dbus">
+    <title>Using D-Bus</title>
+    <para>
+     Telepathy is a <indexterm><primary>D-Bus</primary></indexterm>D-Bus API.
+     Telepathy components conform to the
+     <ulink url="&url_spec;">Telepathy D-Bus Specification</ulink>,
+     which is therefore also the main Telepathy API reference.
+    </para>
+    
+    <para>
+     D-Bus is an <indexterm><primary>IPC</primary></indexterm>IPC
+     (Inter-process communication) system, allowing different software
+     components running in different processes and implemented in different
+     programming languages to communicate. D-Bus is primarily used as a
+     server/client architecture, but one-to-one communication via a private
+     bus is also possible. D-Bus is the defacto standard IPC mechanism for
+     Linux.
+    </para>
+
+    <para>
+    Most of the Telepathy examples in this book will use a
+    <link linkend="sec-basics-language-bindings">language binding</link>
+    instead of using D-Bus directly. However, an understanding of D-Bus is
+    very helpful when learning Telepathy.
+    </para>
+ 
+    <figure id="fig.basics.dbus.conceptual">
+     <title>
+      Programs connected to a D-Bus Bus
+     </title>
+     <mediaobject><imageobject>
+      <imagedata fileref="figures/bus-conceptual.png"
+                 format="PNG" />
+     </imageobject></mediaobject>
+    </figure>
+
+     <variablelist>
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Message Bus</primary></indexterm>
+	   Message Bus
+	 </term>
+	 <listitem>
+	   <para>
+	    A message bus is a bus that D-Bus messages are transmitted over,
+	    brokered by a D-Bus daemon. There are two main buses that
+	    programs communicate with: the <literal>system bus</literal>
+	    (for machine wide services, e.g. HAL, NetworkManager, Avahi) and
+	    the <literal>session bus</literal> (for user/session specific
+	    services, e.g. notification messages, Telepathy, desktop session
+	    management).
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Unique Name</primary></indexterm>
+	   Unique Name
+	 </term>
+	 <listitem>
+	   <para>
+	     This is an identifier assigned to a client by the D-Bus daemon
+	     (e.g. :1.3). Every client on the D-Bus has one, whether or not
+	     it is offering a named service.
+	     It is an analagous to an IP address in computer networking.
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Well-Known Name</primary></indexterm>
+           Well-Known Name
+         </term>
+	 <!-- FIXME - what's the correct markup for bus names, etc? -->
+         <listitem>
+           <para>
+	     A process can make a service available by connecting to a
+	     D-Bus <literal>bus</literal> and requesting a
+	     &quot;well-known&quot; bus name for the
+	     connection (this is sometimes referred to as a
+	     <literal>service name</literal>),
+	     by which other processes, such as applications, can
+	     access it.
+	     If unique names are analagous to IP addresses, then
+	     well-known names are like a DNS name.
+	   </para>
+	   <para>
+	     The example in
+	     <xref linkend="fig.basics.dbus.hierarchy-conceptual"/> provides
+	     the well-known bus name &quot;org.freedesktop.foo.Foo&quot;.
+	   </para>
+         </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Object Path</primary></indexterm>
+           Object Path
+         </term>
+         <listitem>
+           <para>
+	     The service process provides D-Bus objects on that bus name.
+	     Each object has an <literal>object path</literal>, such as
+	     &quot;/org/freedesktop/foo/jack&quot;
+	     (<xref linkend="fig.basics.dbus.hierarchy-conceptual"/>),
+	     which a client application must specify to use that object.</para>
+         </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+           <indexterm><primary>Interface Name</primary></indexterm>
+           Interface Name
+         </term>
+         <listitem>
+           <para>Each D-Bus object implements one or more D-Bus interfaces.
+	   Each interface has an <literal>interface name</literal>, such as
+	   &quot;org.freedesktop.foo.Jack&quot;
+	   (<xref linkend="fig.basics.dbus.hierarchy-conceptual"/>).
+	   Each interface provides one
+	   or more methods or signals, each with a member name.</para>
+         </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Method</primary></indexterm>
+	   Method
+	 </term>
+	 <listitem>
+	   <para>
+	     A D-Bus interface can expose a number of methods that can be
+	     called by a client. They have parameters and return types that
+	     are given as a D-Bus type signature.
+	   </para>
+	   <para>
+	    <xref linkend="fig.basics.dbus.hierarchy-conceptual"/> gives the
+	    example of the &quot;Fetch&quot; method (telling Jack to fetch a
+	    pail of water).
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Signal</primary></indexterm>
+	   Signal
+	 </term>
+	 <listitem>
+	   <para>
+	     A D-Bus interface can also expose a number of signals that can be
+	     connected to by a client. Connecting a signal involves
+	     providing a callback that matches the signal's type signature
+	     that can be called by the mainloop (unlike
+	     UNIX signals, D-Bus signals are not asynchronous).
+	   </para>
+	   <para>
+	    <xref linkend="fig.basics.dbus.hierarchy-conceptual"/> gives the
+	    example of the &quot;Broken&quot; signal (which is triggered
+	    when Jack falls down and breaks his crown).
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+       <varlistentry>
+         <term>
+	   <indexterm><primary>Property</primary></indexterm>
+	   Property
+	 </term>
+	 <listitem>
+	   <para>
+	     D-Bus objects implementing the org.freedesktop.DBus.Properties
+	     interface may also expose typed properties.
+	   </para>
+	 </listitem>
+       </varlistentry>
+
+    </variablelist>
+    
+    <figure id="fig.basics.dbus.hierarchy-conceptual">
+     <title>
+      Methods and signals on an object
+     </title>
+     <mediaobject><imageobject>
+      <imagedata fileref="figures/bus-hierarchy-conceptual.png"
+                 format="PNG" />
+     </imageobject></mediaobject>
+    </figure>
+
+    <tip>
+     <title>Naming in D-Bus</title>
+     <para>
+      A D-Bus bus is shared with lots of other clients and services, some of
+      which will not have been thought of yet. It is important to ensure
+      that your well-known names, objects and interfaces all have unique
+      names.
+     </para>
+     <para>
+      When choosing a well-known bus name, object name or interface name
+      it is best practice to use a reversed domain name (as
+      is done for Java packages) to avoid possible conflicts.
+     </para>
+     <para>
+      For example for well-known bus names or interfaces:
+     </para>
+     <itemizedlist>
+      <listitem><para>org.freedesktop.Telepathy.ConnectionManager</para></listitem>
+      <listitem><para>org.gnome.Project</para></listitem>
+      <listitem><para>com.mycompany.MyProduct</para></listitem>
+     </itemizedlist>
+     <para>
+      For objects:
+     </para>
+     <itemizedlist>
+      <listitem><para>/org/freedesktop/Telepathy/ConnectionManager/gabble</para></listitem>
+      <listitem><para>/org/gnome/Project/adaptor</para></listitem>
+      <listitem><para>/com/mycompany/MyProduct/object0</para></listitem>
+     </itemizedlist>
+     <para>
+      For simple services, with just one object that provides just one
+      interface, these three names will often look very similar.
+     </para>
+    </tip>
+
+    <para>
+     In the following sections you will see how a D-Bus API can be used from
+     some common programming languages. Remember that these examples only
+     create <literal>proxies</literal> to the D-Bus objects, providing a way
+     to use their API. The actual objects are instantiated in the service's
+     process.
+    </para>
+
+    <!--
+    <para>In these examples, we use the FreeDesktop <literal>Notification</literal> system, which should be available on most modern Linux installations. The examples should cause a message to popup from your desktop panel. Note that, like Telepathy, this service is available on the <indexterm><primary>Session Bus</primary></indexterm><literal>Session Bus</literal> rather than the <indexterm><primary>System Bus</primary></indexterm><literal>System Bus</literal>. Services on the <literal>Session Bus</literal> are for the current user's session only. Services on the <literal>System Bus</literal> are shared between all users.</para>
+    -->
+
+    <warning id="warning.dbus.sync">
+      <title>Always Avoid Synchronous D-Bus Calls</title>
+      <!-- this information came from
+      http://smcv.pseudorandom.co.uk/2008/11/nonblocking/ -->
+
+      <para>
+        The <ulink
+	url="http://dbus.freedesktop.org/doc/dbus-specification.html">D-Bus
+	specification</ulink> defines D-Bus as an asynchronous
+	message-passing system, and provides no mechanism for blocking calls
+	at the protocol level. However <literal>libdbus</literal> and most
+	D-Bus bindings (dbus-glib, dbus-python and QtDBus) provide a
+	&quot;blocking&quot; API
+	(<function>dbus_do_something_and_block</function>) that implements a
+	&quot;pseudo-blocking&quot; behaviour. In this mode only the D-Bus
+	socket is polled for new I/O and any D-Bus messages that are not the
+	reply to the original message are put on a queue for later
+	processing once the reply has been received.
+      </para>
+
+      <para>
+       This causes several major problems:
+      </para>
+      <itemizedlist>
+       <listitem>
+        <para>
+         Messages can be reordered. Any message received before the reply and
+	 placed on the queue will be delivered to the client after the reply,
+	 which violates the ordering guarentee the D-Bus daemon provides.
+        </para>
+        <para>
+	 This can cause practical problems where a signal indicating an
+	 object's destruction is delayed. The client gets a method reply
+	 &quot;UnknownMethod&quot; and doesn't know why until the signal is
+	 delivered with more information.
+        </para>
+       </listitem>
+       <listitem><para>
+        The client is completely unresponsive until the service replies
+	(include the user interface). If the service you're calling into has
+	locked up (this can happen, even in services that are designed to be
+	purely non-blocking and asynchronous), the client will be
+	unresponsive for 25 seconds until the call times out.
+       </para></listitem>
+       <listitem><para>
+        The client cannot parallelize calls &mdash; if a signal causes
+	method calls to be made, a client that uses pseudo-blocking calls
+	can't start processing the next message until those method calls
+	return.
+       </para></listitem>
+       <listitem>
+        <para>
+         If two processes make pseudo-blocking calls on each other, a
+	 deadlock occurs.
+        </para>
+	<para>
+	 This sort of scenario occurs with plugin architectures and shared
+	 D-Bus connections. One plugin "knows" it's a client, not a service;
+	 and another plugin, shaing the same connection, "knows" it's a
+	 service, not a client. This results in a process that is both a
+	 service and a client (and hence deadlock-prone).
+	</para>
+       </listitem>
+      </itemizedlist>
+    </warning>
+
+    <tip>
+     <title>Introspecting a Bus</title>
+     <para>
+      Many services on a D-Bus bus provide a mechanism to introspect their
+      available objects and associated interfaces. A good utility for doing
+      this in an interactive way is
+      <ulink url="https://fedorahosted.org/d-feet/">D-Feet</ulink>.
+     </para>
+     <figure id="fig.dbus.d-feet">
+      <title>
+       D-Feet D-Bus Introspection Tool
+      </title>
+      <mediaobject><imageobject>
+       <imagedata fileref="figures/dfeet-dbus-introspection-tool.png"
+                  format="PNG" />
+      </imageobject></mediaobject>
+     </figure>
+     <para>
+      D-Feet shows each service connected to the bus and the objects,
+      interfaces, methods and signals available for that service.
+      It allows (synchronous) method calls to be made.
+     </para>
+    </tip>
+
+    <sect2 id="sect.basics-dbus-glib.types">
+     <title>D-Bus Type Signatures</title>
+
+     <para>
+      D-Bus methods and signals are strongly typed with types given by a
+      D-Bus type signature. The complete documentation for D-Bus type
+      signatures is presented in the
+      <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-signatures">D-Bus specification</ulink>.
+     </para>
+
+     <!-- FIXME: should write more here -->
+    </sect2>
+
+    <sect2 id="sec-basics-dbus-glib">
+      <title>Using D-Bus from C, with glib</title>
+
+      <!-- FIXME: something about dbus-glib
+                  link to
+		  http://dbus.freedesktop.org/doc/dbus-tutorial.html#glib-client
+       -->
+
+      <para>
+       Before any method calls can be made or signals connected, via
+       D-Bus, we need to make a connection to the message bus we wish to
+       use (e.g. the system bus, the session bus or some private bus).
+       Generally an application only makes one connection to each bus.
+       <xref linkend="dbus-glib-methods-get-bus"/> shows how to create a
+       connection to a user's session bus.
+      </para>
+
+      <example id="dbus-glib-methods-get-bus"
+               file="basics_dbus_glib_methods/main.c">
+       <title>Connecting to a Message Bus</title>
+      </example>
+
+      <para>
+       In order to interact with a D-Bus object (i.e. call methods or
+       connect signals) we need to create a proxy object for it. A proxy
+       object is a <classname>GObject</classname> that we call methods on
+       in our application. <xref linkend="dbus-glib-methods-get-proxy"/>
+       shows connecting up a proxy object for the desktop notification
+       service.
+      </para>
+      <example id="dbus-glib-methods-get-proxy"
+               file="basics_dbus_glib_methods/main.c">
+       <title>Acquiring a Proxy Object</title>
+      </example>
+
+      <sect3 id="sect-basics-dbus-glib-methods">
+       <title>Calling Methods</title>
+       <para>
+        Method calls in D-Bus should <emphasis>always</emphasis> be made
+        asynchronously, for the reasons
+	outlined in <xref linkend="warning.dbus.sync"/>.
+	<literal>dbus-glib</literal> offers a synchronous way
+	to make method calls, but you should never use it,
+       </para>
+       <para>
+	In <literal>dbus-glib</literal>, method calls are made with the function
+        <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-begin-call"><function>dbus_g_proxy_begin_call</function></ulink>,
+        which takes as its arguments the name of a D-Bus method to call,
+        a callback function to handle the reply, optional user data and the
+        parameters (and types) for the D-Bus method.
+       </para>
+       <para>
+        <xref linkend="dbus-glib-methods-call-method"/> shows calling the
+        D-Bus method <methodname>Notify</methodname> on the previously
+        acquired proxy.
+       </para>
+       
+       <example id="dbus-glib-methods-call-method"
+                file="basics_dbus_glib_methods/main.c">
+        <title>Calling a Method</title>
+       </example>
+
+       <para>
+        In your reply callback, use the function
+        <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-end-call"><function>dbus_g_proxy_end_call</function></ulink>
+        to collect the return values from the method call. This function can
+        be called outside of the reply callback, but if it is called before
+        the reply has been received, it will block; causing the same problems
+        as synchronous D-Bus calls.
+       </para>
+       <para>
+        <xref linkend="dbus-glib-methods-call-method-subroutine"/> shows a
+        reply callback for the method call above.
+       </para>
+       
+       <example id="dbus-glib-methods-call-method-subroutine"
+                file="basics_dbus_glib_methods/main.c">
+        <title>Calling a Method: Reply Callback</title>
+       </example>
+      </sect3>
+
+      <sect3 id="sect-basics-dbus-glib-properties">
+       <title>Using Properties</title>
+       <para>
+        D-Bus properties are available via an additional
+        <ulink url="&url_dbus_spec_base;standard-interfaces-properties"><interfacename>org.freedesktop.DBus.Properties</interfacename></ulink>
+        interface on some objects, which provides the methods
+        <methodname>Get</methodname>, <methodname>Set</methodname> and
+        <methodname>GetAll</methodname> to get or set property values for the
+        object's other interfaces.
+       </para>
+       <para>
+        Currently <literal>dbus-glib</literal> has no specific API for handling
+        properties, so they can only be accessed using the D-Bus method calls.
+        <xref linkend="dbus-glib-properties"/> is therefore very
+	similar to <xref linkend="dbus-glib-methods-call-method"/> presented
+	above.
+       </para>
+
+       <example id="dbus-glib-properties"
+                file="basics_dbus_glib_properties/main.c">
+        <title>Accessing D-Bus Properties Using Methods</title>
+       </example>
+      </sect3>
+
+      <sect3 id="sect-basics-dbus-glib-signals">
+       <title>Handling Signals</title>
+       <para>
+        Handlers for D-Bus signals may be connected with the function
+	<ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-connect-signal"><function>dbus_g_proxy_connect_signal</function></ulink>.
+	As when calling D-Bus methods, you must specify the expected
+	types, but for signals you must do this in a previous call to
+	<ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-add-signal"><function>dbus_g_proxy_add_signal</function></ulink>.
+	The specified callback function will then be called when the signal is
+	emitted.
+       </para>
+       <para>
+        <xref linkend="dbus-glib-signals"/>
+	connects to the &quot;DeviceAdded&quot; signal of
+	the <interface>org.freedesktop.Hal.Manager</interface> interface so it
+	can print a message to the terminal when, for instance, you plug in a
+	USB stick.
+       </para>
+
+       <example id="dbus-glib-signals"
+                file="basics_dbus_glib_signals/main.c">
+	<title>Connecting and Receiving a Signal</title>
+       </example>
+      </sect3>
+
+    </sect2>
+
+    <sect2 id="sec-basics-dbus-python">
+      <title>Using D-Bus from Python</title>
+
+      <para>
+       Using D-Bus from Python is done using the <literal>dbus</literal>
+       module. If you're planning on using the GLib mainloop you'll also
+       need the <literal>dbus.mainloop.glib</literal> module.
+      </para>
+
+      <para>
+       <xref linkend="dbus-python-get-bus"/> shows how to configure D-Bus to
+       use the GLib mainloop for its event dispatching and then makes a
+       connection to the session bus.
+      </para>
+
+      <example id="dbus-python-get-bus"
+               file="basics_dbus_python_methods/example.py">
+       <title>Connecting to a Message Bus</title>
+      </example>
+
+      <para>
+       In order to interact with a D-Bus object (i.e. call methods or
+       connect signals) we need to create a proxy object for it. A proxy
+       object is a Python object that we call methods on
+       in our application.
+      </para>
+
+      <para>
+       <xref linkend="dbus-python-get-proxy"/> shows how to acquire a proxy
+       object <classname>/org/freedesktop/Notifications</classname> binding
+       the <interfacename>org.freedesktop.Notifications</interfacename>
+       interface.
+      </para>
+
+      <example id="dbus-python-get-proxy"
+               file="basics_dbus_python_methods/example.py">
+       <title>Acquiring a Proxy Object</title>
+      </example>
+
+      <sect3 id="sect-basics-dbus-python-methods">
+       <title>Calling Methods</title>
+       <para>
+	<xref linkend="dbus-python-call-method"/>
+	uses <indexterm><primary>Python</primary></indexterm>
+	Python to call the <methodname>Notify</methodname> method on the
+	proxy object acquired in <xref linkend="dbus-python-get-proxy"/>
+	above. Proxy objects in Python bind D-Bus methods into their local
+	namespace (unlike when using dbus-glib, where the method name is
+	passed as a string).
+       </para>
+
+       <para>
+        The <literal>reply_handler</literal> and
+	<literal>error_handler</literal> keywords are important to make your
+	method call asynchronous. Method calls in D-Bus should
+	<emphasis>always</emphasis> be made asynchronously, for the reasons
+	outlined in <xref linkend="warning.dbus.sync"/>. Python features
+	such as inline functions and lambdas are permitted as callback
+	functions.
+       </para>
+
+       <example id="dbus-python-call-method"
+                file="basics_dbus_python_methods/example.py">
+        <title>Calling a Method</title>
+       </example>
+      </sect3>
+
+      <sect3 id="sect-basics-dbus-python-properties">
+       <title>Using Properties</title>
+       <para>
+        D-Bus properties are available via an additional
+	<ulink url="&url_dbus_spec_base;standard-interfaces-properties"><interfacename>org.freedesktop.DBus.Properties</interfacename></ulink>
+        interface on some objects, which provides the methods
+        <methodname>Get</methodname>, <methodname>Set</methodname> and
+        <methodname>GetAll</methodname> to get or set property values for the
+        object's other interfaces.
+       </para>
+       <para>
+        Python D-Bus currently has no specific API for dealing with
+	properties, so they must be accessed through the D-Bus method calls.
+	<xref linkend="dbus-python-properties"/> is therefore very similar to
+	<xref linkend="dbus-python-call-method"/> presented above.
+       </para>
+       <example id="dbus-python-properties"
+                file="basics_dbus_python_properties/example.py">
+        <title>Accessing D-Bus Properties Using Methods</title>
+       </example>
+      </sect3>
+
+      <sect3 id="sect-basics-dbus-python-signals">
+       <title>Handling Signals</title>
+       <para>
+        D-Bus signal handlers may be specified in Python with the proxy object's
+	<ulink url="&url_dbus_python_base;dbus.proxies.Interface-class.html#connect_to_signal"><methodname>connect_to_signal</methodname></ulink>
+	method. The specified callback function will then be called when the
+	signal is emitted. <xref linkend="dbus-python-signals"/> connects to
+	the &quot;DeviceAdded&quot; signal of the
+	<interfacename>org.freedesktop.Hal.Manager</interfacename> interface
+	so it can print a message to the terminal when, for instance, you plug
+	in a USB stick.
+       </para>
+
+       <example id="dbus-python-signals"
+	        file="basics_dbus_python_signals/example.py">
+	<title>Connecting and Receiving a Signal</title>
+       </example>	
+      </sect3>
+
+    </sect2>
+   </sect1>
+
+   <sect1 id="sec-basics-language-bindings">
+    <title>Language Bindings</title>
+    <para>As mentioned in the <link linkend="sec-basics-dbus">Using D-Bus</link> section, many programming languages have their own generic ways of using D-Bus APIs. In addition, there are some Telepathy-specific APIs to make the use of Telepathy even easier. For instance, <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20GLib">telepathy-glib</ulink> provides an API that is familiar to users of Glib and GTK+, using the GObject system and related conventions.</para>
+    <para>Likewise, the <ulink url="http://telepathy.freedesktop.org/wiki/TelepathyQt">Telepathy-Qt</ulink> project provides a more Qt-like API for Telepathy and <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20Python">Telepathy-Python</ulink> does the same for Python.</para> <!-- TODO: Link to Telepathy-Qt4 when it is ready. -->
+
+    <para>Remember that, like raw use of D-Bus from these programming languages, the Telepathy language bindings only create <literal>proxies</literal> to the D-Bus objects, providing a way to use their API. The actual objects are instantiated in the service's process.</para>
+  
+    <sect2 id="sec-basics-language-bindings-telepathy-glib">
+      <title>telepathy-glib</title>
+      <para>The C examples in this book will use telepathy-glib, which provides a GObject-based API for the Telepathy framework.</para>
+
+      <!-- TODO: Mention this? 
+      <para>The reference documentation only makes sense in terms of the Telepathy D-Bus Specification.</para>
+      -->
+
+      <sect3 id="sec-basics-language-bindings-telepathy-glib-async">
+        <title>Asynchronous Calls</title>
+        <para>For each Telepathy D-Bus method, telepathy-glib generally provides both a &quot;run&quot; and a &quot;call&quot; function. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_run_connect()</ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-call-connect">tp_cli_connection_call_connect()</ulink>. The &quot;run&quot; function is synchronous, blocking until the D-Bus service has returned the value, whereas the &quot;call&quot; function is asynchronous, immediately returning and later providing the result to a callback function.</para>
+        <para>
+	 However, the use of the &quot;run&quot; functions is strongly
+	 discouraged (see <xref linkend="warning.dbus.sync"/>), so all
+	 examples in this book will use the asynchronous &quot;call&quot;
+	 functions. While this might seem to complicate the examples,
+	 it is more robust and means the applications will be more responsive.
+	</para>
+      </sect3>
+
+      <sect3 id="sec-basics-language-bindings-telepathy-glib-generated">
+        <title>Generated Functions</title>
+        <para>telepathy-glib provides both hand-coded and generated API. The generated functions have these prefixes:</para>
+
+        <variablelist>
+
+          <varlistentry>
+            <term>tp_cli_</term> 
+            <listitem>
+              <para>These functions are useful for client applications. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_run_connect()</ulink>.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>tp_svc_</term> 
+            <listitem>
+              <para>These functions are useful for service implementations, such as connection managers. For instance, <ulink url="&url_telepathy_glib_base;svc-connection.html#tp-svc-connection-implement-connect">tp_svc_connection_implement_connect()</ulink>.</para>
+            </listitem>
+          </varlistentry>
+
+        </variablelist>
+
+        <para>The generated functions make simple direct calls to the D-Bus methods, without any additional logic and without using more appropriate types. For instance, they use unsigned integers for parameters because D-Bus does not have a concept of enumerations. However, the Telepathy D-Bus Specification does describe enumerations of possible values for these parameters, so the hand-written functions do use enums. Likewise, raw D-Bus methods can only identify object instances in terms of a <literal>bus name</literal> and <literal>object path</literal> combination, but telepathy-glib can directly provide a GObject instance that is a proxy for a D-Bus object without exposing those intermediate details.</para>
+        <para>Hand-coded functions have a simple <literal>tp_</literal> prefix and should be preferred whenever they exist. The generated functions exist only because hand-written functions have not yet been implemented for all Telepathy D-Bus methods.</para>  
+        <para>In addition to more pleasant syntax, some hand-written objects contain a large amount of useful logic which can simplify application code. For instance, <ulink url="&url_telepathy_glib_base;contact.html"><classname>TpContact</classname></ulink> uses GObject signals. <!-- TODO: Finish this sentence. --></para>
+      </sect3>
+
+      <sect3>
+        <title>Instantiation and Readiness</title>
+        <!-- TODO: Keep any eye on http://bugs.freedesktop.org/show_bug.cgi?id=13422 -->
+        <para>Some of the hand-coded objects, such as <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> and <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpChannel</classname></ulink>, call additional D-Bus methods to acquire necessary information. When they have received this information they are then &quot;ready&quot;, meaning that other hand-written functions can then be called. This concept of &quot;readiness&quot; does not exist in the raw D-Bus API because it describes the status of the hand-written behaviour. For instance, you should call <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready">tp_connection_call_when_ready()</ulink> after instantiating a TpConnection, or <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready">tp_channel_call_when_ready()</ulink> after instantiating a TpChannel.</para>
+
+      </sect3>
+
+      <sect3>
+        <title>Headers and Linking</title>
+        <para>To use the telepathy-glib API, you must include the headers for the library, and link to its shared library. The necessary compiler and linker commands can be obtained from the <literal>pkg-config</literal> utiltity like so:</para>
+        <para>
+<programlisting>
+pkg-config telepathy-glib --cflags
+pkg-config telepathy-glib --libs
+</programlisting>
+        </para>
+        <para>However, if you are using the &quot;autotools&quot; (automake, autoconf, etc) build system, you will find it more convenient to use the <function>PKG_CHECK_MODULES</function> macro in your <literal>configure.ac</literal> file.
+       </para>
+       <para>
+<programlisting>
+PKG_CHECK_MODULES(EXAMPLE, telepathy-glib)
+AC_SUBST(EXAMPLE_CFLAGS)
+AC_SUBST(EXAMPLE_LIBS)
+</programlisting>
+        </para>
+        <para>You should then use the generated _CFLAGS and _LIBS definitions in your Makefile.am files.</para>
+      </sect3>
+
+    </sect2>
+
+  </sect1>
+
+  <!-- TODO: Notes: The interfaces are often called their type, particularly for channels. Explain. -->
+  <sect1 id="sec-basics-optional-interfaces">
+    <title>Optional Interfaces</title>
+    <para>Although a core set of D-Bus interfaces is provided by all connection managers, some extra D-Bus interfaces are optional. For instance, some connection managers only provide extra interfaces when they discover that the remote server provides that optional functionality. Therefore, when using these interfaces, application code should first check that the interface is available, sometimes falling back to alternative interfaces.</para>
+    <para>For instance, use the <interfacename>Connection</interfacename> interface's <ulink url="&url_spec_base;Connection.GetInterfaces"><methodname>GetInterfaces()</methodname></ulink> method. For <interfacename>ConnectionManager</interfacename>s and <interfacename>Channel</interfacename>s use their <property>Interfaces</property> D-Bus property. Eventually <interfacename>Connection</interfacename> will also have an <property>Interfaces</property> property, when its <methodname>GetInterfaces()</methodname> method will be deprecated.</para>
+
+    <para>When using telepathy-glib, you can simply call the <ulink url="&url_telepathy_glib_base;proxy.html#tp-proxy-has-interface"><function>tp_proxy_has_interface()</function></ulink> function for <classname>TpConnectionManager</classname>, <classname>TpConnection</classname>, or <classname>TpChannel</classname>.</para> 
+    <para>Actually, the core interfaces are only &quot;recommended&quot; by the Telepathy D-Bus specification so you should check before using any interface even if it is not commonly considered to be optional.</para>
+
+    <note>
+    <para>Note that the <property>Interfaces</property> property (or the <ulink url="&url_spec_base;Connection.GetInterfaces"><methodname>Connection.GetInterfaces()</methodname></ulink> method) does more than the standard D-Bus <ulink url="&url_dbus_spec_base;standard-interfaces-introspectable"><methodname>Introspectable.Introspect()</methodname></ulink> method. The Telepathy-specific mechanism allows tools and language bindings to know about the possible availability of interfaces via <methodname>Introspect()</methodname> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
+    </para>
+    </note>
+
+    <!-- TODO: Add dbus-glib and Python examples of checking-for and using an Interface. -->
+  </sect1>
+
+  <!-- TODO: Should we even mention this before the new (5?) version is ready?
+  <sect1 id="sec-basics-mission-control">
+    <title>Mission Control</title>
+    <para>TODO: Notes: desktop-wide accounts and dispatching to applications. 
+    </para>
+  </sect1>
+  -->
+
+  <sect1 id="sec-basics-handles">
+    <title>Handles</title>
+    <para>The Telepathy D-Bus API does not have D-Bus objects to represent contacts, groups, or rooms. These are instead identified by numeric <literal>handles</literal>. This is for performance reasons, and because it is easier to compare numeric handles than to discover if two D-Bus proxy objects refer to the same object instance.</para>
+    <para>These numeric handles are only unique within a Telepathy Connection. For instance, don't try to use a Connection's contact handle with a different Connection. The handles also only make sense when combined with a <ulink url="&url_spec;#type-Handle_Type">handle type</ulink>, telling the API whether it represents a contact, group, or list. In fact, two handles may be numerically identical but be for different types.</para>
+
+    <sect2>
+      <title>Hold and Release</title>
+      <para>When a Telepathy object has finished with a handle that number may be forgotten and even reused later as a handle for a completely different item. However, your application may wish to &quot;hold&quot; the handle for a longer time. To do so, you should call the Connection's <ulink url="&url_spec_base;Connection.HoldHandles"><methodname>HoldHandles()</methodname></ulink> method and call <ulink url="&url_spec_base;Connection.ReleaseHandles"><methodname>ReleaseHandles()</methodname></ulink> when you have finished with the handle. However, a single <methodname>ReleaseHandles()</methodname> call will release a handle regardless of how many times <methodname>HoldHandles()</methodname> has been called, so be careful not to call it while other code may be using the handle.</para>
+
+      <para>This is less necessary when using Telepathy <link linkend="sec-basics-language-bindings">language bindings</link>, such as telepathy-glib, because they may automatically hold and release handles for the lifetime of their objects, such as telepathy-glib's <classname>TpContact</classname> object. Additionally, telepathy-glib wraps the <methodname>HoldHandles()</methodname> and <methodname>ReleaseHandles()</methodname> D-Bus methods with the <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles()</function></ulink> functions which reference-count the client-side handle &quot;hold&quot;, allowing you to match each <function>tp_connection_hold_handles()</function> call with a call to <function>tp_connection_release_handles()</function>.</para>
+
+      <!-- TODO: On irc, smcv said: "perhaps "the user types in the name of a chatroom to join" would be a better example of when you want to use tp_connection_request_handles/tp_connection_unref_handles". Explain that more fully. -->
+
+      <para>In the later sections we will mention when it actually makes sense to do this when using specific parts of the Telepathy API.</para>
+    </sect2>
+
+  </sect1>
+
+  <sect1 id="sec-basics-api-conventions">
+   <title>API conventions</title>
+
+   <para>
+    There is a general convention for method names in Telepathy.
+   </para>
+
+   <para>
+    Many method names begin with <emphasis>Get</emphasis> (e.g.
+    <methodname>GetAliases</methodname>, <methodname>GetParameters</methodname>,
+    <methodname>GetInterfaces</methodname>, etc.).
+    <emphasis>Get</emphasis> methods
+    will only ever return immutable or cached data. They never block on a
+    network request to a remote service; so data should be available
+    immediately (see <xref linkend="note.basics-api-conventions.get-triggers"/>
+    below).
+   </para>
+   <para>
+    Method names beginning with <emphasis>Request</emphasis> (e.g.
+    <methodname>RequestAliases</methodname>,
+    <methodname>RequestAvatars</methodname>,
+    <methodname>RequestContactInfo</methodname>, etc.) may make network
+    requests (but not always, this depends on the Connection Manager).
+    Depending on the network service, its latency and the size of the
+    reply, it may be some time before data is available (or the network
+    might fail and eventually an error will be returned).
+   </para>
+   <!-- FIXME: should Ensure/Create methods be mentioned?
+               what about any types of signals? -->
+   
+   <warning>
+    <title>Always Use Asynchronous Method Calls</title>
+    <para>
+     Even when using a <emphasis>Get</emphasis> call, for which the
+     information will already be available, you must
+     <emphasis>always</emphasis> make asynchronous requests via D-Bus for the
+     reasons outlined in <xref linkend="warning.dbus.sync"/>.
+    </para>
+   </warning>
+
+   <note id="note.basics-api-conventions.get-triggers">
+    <title>Get Calls Can Trigger Network Traffic</title>
+
+    <para>
+     Telepathy interprets <emphasis>Get</emphasis> calls as a way for a
+     client to show interest in information.
+    </para>
+    <para>
+     In the case where there is no information cached in a Connection
+     Manager, <emphasis>Get</emphasis> calls may choose to trigger a
+     network request. The current (empty) cache will be returned as the
+     reply, but upon completion of the request a signal will be emitted to
+     indicate new data is available.
+    </para>
+    <para>
+     For example, if there is no cached data,
+     <methodname>GetAliases</methodname> will return no information, but a
+     request for alias information will be made to the remote service.
+     Once that information has been retrieved the AliasesChanged signal will be
+     emitted.
+    </para>
+   </note>
+
+  </sect1>
+
+</chapter>

@@ -1,0 +1,286 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY appversion "0.7">
+  <!ENTITY manrevision "0.2">
+  <!ENTITY date "12 August 2008">
+  <!ENTITY app_no_markup "Telepathy">
+  <!ENTITY app "<application>&app_no_markup;</application>">
+  <!ENTITY url_examples_base "./examples/">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
+  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
+  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
+  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
+  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
+  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
+]>
+
+<chapter id="chapter-accounts">
+  <title>Accounts and AccountManager</title>
+  <note>
+   <para>
+    The <interfacename>AccountManager</interfacename> and
+    <interfacename>Account</interfacename> interfaces are not implemented
+    in <application>Mission Control 5</application> exactly as they are
+    specified in the Telepathy API specification.
+   </para>
+
+   <para>
+    <application>Mission Control 4</application> implements a completely
+    different interface which is not documented here.
+   </para>
+  </note>
+
+  <para>
+   The Account Manager is implemented as part of Mission Control and is
+   responsible for keeping a list of accounts (e.g. XMPP/Jabber, IRC, MSN).
+   The service is available on the session bus via the well-known bus name
+   <literal>org.freedesktop.Telepathy.AccountManager</literal>, object
+   <literal>/org/freedesktop/Telepathy/AccountManager</literal> and
+   interface <literal>org.freedesktop.Telepathy.AccountManager</literal>.
+  </para>
+
+  <para>
+   To get a list of all accounts known to the Account Manager, you can
+   access the <property>ValidAccounts</property> and
+   <property>InvalidAccounts</property> properties, both of which return an
+   array of D-Bus objects. Valid accounts are accounts that are complete
+   and usable for establishing a connection to a remote service. Invalid
+   accounts are incomplete or otherwise unusable and cannot be used to
+   establish a connection.
+  </para>
+
+  <!-- FIXME: example listing accounts -->
+
+  <sect1 id="sect.accounts.accounts">
+   <title>Accounts</title>
+   <para>
+    Account objects store off of the information that is used for making a
+    <link linkend="chapter-connection">Connection</link> to a remote
+    service. Mission Control can be used to establish connections for valid
+    accounts.
+   </para>
+
+   <para>
+    <interfacename>Account</interfacename> objects have object paths of the form
+    <literal>/org/freedesktop/Telepathy/Account/cm/proto/acct</literal>
+    where <literal>cm</literal> is the Connection Manager name (e.g. gabble,
+    salut) and <literal>proto</literal> is the protocol name (as used in the
+    object path of a <interfacename>Connection</interfacename>). Account
+    objects implement the interface
+    <literal>org.freedesktop.Telepathy.Account</literal>.
+   </para>
+
+   <para>
+    Settings for an account are managed through D-Bus properties. To reduce
+    D-Bus roundtrips: bulk read the properties with the standard
+    <methodname>org.freedesktop.DBus.Properties.GetAll</methodname> method;
+    bulk set properties with the
+    <methodname>org.freedesktop.Telepathy.Account.UpdateParameters</methodname>
+    method. <xref linkend="table.accounts.account-properties"/> shows the
+    properties of an <interfacename>Account</interfacename> object.
+   </para>
+
+   <table id="table.accounts.account-properties">
+    <title>Account Properties</title>
+    <tgroup cols="4">
+     <colspec colname="property"/>
+     <colspec colname="type"/>
+     <colspec colname="description"/>
+     <colspec colname="example"/>
+     <thead>
+
+      <row>
+       <entry namest="property" nameend="example">
+        Read/Write Properties
+       </entry>
+      </row>
+      <row>
+       <entry>Property</entry><entry>Type</entry>
+       <entry>Description</entry><entry>Example</entry>
+      </row>
+     </thead>
+
+     <tbody>
+      <row>
+       <entry>DisplayName</entry><entry>String</entry>
+       <entry>
+        The user-visible name of this account. This is how the account is
+        referred to in the user interface, and should be able to be set by
+        the user.
+       </entry>
+       <entry>Jabber (bob@example.com), Work</entry>
+      </row>
+
+      <row>
+       <entry>Icon</entry><entry>String</entry>
+       <entry>
+        The name of an icon in the system's icon theme or the empty string to
+	not specify an icon (in which case one may be automatically chosen).
+       </entry>
+       <entry>im-msn</entry>
+      </row>
+
+      <row>
+       <entry>Enabled</entry><entry>Boolean</entry>
+       <entry>
+        Whether or not an account is enabled (whether or not it can be used
+	to go online). N.B. this is different from whether or not it is
+	Valid.
+       </entry>
+       <entry>True</entry>
+      </row>
+
+      <row>
+       <entry>Nickname</entry><entry>String</entry>
+       <entry>
+        The nickname to set on this account for display to other contacts,
+	as set by the user.
+       </entry>
+       <entry>
+        Bob McBadgers
+       </entry>
+      </row>
+
+      <row>
+       <entry>AutomaticPresence</entry><entry><type>SimplePresence</type></entry>
+       <entry>
+        The presence status that this account should have if it is brought
+	online.
+       </entry>
+       <entry></entry>
+      </row>
+
+      <row>
+       <entry>ConnectAutomatically</entry><entry>Boolean</entry>
+       <entry>
+        Whether or not the Account Manager should automatically establish a
+	<link xref="chapter-connection">Connection</link> for this account.
+       </entry>
+       <entry>True</entry>
+      </row>
+
+      <row>
+       <entry>RequestedPresence</entry><entry><type>SimplePresence</type></entry>
+       <entry>
+        The requested presence for this account.
+       </entry>
+       <entry></entry>
+      </row>
+
+     </tbody>
+    </tgroup>
+     
+    <tgroup cols="4">
+     <colspec colname="property"/>
+     <colspec colname="type"/>
+     <colspec colname="description"/>
+     <colspec colname="example"/>
+     <thead>
+      <row>
+       <entry namest="property" nameend="example">
+        Read-Only Properties
+       </entry>
+      </row>
+      <row>
+       <entry>Property</entry><entry>Type</entry>
+       <entry>Description</entry><entry>Example</entry>
+      </row>
+     </thead>
+
+     <tbody>
+      <row>
+       <entry>Interfaces</entry><entry><type>DBus_Interface[]</type></entry>
+       <entry>
+        A list of the extra interfaces provided by this account. 
+       </entry>
+       <entry>
+        <interfacename>org.freedesktop.Telepathy.Account.Interface.Avatar</interfacename>
+       </entry>
+      </row>
+
+      <row>
+       <entry>Valid</entry><entry>Boolean</entry>
+       <entry>
+        Whether this account is considered by the Account Banager to be
+	complete and usable.
+       </entry>
+       <entry>True</entry>
+      </row>
+
+      <row>
+       <entry>Parameters</entry><entry>Map</entry>
+       <entry>
+        A map from connection manager parameter names (as in the
+        <interfacename>ConnectionManager</interfacename> interface) to their
+	values.
+       </entry>
+       <entry></entry>
+      </row>
+
+      <row>
+       <entry>Connection</entry><entry><interfacename>Connection</interfacename></entry>
+       <entry>
+        Either the object path of the Connection to this account, or the
+	special value '/' if there is no connection.
+       </entry>
+       <entry>
+        /org/freedesktop/Telepathy/Connection/gabble/jabber/bob_40example_2ecom_2fwork
+       </entry>
+      </row>
+
+      <row>
+       <entry>ConnectionStatus</entry><entry>integer</entry>
+       <entry>
+        If the Connection property is non-empty, the status of that
+	connection.
+       </entry>
+       <entry></entry>
+      </row>
+
+      <row>
+       <entry>ConnectionStatusReason</entry><entry>integer</entry>
+       <entry>
+        The reason for the last change to ConnectionStatus.
+       </entry>
+       <entry></entry>
+      </row>
+
+      <row>
+       <entry>CurrentPresence</entry><entry><type>SimplePresence</type></entry>
+       <entry>
+        The actual presence of the account.
+       </entry>
+       <entry></entry>
+      </row>
+
+      <row>
+       <entry>NormalizedName</entry><entry>String</entry>
+       <entry>
+        The normalized user ID of the local user on this account.
+       </entry>
+       <entry></entry>
+      </row>
+
+     </tbody>
+    </tgroup>
+   </table>
+  </sect1>
+
+  <!-- para>TODO:
+   Notes:
+   - This is described in the telepathy specification but only partially 
+     implemented in Nokia mission control.
+   - AccountManager contains a list of my accounts (my jabber account, my 
+     ICQ account, etc)
+   - This is  a desktop-wide list of accounts shared by all applications (via 
+     the Mission Control service)
+     - most developers probably won't need to deal with them much.
+   - This is not a list of remote accounts held by my contacts.
+   - Includes the parameters which are passed to RequestConnection().
+   - Includes some other parameters such as your avatar/your alias, which the 
+     AccountManager takes care of setting for you
+   - Responds to connectivity events/requests.
+  </para -->
+</chapter>

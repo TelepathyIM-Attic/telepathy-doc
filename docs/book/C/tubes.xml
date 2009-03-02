@@ -1,0 +1,39 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+
+  <!-- These entities are used in the generated .omf files, 
+       along with the author tags,
+       allowing the Yelp help browser to know about the document.
+ 
+       The legal.xml file contains legal information, there is no need to edit the file. 
+       Use the appversion entity to specify the version of the application.
+       Use the manrevision entity to specify the revision number of this manual.
+       Use the date entity to specify the release date of this manual.
+       Use the app entity to specify the name of the application. -->
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY appversion "0.7">
+  <!ENTITY manrevision "0.2">
+  <!ENTITY date "12 August 2008">
+  <!ENTITY app_no_markup "Telepathy">
+  <!ENTITY app "<application>&app_no_markup;</application>">
+  <!ENTITY url_examples_base "./examples/">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
+  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
+  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
+  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
+  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
+  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
+]>
+
+<chapter id="chapter-tubes">
+  <title>Tubes</title>
+  <para>TODO:
+   - Helps me to implement an ad-hoc protocol or data-exchange structure above 
+     what the IM protocol does.
+   - You wouldn't need a tube for a chat, because the IM protocol has that 
+     already, but you'd need to implement more for some custom thing like 
+     networking of a game.
+   - Streamed Media Channels
+  </para>
+</chapter>

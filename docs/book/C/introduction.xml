@@ -1,0 +1,161 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+
+  <!-- These entities are used in the generated .omf files, 
+       along with the author tags,
+       allowing the Yelp help browser to know about the document.
+ 
+       The legal.xml file contains legal information, there is no need to edit the file. 
+       Use the appversion entity to specify the version of the application.
+       Use the manrevision entity to specify the revision number of this manual.
+       Use the date entity to specify the release date of this manual.
+       Use the app entity to specify the name of the application. -->
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY appversion "0.7">
+  <!ENTITY manrevision "0.2">
+  <!ENTITY date "12 August 2008">
+  <!ENTITY app_no_markup "Telepathy">
+  <!ENTITY app "<application>&app_no_markup;</application>">
+  <!ENTITY url_examples_base "./examples/">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
+  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
+  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
+  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
+  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
+  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
+]>
+
+<chapter id="chapter-introduction">
+  <title>Introduction</title>
+  <para>
+   Telepathy is a flexible, modular communications framework that enables
+   real-time communication via pluggable protocol backends. Telepathy
+   creates the idea of communication as a desktop service. It
+   uses
+   <ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink>
+   to separate components running in separate processes. Telepathy clients
+   use this D-Bus API (usually via a convenience library &mdash; e.g.
+   telepathy-glib) to share connections between multiple clients (e.g. an
+   instant messaging program, presence in email application, collaboration
+   in word processor).
+  </para>
+
+  <note>
+   <title>Do One Thing and Do It Well</title>
+    <blockquote>
+     <attribution>Doug McIlroy</attribution>
+     <para>
+      This is the Unix philosophy: Write programs that do one thing and do it
+      well. Write programs to work together.
+     </para>
+    </blockquote>
+   <para>
+    Telepathy components are modular, this means that developers can focus
+    on making each component being the best it can be.
+   </para>
+   <para>
+    Application developers can focus on user interaction whilst protocol
+    developers can focus on an individual protocol.
+   </para>
+  </note>
+
+  <figure id="fig.introduction.telepathy-architecture-overview">
+   <title>
+    Conceptual example of Telepathy clients (blue) and
+    Connection Managers (green)
+   </title>
+   <mediaobject><imageobject>
+    <imagedata fileref="figures/telepathy-architecture-overview.png"
+               format="PNG" />
+   </imageobject></mediaobject>
+  </figure>
+   
+  <para>
+   Backends for
+   many popular instant messaging protocols already exist including
+   XMPP/Jabber (telepathy-gabble), SIP (telepathy-sofiasip), MSN
+   (telepathy-butterfly) and IRC (telepathy-idle). The development of a
+   new protocol backend can be utilised immediately by all Telepathy consumers.
+  </para>
+
+  <para>
+   Telepathy backends can expose the different features of a communications
+   protocol, including presence (status), text chat (instant messaging),
+   voice and video conferencing, file transfer and
+   Tubes (contact-to-contact network sockets brokered by Telepathy); and do
+   this in a unified way via D-Bus interfaces.
+  </para>
+
+  <note>
+   <title>Is Telepathy a Specification or an Implementation?</title>
+   <para>
+    It's both.
+   </para>
+   <para>
+    There is one
+    <ulink url="http://telepathy.freedesktop.org/spec.html">specification</ulink>
+    which defines the D-Bus API for how one Telepathy component talks to
+    another. Additionally there are many implementations of this
+    specification in the form of libraries that wrap the D-Bus API in a
+    model that might be more familiar to you; and components (e.g. the
+    Connection Managers) that allow you to do useful things with Telepathy.
+   </para>
+  </note>
+
+  <sect1>
+   <title>Rationale</title>
+   <!-- much of this was crimed from
+        http://telepathy.freedesktop.org/wiki/Rationale -->
+   <para>
+    The design of Telepathy, and its approach to real-time communications
+    comes from a very specific rationale:
+   </para>
+   <itemizedlist>
+     <listitem><para>
+       <emphasis>Robustness:</emphasis>
+       one component can crash without crashing others.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Ease of development:</emphasis>
+       components can be replaced within a running system; tools like
+       dbus-inspector can trace interactions between components.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Language independence:</emphasis>
+       components can be written in any language that has a D-Bus binding;
+       if the best free and open implementation of a given communications
+       protocol is in a certain language, you are able to write your
+       Connection Manager in that language and still have it available to
+       all Telepathy clients.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Desktop independence:</emphasis>
+       D-Bus has been adopted by both GNOME and KDE. Multiple user
+       interfaces can be developed on top of the same Telepathy components.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>License independence:</emphasis>
+       Components can be under different licenses that would be incompatible
+       if all components were running in one process.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Code reuse:</emphasis>
+       Telepathy allows clients to ignore protocol details as much as
+       possible, easing transitions between different communications
+       systems.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Connection reuse:</emphasis>
+       Multiple Telepathy clients can use the same connection simultaneously.
+     </para></listitem>
+     <listitem><para>
+       <emphasis>Security:</emphasis>
+       Components can run with very limited privileges; a typical connection
+       manager only needs access to the network and to the D-Bus session bus
+       (e.g. making it possible to use an SELinux policy to prevent protocol
+       code from accessing the disk).
+     </para></listitem>
+   </itemizedlist>
+  </sect1>
+</chapter>

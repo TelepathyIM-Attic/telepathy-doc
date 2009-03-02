@@ -1,0 +1,476 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY appversion "0.7">
+  <!ENTITY manrevision "0.2">
+  <!ENTITY date "12 August 2008">
+  <!ENTITY app_no_markup "Telepathy">
+  <!ENTITY app "<application>&app_no_markup;</application>">
+  <!ENTITY url_examples_base "./examples/">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
+  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
+  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
+  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
+  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
+  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
+]>
+
+<chapter id="chapter-channel">
+  <title>Channel</title>
+  <para>
+   Each <interfacename>Connection</interfacename> provides
+   <ulink url="&url_spec_base;Channel"><interfacename>Channel</interfacename></ulink>s,
+   which allow the local application to exchange data with the remote server,
+   for instance to retrieve a list of contacts in a chat room, or to send a
+   message to a contact.
+  </para>
+  <para>
+   Channels always provide at least two D-Bus interfaces interfaces:
+   <interfacename>org.freedesktop.telepathy.Channel</interfacename>,
+   and another interface according to the type of channel it is (which can
+   be retrieved using the <property>ChannelType</property> property).
+   For instance, a text channel provides the
+   <interfacename>org.freedesktop.telepathy.ChannelType.Text</interfacename>
+   interface.
+  </para>
+  
+  <!-- para>
+   Channels are created using a connection's RequestChannel method, or are
+   created by the connection manager in response to communication
+   initiated by someone else, in which case their advent is heralded by
+   the NewChannel signal.
+  </para -->
+
+  <para>
+   The channel types currently available in Telepathy are:
+  </para>
+  <variablelist>
+
+     <varlistentry>
+       <term>
+         <indexterm><primary>ContactList</primary></indexterm>
+         <ulink url="&url_spec_base;Channel.Type.ContactList"><interfacename>ContactList</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	  This channel provides a list of people on the server, such as the
+	  contacts to whose presence information you are subscribed or the
+	  contacts to whom you publish your presence information.
+	 </para>
+	 <para>
+	  See <xref linkend="sect-channel-contactlist"/>.
+	 </para>
+       </listitem>
+     </varlistentry>
+     
+     <varlistentry>
+       <term>
+         <indexterm><primary>RoomList</primary></indexterm>
+         <ulink url="&url_spec_base;Channel.Type.RoomList"><interfacename>RoomList</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	  A channel type for listing named channels (e.g. chatrooms)
+	  available on the server.
+	 </para>
+       </listitem>
+     </varlistentry>
+
+     <varlistentry>
+       <term>
+         <indexterm><primary>Text</primary></indexterm>
+         <ulink url="&url_spec_base;Channel.Type.Text"><interfacename>Text</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	  This channel sends and receives plain text messages, such as instant
+	  messages.
+	 </para>
+	 <para>
+	  See <xref linkend="sect-channel-text"/>.
+	 </para>
+       </listitem>
+     </varlistentry>
+
+     <varlistentry>
+       <term>
+         <indexterm><primary>StreamedMedia</primary></indexterm>
+         <ulink url="&url_spec_base;Channel.Type.StreamedMedia"><interfacename>StreamedMedia</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	  This channel sends and receives streamed audio or video,
+	  such as a video call.
+	 </para>
+       </listitem>
+     </varlistentry>
+     
+     <!--varlistentry>
+       <term>
+         <indexterm><primary>Tubes</primary></indexterm>
+         <ulink url="&url_spec_base;Channel.Type.Tubes"><interfacename>Tubes</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	 </para>
+       </listitem>
+     </varlistentry-->
+     
+     <varlistentry>
+       <term>
+         <indexterm><primary>FileTransfer</primary></indexterm>
+         <ulink
+	 url="&url_spec_base;Channel.Type.FileTransfer"><interfacename>FileTransfer</interfacename></ulink>
+       </term>
+       <listitem>
+         <para>
+	  A channel type for transferring files.
+	 </para>
+       </listitem>
+     </varlistentry>
+
+  </variablelist>
+  
+  <sect1 id="sec-channel-requesting">
+    <title>Requesting Channels</title>
+
+    <para>
+     Channels are requested from a <classname>Connection</classname> object
+     using the <ulink url="&url_spec_base;Connection.Interface.Requests"><interfacename>Requests</interfacename></ulink>
+     interface.
+    </para>
+
+    <para>
+     This interface provides two methods:
+     <methodname>CreateChannel</methodname> and
+     <methodname>EnsureChannel</methodname>.
+     Both methods take the same parameter, a dictionary containing the
+     desired properties for the channel.
+    </para>
+
+    <para>
+     <methodname>CreateChannel</methodname> will attempt to create a new
+     channel with the requested properties. Depending on the protocol, some
+     types of channels are exclusive, and only one such channel can exist at
+     a time (e.g. a XMPP chatroom). If a second channel is requested, the
+     error <errorname>NotAvailable</errorname> is returned.
+    </para>
+
+    <para>
+     Conversely, <methodname>EnsureChannel</methodname> will attempt to reuse an
+     existing channel with the same properties wherever possible, else it
+     will create a new channel. It's possible that another client is also
+     utilising this channel. <!-- FIXME: write more on this -->
+    </para>
+
+    <tip>
+     <title>When to Create and when to Ensure</title>
+     <para>
+      Choosing when to always create a new channel, or when to use an
+      existing channel can usually be deduced based on the function of the
+      channel. If it would make sense to reuse an existing channel then
+      use <methodname>EnsureChannel</methodname>, otherwise use
+      <methodname>CreateChannel</methodname>.
+     </para>
+     <para>
+      <methodname>EnsureChannel</methodname> is usually used for
+      <interfacename>Text</interfacename>,
+      <interfacename>StreamedMedia</interfacename> and
+      <interfacename>ContactList</interfacename> channels.
+     </para>
+     <para>
+      <methodname>CreateChannel</methodname> is usually used for
+      <interfacename>FileTransfer</interfacename>,
+      <interfacename>Tubes</interfacename>,
+      <interfacename>RoomList</interfacename> and
+      <interfacename>ContactSearch</interfacename> channels.
+     </para>
+    </tip>
+
+    <para>
+     The properties argument for <methodname>RequestChannel</methodname> and
+     <methodname>EnsureChannel</methodname> is a map of property names on
+     the desired channel, and their values.
+     In general every channel requires at least three channel
+     properties: the type of channel we wish to create
+     (<property>ChannelType</property>), the handle/id of the contact/room/list
+     we wish to create a channel for (<property>TargetHandle</property> or
+     <property>TargetID</property>) and the type of that handle
+     (<property>TargetHandleType</property>). Specific channel types may
+     require additional properties in order to be created, this is noted in
+     the specification.
+    </para>
+
+    <para>
+     For example, to create a <interfacename>ContactList</interfacename>
+     channel (this is the type of channel that is used to get a list of
+     subscribed contacts from a service), we might provide a map like so:
+    </para>
+
+    <informaltable>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+	<entry>org.freedesktop.Telepathy.Channel.Type.ContactList</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+	<entry>Handle_Type_List</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.TargetID</entry>
+	<entry>"subscribe"</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+
+    <para>
+     Telepathy-glib provides the
+     <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-create-channel"><function>tp_cli_connection_interface_requests_call_create_channel()</function></ulink>
+     and <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-ensure-channel"><function>tp_cli_connection_interface_requests_call_ensure_channel()</function></ulink>
+     functions for this purpose.
+    </para>
+
+   <warning>
+    <title>RequestChannel</title>
+    <para>
+     Some Connection Managers might not yet implement the
+     <interfacename>Requests</interfacename> interface on their
+     <classname>Connection</classname>s. In these cases you can
+     use the <methodname>RequestChannel</methodname> method on the
+     <interfacename>Connection</interfacename> interface, but you do so at
+     your own risk.
+    </para>
+    <para>
+     <methodname>CreateChannel</methodname> and
+     <methodname>EnsureChannel</methodname> fix several flaws that were
+     present in <methodname>RequestChannel</methodname>:
+    </para>
+    <itemizedlist>
+     <listitem><para>
+      <methodname>RequestChannel</methodname> doesn't provide a way to insist
+      on a new channel or prefer an existing channel;
+     </para></listitem>
+     <listitem><para>
+      If <methodname>RequestChannel</methodname> returns an existing
+      channel, the caller is not told whether the channel can be safely
+      handled or if something else is handling it already;
+     </para></listitem>
+     <listitem><para>
+      <methodname>RequestChannel</methodname> can request a channel type,
+      a handle type and a handle, but nothing more elaborate
+      (e.g. you can't request a <interfacename>RoomList</interfacename>
+      with a particular server); and
+     </para></listitem>
+     <listitem><para>
+      <methodname>RequestChannel</methodname> doesn't return the channel's
+      immutable properties (which is a useful optimization).
+     </para></listitem>
+    </itemizedlist>
+
+    <para>
+     If you must call <methodname>RequestChannel</methodname>, XXX WRITE ME
+    </para>
+   </warning>
+
+  </sect1>
+
+  <sect1 id="sect-channel-contactlist">
+    <title>ContactList Channel</title>
+    <indexterm><primary>ContactList</primary></indexterm>
+  
+    <para>
+     The <ulink url="&url_spec_base;Channel.Type.ContactList"><interfacename>ContactList</interfacename></ulink>
+     channel provides a list of people on the server, such as the contacts
+     in a chat room, or the contacts to whose presence information you are
+     subscribed.
+    </para>
+  
+    <para>
+     Like individual remote contacts themselves, lists of remote contacts
+     can be referred to by numeric
+     <link linkend="sec-basics-handles"><literal>Handles</literal></link>.
+     Each <interfacename>ContactList</interfacename> represents one of these
+     remote contact lists, which it identifies by the remote list's handle.
+     This <property>TargetHandle</property> may be supplied when obtaining
+     the <interfacename>ContactList</interfacename>, for instance via the
+     <methodname>CreateChannel()</methodname> or
+     <methodname>EnsureChannel()</methodname> D-Bus method, as described in
+     the <link linkend="sec-channel-requesting">Requesting Channels</link>
+     section. The handle may also be discovered by reading the
+     <property>TargetHandle</property> D-Bus property of the
+     <ulink url="&url_spec_base;Channel"><interfacename>Channel</interfacename></ulink>
+     interface.
+    </para>
+  
+    <para>
+     Alternatively, many Connection Managers allow you to specify an
+     <indexterm><primary>Identifier</primary></indexterm>
+     <literal>Identifier</literal> (via the <property>TargetID</property>
+     property) for the contact list, instead of the <literal>Handle</literal>
+     (via the <property>TargetHandle</property> property), if you do not yet
+     have a <literal>Handle</literal> for the contact list. For
+     <interfacename>ContactList</interfacename> channels this only makes
+     sense for named chat rooms or server-defined lists
+     (see the
+     <link linkend="sec-channel-contactlist-server-defined">Server-Defined Lists</link>
+     section.
+    </para>
+  
+    <para>
+     The <interfacename>ContactList</interfacename>'s functionality is
+     actually provided by the
+     <ulink url="&url_spec_base;Channel.Interface.Group"><interfacename>Group</interfacename></ulink>
+     interface, which all <interfacename>ContactList</interfacename> objects
+     implement.
+    </para>
+    <!-- Mention the Group chapter if that becomes useful. -->
+  
+    <!-- TODO: One day, I would expect a nice language binding to provide the Group API as a base class (or implemented interface) of the ContactList class, so the separation is less of an issue. murrayc. -->
+  
+    <note><para>
+     If a person has multiple instant message accounts, for instance via
+     different protocols, Telepathy has no way of knowing that these are
+     actually the same person, and no way for your application to tell
+     Telepathy this. Therefore, client applications should track this
+     information if necessary.
+    </para></note>
+    <!-- TODO: (We need to call them something other than "IM accounts" because it is not just IM. It can be "people nearby", for instance.) -->
+  
+    <sect2 id="sec-channel-contactlist-server-defined">
+      <title>Server-Defined Lists</title>
+      <indexterm><primary>Server-Defined Lists</primary></indexterm>
+  
+      <para>
+       Depending on the capabilities of the remote server and its protocol,
+       the Connection Manager may provide some standard
+       &quot;server-defined&quot; remote lists, such as the
+       &quot;subscribe&quot; remote list, which lists all the contacts to
+       whose presence you are subscribed. See the
+       <ulink url="&url_spec_base;Channel.Type.ContactList"><interfacename>ContactList</interfacename></ulink>
+       documentation for more server-defined identifiers, and remember to use
+       <methodname>EnsureChannel()</methodname> rather than
+       <methodname>CreateChannel()</methodname> when obtaining
+       <interfacename>ContactList</interfacename>s for these
+       server-defined lists, as described in the
+       <link linkend="sec-channel-requesting">Requesting Channels</link>
+       section.
+      </para>
+  
+      <para>
+       When calling <interfacename>EnsureChannel()</interfacename>, you may
+       specify a standard identifier for a server-defined remote list, such
+       as &quot;, via the <property>TargetID</property> propety.
+       Alternatively, the <property>TargetHandle</property> for
+       server-defined lists can be obtained from the
+       <ulink url="&url_spec_base;Connection.RequestHandles"><methodname>RequestHandle()</methodname></ulink>
+       D-Bus method, to which you may specify the server-defined identifier.
+      </para>
+    </sect2>
+  
+    <sect2>
+      <title>Example</title>
+      <para>
+       This example connects to a Jabber account and lists all contacts for
+       that account.
+      </para>
+      <para><ulink url="&url_examples_base;list_contacts">Source Code</ulink></para>
+    </sect2>
+  
+  </sect1>
+
+  <sect1 id="chapter-group">
+     <title>Group Interface</title>
+     <para>TODO:
+     (used in lots of different channels)
+     - This is partitioned into:
+       - Current members
+       - Local pending members, awaiting approval (by doing Add or Remove) by the 
+         local user.
+       - Remote pending members, awaiting approval remotely by the other user)
+     - Unusually, one-to-one calls use the <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface to indicate call 
+       progression (explain in call section?).
+    </para>
+  </sect1>
+  
+  <sect1 id="sect-channel-text">
+    <title>Text Channel</title>
+    <indexterm><primary>Text</primary></indexterm>
+  
+    <para>
+     The <ulink url="&url_spec_base;Channel.Type.Text"><interfacename>Text</interfacename></ulink>
+     channel sends and receives plain text messages, such as instant
+     messages. Each <interfacename>Text</interfacename> channel represents
+     communication with a contact or group of contacts. A group of contacts
+     can be considered as a &quot;chat room&quot;. This contact or contacts
+     list must be specified when creating the channel with
+     <methodname>CreateChannel()</methodname>.
+    </para>
+  
+    <para>
+     The remote contact or contact list can be referred to by numeric
+     <link linkend="sec-basics-handles"><literal>Handles</literal></link>
+     (<property>TargetHandle</property>) or identifier
+     (<property>TargetID</property>) when obtaining the
+     <interfacename>Text</interfacename> channel, for instance via the
+     <methodname>CreateChannel()</methodname> or
+     <methodname>EnsureChannel()</methodname> D-Bus method, as described in
+     the <link linkend="sec-channel-requesting">Requesting Channels</link>
+     section.
+    </para>
+  
+    <para>
+     TODO: Notes: Password interfaces
+    </para>
+  
+    <sect2 id="sec-channel-text-sending">
+      <title>Sending Messages</title>
+      <para>
+       Messages may be sent to the contact (or contact list) with the
+       <ulink url="&url_spec_base;Channel.Type.Text.Send"><methodname>Send()</methodname></ulink>
+       method. Sending messages can be requested using the Send method,
+       which will return successfully. Other parts of your application may
+       handle the <literal>Sent</literal> signal, for instance to log that
+       side of the conversation.
+      </para>
+    
+      <note>
+       <para>
+        Some Connection Managers also provide the
+        <ulink url="&url_spec_base;Channel.Interface.Messages"><interface>Messages</interface></ulink>
+        interface on the <interfacename>Text</interfacename> channel object.
+        This optional interface allows sending and receiving of formatted
+        messages and delivery reports. For instance, you might use the
+        <interfacename>Message</interfacename> interface's
+        <ulink url="&url_spec_base;Channel.Interface.Messages.SendMessage"><methodname>SendMessage()</methodname></ulink>
+        method instead of the main <interfacename>Text</interfacename>
+        interface's <methodname>Send()</methodname> method.
+       </para>
+      </note>
+  
+      <sect3>
+        <title>Example</title>
+        <para>This example sends a text message to a jabber contact via a text channel.</para>
+        <para><ulink url="&url_examples_base;send_message">Source Code</ulink></para>
+      </sect3>
+    </sect2>
+  
+    <sect2 id="sec-channel-text-receiving">
+      <title>Receiving Messages</title>
+      <para>TODO</para>
+    
+      <para>TODO: Notes: - Text channels may have ChatState (typing notification).</para> 
+  
+      <sect3>
+        <title>Example</title>
+        <para>This example receives text messages from a jabber contact via a text channel.</para>
+        <!-- TODO: <para><ulink url="&url_examples_base;receive_message">Source Code</ulink></para> -->
+      </sect3>
+    </sect2>
+  
+  </sect1>
+
+</chapter>
