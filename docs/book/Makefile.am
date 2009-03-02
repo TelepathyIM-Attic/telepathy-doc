@@ -13,7 +13,16 @@ DOC_MODULE = telepathy
 DOC_ENTITIES =
 
 # The names of any files included by xincluded (preferred):
-DOC_INCLUDES = legal.xml
+DOC_INCLUDES = \
+	legal.xml \
+	introduction.xml \
+	basics.xml \
+	accounts.xml \
+	channel-dispatcher.xml \
+	connection-manager.xml \
+	connection.xml \
+	channel.xml \
+	tubes.xml
 
 # these are figures that need to be rasterised
 DOC_FIGURES_SRC = \
@@ -27,10 +36,9 @@ DOC_FIGURES =
 # The names of any locales for which documentation translations exist:
 DOC_LINGUAS = de
 
-
 # Create a DocBook source file that doesn't have the examples' comments blocks:
-C/telepathy-with-examples.xml: C/telepathy.xml insert-links.py insert-examples.py
-	$(srcdir)/insert-links.py <$< | $(srcdir)/insert-examples.py $(top_srcdir)/docs/examples/ >$@
+C/telepathy-with-examples.xml: $(_DOC_C_DOCS) insert-links.py insert-examples.py
+	$(srcdir)/insert-links.py $< | $(srcdir)/insert-examples.py $(top_srcdir)/docs/examples/ >$@
 
 
 # main xml file for the doc
