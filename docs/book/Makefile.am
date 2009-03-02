@@ -37,7 +37,7 @@ DOC_FIGURES =
 DOC_LINGUAS = de
 
 # Create a DocBook source file that doesn't have the examples' comments blocks:
-C/telepathy-with-examples.xml: $(_DOC_C_DOCS) insert-links.py insert-examples.py
+C/telepathy-with-examples.xml: C/telepathy.xml $(_DOC_C_DOCS) insert-links.py insert-examples.py
 	$(srcdir)/insert-links.py $< | $(srcdir)/insert-examples.py $(top_srcdir)/docs/examples/ >$@
 
 
