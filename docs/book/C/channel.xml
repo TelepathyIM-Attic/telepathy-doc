@@ -295,7 +295,7 @@
     </para>
 
     <para>
-     Two request a contact list, 3 properties must be provided to
+     To request a contact list, 3 properties must be provided to
      <methodname>EnsureChannel</methodname>
      (see <xref linkend="sec-channel-requesting"/>): the channel type
      (org.freedesktop.Telepathy.Channel.Type.ContactList), the target handle
@@ -303,6 +303,8 @@
      <type>Handle_Type_Group</type>) and
      either a target handle retrieved by
      <methodname>RequestHandles</methodname> or the ID.
+     <xref linkend="ex.channel.contactlist.ensurechannel"/> shows a code
+     example.
     </para>
   
     <example id="example.channel.contactlist.examplemaps">
@@ -363,6 +365,11 @@
        </tbody>
       </tgroup>
      </informaltable>
+    </example>
+    
+    <example id="ex.channel.contactlist.ensurechannel"
+             file="python_simple_presence/example.py">
+     <title>Setting Up a Channel for a ContactList</title>
     </example>
 
     <para>
@@ -497,6 +504,23 @@
      Telepathy this. Therefore, client applications should track this
      information if necessary.
     </para></note>
+
+    <para>
+     Information about a list of contacts can be looked up using the
+     connection's <interfacename>Contacts</interfacename> interface. This
+     is documented in <xref linkend="sect.connection.contacts"/>.
+    </para>
+
+    <para>
+     <xref linkend="ex.channel.groups.getting-members"/> shows how to
+     retrieve a list of handles for current members of a group (in this case
+     a contact list).
+    </para>
+
+    <example id="ex.channel.groups.getting-members"
+             file="python_simple_presence/example.py">
+     <title>Retrieving the Members of a Group</title>
+    </example>
   
   </sect1>
   

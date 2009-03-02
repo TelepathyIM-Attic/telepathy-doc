@@ -105,6 +105,7 @@ class Example (object):
                 channel = telepathy.client.Channel(conn.service_name, path)
                 self.channel = channel
 
+                # begin ex.channel.groups.getting-members
                 # request the list of members
                 channel[DBUS_PROPERTIES].Get(CHANNEL_INTERFACE_GROUP,
                                          'Members',
@@ -123,6 +124,7 @@ class Example (object):
                     False,
                     reply_handler = self.get_contact_attributes_cb,
                     error_handler = self.parent.error_cb)
+                # end ex.channel.groups.getting-members
 
             def get_contact_attributes_cb (self, attributes):
                 print '-' * 78
@@ -140,6 +142,7 @@ class Example (object):
         # we can either use TargetID if we know a name, or TargetHandle
         # if we already have a handle
         for group in groups:
+            # begin ex.channel.contactlist.ensurechannel
             print "Ensuring channel to %s..." % group
             conn[CONNECTION_INTERFACE_REQUESTS].EnsureChannel({
                 CHANNEL + '.ChannelType'     : CHANNEL_TYPE_CONTACT_LIST,
@@ -148,6 +151,7 @@ class Example (object):
                 },
                 reply_handler = ensure_channel_cb(self, group),
                 error_handler = no_channel_available)
+            # end ex.channel.contactlist.ensurechannel
 
     def get_interfaces_cb (self, interfaces):
         conn = self.conn
