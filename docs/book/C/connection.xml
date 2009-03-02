@@ -338,6 +338,87 @@
     <interfacename>Contacts</interfacename> interface are available through
     the <property>ContractAttributeInterfaces</property> property.
    </para>
+
+   <para>
+    The lookup is done using the
+    <methodname>GetContactAttributes</methodname> method, which takes an
+    array of contact handles (e.g. from a contact list), an array of
+    interfaces you re interested in (from the
+    <property>ContractAttributeInterfaces</property>) and whether or not
+    to hold the handles (as if <methodname>HoldHandles</methodname> was
+    called). The return value is a nested mapping of handles to mapped
+    key/value pairs. <xref linkend="ex.connection.contacts.return"/> gives
+    an example return.
+   </para>
+
+   <para>
+    The keys are of the form
+    <literal>interface/attribute</literal> (e.g.
+    <literal>org.freedesktop.Telepathy.Connection/contact-id</literal>).
+    They do not map to interface properties. For the moment they are
+    documented in the spec with the <interfacename>Contacts</interfacename>
+    interface.
+   </para>
+
+   <example id="ex.connection.contacts.return">
+    <title>Example Return Value for GetContactAttributes</title>
+    <para>
+     <methodname>GetContactAttributes</methodname> was called on a list of
+     handles with the <interfacename>Connection</interfacename>,
+     <interfacename>Aliasing</interfacename> and
+     <interfacename>SimplePresence</interfacename> interfaces.
+    </para>
+
+    <informaltable>
+     <tgroup cols="3">
+      <tbody>
+       <row>
+        <entry morerows="2">&lt;handle 1&gt;</entry>
+	<entry>org.freedesktop.Telepathy.Connection/contact-id</entry>
+	<entry>friend1@jabber.org</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Connection.Interface.Aliasing/alias</entry>
+	<entry>Gary</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Connection.Interface.SimplePresence/presence</entry>
+	<entry>Presence...</entry>
+       </row>
+       
+       <row>
+        <entry morerows="2">&lt;handle 2&gt;</entry>
+	<entry>org.freedesktop.Telepathy.Connection/contact-id</entry>
+	<entry>friend2@jabber.org</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Connection.Interface.Aliasing/alias</entry>
+	<entry>Stephanie</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Connection.Interface.SimplePresence/presence</entry>
+	<entry>Presence...</entry>
+       </row>
+       
+       <row>
+        <entry morerows="2">&lt;handle 3&gt;</entry>
+	<entry>org.freedesktop.Telepathy.Connection/contact-id</entry>
+	<entry>friend3@jabber.org</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Connection.Interface.Aliasing/alias</entry>
+	<entry>Danielle</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Connection.Interface.SimplePresence/presence</entry>
+	<entry>Presence...</entry>
+       </row>
+
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </example>
+
   </sect1>
 
   <sect1 id="sect.connection.presence">
