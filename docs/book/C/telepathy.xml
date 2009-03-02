@@ -1552,9 +1552,12 @@ AC_SUBST(EXAMPLE_LIBS)
     </para>
    </listitem>
    <listitem>
-    <para>Contacts</para>
+    <para><interfacename>Contacts</interfacename></para>
     <para>
-     Describe me
+     The <interfacename>Contacts</interfacename> interface is a sort of
+     proxy to other interfaces on the connection. It is used to gather as
+     much information about a contact as required in a single D-Bus
+     roundtrip. It is documented in <xref linkend="sect.connection.contacts"/>.
     </para>
    </listitem>
    <listitem>
@@ -1562,7 +1565,7 @@ AC_SUBST(EXAMPLE_LIBS)
     <para>
      The <interfacename>SimplePresence</interfacename> interface is used to
      set and obtain presence information on a given Connection. It is
-     documented in <xref linkend="sect1.connection.presence"/>.
+     documented in <xref linkend="sect.connection.presence"/>.
     </para>
    </listitem>
    <listitem>
@@ -1805,7 +1808,29 @@ AC_SUBST(EXAMPLE_LIBS)
     </sect2>
   </sect1>
 
-  <sect1 id="sect1.connection.presence">
+  <sect1 id="sect.connection.contacts">
+   <title>Contacts</title>
+   <para>
+    It is often the case that a Telepathy client will want to learn as much
+    information about a list of contacts as it can, e.g. their alias, avatar,
+    presence, capabilities, location. Requesting data from each of the
+    interfaces individually results in n D-Bus method calls on the
+    connection. The <interfacename>Contacts</interfacename> interface
+    acts as a sort of proxy to the other interfaces of the connection,
+    allowing the client to request the most common information in a single
+    D-Bus method call (thus saving on D-Bus roundtrips).
+   </para>
+
+   <para>
+    Depending on a connection's capabilities, it may not implement the full
+    set of available interfaces (e.g. IRC provides no avatars). Thus the
+    interfaces available for use with the
+    <interfacename>Contacts</interfacename> interface are available through
+    the <property>ContractAttributeInterfaces</property> property.
+   </para>
+  </sect1>
+
+  <sect1 id="sect.connection.presence">
     <title>Presence</title>
     <para>
      If a protocol has the concept of presence, showing when users are
