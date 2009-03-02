@@ -29,9 +29,15 @@ MAPPINGS = {
 }
 
 import sys
+import os.path
 from lxml import etree
 
-doc = etree.parse (sys.stdin)
+try:
+    filename = sys.argv[1]
+    doc = etree.parse (filename)
+    doc.xinclude ()
+except IndexError:
+    doc = etree.parse (sys.stdin)
 
 xpathexpr = '(%s)[not(ancestor::ulink)]' % \
 		' | '.join (map (lambda s: '//%s' % s, MAPPINGS.keys ()))
