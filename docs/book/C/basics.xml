@@ -814,27 +814,80 @@ AC_SUBST(EXAMPLE_LIBS)
   <!-- TODO: Notes: The interfaces are often called their type, particularly for channels. Explain. -->
   <sect1 id="sec-basics-optional-interfaces">
     <title>Optional Interfaces</title>
-    <para>Although a core set of D-Bus interfaces is provided by all connection managers, some extra D-Bus interfaces are optional. For instance, some connection managers only provide extra interfaces when they discover that the remote server provides that optional functionality. Therefore, when using these interfaces, application code should first check that the interface is available, sometimes falling back to alternative interfaces.</para>
-    <para>For instance, use the <interfacename>Connection</interfacename> interface's <ulink url="&url_spec_base;Connection.GetInterfaces"><methodname>GetInterfaces()</methodname></ulink> method. For <interfacename>ConnectionManager</interfacename>s and <interfacename>Channel</interfacename>s use their <property>Interfaces</property> D-Bus property. Eventually <interfacename>Connection</interfacename> will also have an <property>Interfaces</property> property, when its <methodname>GetInterfaces()</methodname> method will be deprecated.</para>
 
-    <para>When using telepathy-glib, you can simply call the <ulink url="&url_telepathy_glib_base;proxy.html#tp-proxy-has-interface"><function>tp_proxy_has_interface()</function></ulink> function for <classname>TpConnectionManager</classname>, <classname>TpConnection</classname>, or <classname>TpChannel</classname>.</para> 
-    <para>Actually, the core interfaces are only &quot;recommended&quot; by the Telepathy D-Bus specification so you should check before using any interface even if it is not commonly considered to be optional.</para>
-
-    <note>
-    <para>Note that the <property>Interfaces</property> property (or the <ulink url="&url_spec_base;Connection.GetInterfaces"><methodname>Connection.GetInterfaces()</methodname></ulink> method) does more than the standard D-Bus <ulink url="&url_dbus_spec_base;standard-interfaces-introspectable"><methodname>Introspectable.Introspect()</methodname></ulink> method. The Telepathy-specific mechanism allows tools and language bindings to know about the possible availability of interfaces via <methodname>Introspect()</methodname> while providing an additional check that the interface is really supported for the particular connection manager with the particular remote server to which that connection manager is connected. 
+    <para>
+     Not all messaging protocols are the same. Different protocols may offer
+     different messaging features, for example contact presence, avatars,
+     geolocation, Voice-over-IP, etc. Sometimes a particular server
+     implementation/version/instance won't have certain features enabled.
+     Telepathy exposes the various available features for a connection as
+     D-Bus interfaces.
     </para>
+
+    <para>
+     The same might apply to channels. A text channel may be a one-to-one
+     chat, or it may be a multi-user chat. The interfaces present on the
+     channel tell us what its capabilities are.
+    </para>
+
+    <para>
+     Telepathy objects can be assumed to implement their base interface
+     (e.g. <interfacename>Connection</interfacename>,
+     <interfacename>Channel</interfacename>).
+     The additional interfaces available on a Telepathy object are retreivable
+     either via the
+     <property>Interfaces</property> property (preferred) or the
+     older <methodname>GetInterfaces</methodname> method call (e.g. for
+     <interfacename>Connection</interfacename>, deprecated).
+    </para>
+    
+    <note>
+     <para>
+      Note that the <property>Interfaces</property> property (or the
+      <methodname>GetInterfaces</methodname> method) should be used instead
+      of the standard D-Bus <ulink url="&url_dbus_spec_base;standard-interfaces-introspectable"><interfacename>Introspectable</interfacename></ulink>
+      interface.
+     </para>
+
+     <para>
+      The interfaces for a connection/channel depend on the
+      capabilities/type of the object.
+      In general, most D-Bus language bindings make it very difficult to
+      implement D-Bus objects with a dynamic set of interfaces, thus making
+      it difficult for a connection manager to export a dynamic set of
+      interfaces via D-Bus introspection.
+     </para>
+
+     <para>
+      If you use a D-Bus introspection tool (e.g.
+      <application>D-Feet</application> to look at a Telepathy connection
+      object, you'll find it announces support for all interfaces, even the
+      ones it doesn't support. If you query the object's
+      <property>Interfaces</property> property, you'll see which interfaces
+      really are supported.
+     </para>
     </note>
 
+    <para>
+     When using telepathy-glib, you can simply call the
+     <ulink url="&url_telepathy_glib_base;proxy.html#tp-proxy-has-interface"><function>tp_proxy_has_interface</function></ulink> function for
+     <classname>TpConnectionManager</classname>,
+     <classname>TpConnection</classname>, or
+     <classname>TpChannel</classname> objects.
+    </para>
+
+    <para>
+     The Telepathy specification is still being improved and sometimes the
+     specification provides two ways to achieve the same goal. Although one
+     of the methods/interfaces will be deprecated, it's possible that some
+     older connection managers do not yet implement the latest
+     specification. In this case, it could be possible for your client to fall
+     back to the older method. In general, deprecated interfaces and methods
+     are not documented in this manual.
+    </para>
+    
     <!-- TODO: Add dbus-glib and Python examples of checking-for and using an Interface. -->
   </sect1>
-
-  <!-- TODO: Should we even mention this before the new (5?) version is ready?
-  <sect1 id="sec-basics-mission-control">
-    <title>Mission Control</title>
-    <para>TODO: Notes: desktop-wide accounts and dispatching to applications. 
-    </para>
-  </sect1>
-  -->
 
   <sect1 id="sec-basics-handles">
     <title>Handles</title>
