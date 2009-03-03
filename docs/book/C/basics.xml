@@ -838,18 +838,144 @@ AC_SUBST(EXAMPLE_LIBS)
 
   <sect1 id="sec-basics-handles">
     <title>Handles</title>
-    <para>The Telepathy D-Bus API does not have D-Bus objects to represent contacts, groups, or rooms. These are instead identified by numeric <literal>handles</literal>. This is for performance reasons, and because it is easier to compare numeric handles than to discover if two D-Bus proxy objects refer to the same object instance.</para>
-    <para>These numeric handles are only unique within a Telepathy Connection. For instance, don't try to use a Connection's contact handle with a different Connection. The handles also only make sense when combined with a <ulink url="&url_spec;#type-Handle_Type">handle type</ulink>, telling the API whether it represents a contact, group, or list. In fact, two handles may be numerically identical but be for different types.</para>
+
+    <para>
+     Handles in Telepathy are used to represent various protocol resources,
+     for example contacts, chatrooms, contact lists and user-defined groups.
+     A Handle is simply a numeric id allocated by the connection. Each
+     handle has a type (<type>Handle_Type</type>) that defines the sort of
+     handle it is. The same numeric handle id can be given for different handle
+     types and different connections.
+     The tuple of (connection, handle type, handle) is guarenteed unique.
+    </para>
+
+    <para>
+     Every handle is associated with a string identifier, e.g. the contact
+     <literal>bob@example.com</literal>. The strings are normalised per the
+     rules of the protocol. For example, if a protocol considers contact
+     identifiers to be case insensitive the strings "bob@example.com" and
+     "Bob@Example.com" would resolve to the same handle. These handles can
+     be tested for integer equality to determine this is in fact the same
+     identifier.
+    </para>
+
+    <warning>
+     <title>Never Compare String Identifiers in the Client</title>
+     <para>
+      Identifier normalisation rules can be complex and subtle.
+      A Telepathy client should never attempt to do any normalisation of
+      string identifiers. Nor should it compare string identifiers for
+      equality.
+     </para>
+     <para>
+      Instead handles should be requested for the identifiers (via
+      <methodname>RequestHandles</methodname>) and the handles compared for
+      integer equality. If the normalised string is desired (e.g. for
+      display), this can be accessed via the
+      <methodname>InspectHandles</methodname> method call.
+     </para>
+    </warning>
+
+    <para>
+     The handle id <literal>0</literal> is never a valid handle for an
+     identifier, but may be used some places in the API to indicate a
+     special condition. (<type>Handle_Type_None</type>, 0) is referred to as
+     the anonymous handle, and also has special meaning.
+    </para>
 
     <sect2>
-      <title>Hold and Release</title>
-      <para>When a Telepathy object has finished with a handle that number may be forgotten and even reused later as a handle for a completely different item. However, your application may wish to &quot;hold&quot; the handle for a longer time. To do so, you should call the Connection's <ulink url="&url_spec_base;Connection.HoldHandles"><methodname>HoldHandles()</methodname></ulink> method and call <ulink url="&url_spec_base;Connection.ReleaseHandles"><methodname>ReleaseHandles()</methodname></ulink> when you have finished with the handle. However, a single <methodname>ReleaseHandles()</methodname> call will release a handle regardless of how many times <methodname>HoldHandles()</methodname> has been called, so be careful not to call it while other code may be using the handle.</para>
+      <title>Handle Lifecycle</title>
 
-      <para>This is less necessary when using Telepathy <link linkend="sec-basics-language-bindings">language bindings</link>, such as telepathy-glib, because they may automatically hold and release handles for the lifetime of their objects, such as telepathy-glib's <classname>TpContact</classname> object. Additionally, telepathy-glib wraps the <methodname>HoldHandles()</methodname> and <methodname>ReleaseHandles()</methodname> D-Bus methods with the <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles()</function></ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles()</function></ulink> functions which reference-count the client-side handle &quot;hold&quot;, allowing you to match each <function>tp_connection_hold_handles()</function> call with a call to <function>tp_connection_release_handles()</function>.</para>
+      <para>
+       The lifetime of handles is managed by each connection based on the
+       currently open channels. For example, each contact in a channel has
+       an associated handle. If no client has a hold on a handle, and that
+       contact leaves all channels, the handle will cease to be valid.
+      </para>
 
-      <!-- TODO: On irc, smcv said: "perhaps "the user types in the name of a chatroom to join" would be a better example of when you want to use tp_connection_request_handles/tp_connection_unref_handles". Explain that more fully. -->
+      <para>
+       Telepathy clients can keep handles around longer using the
+       <methodname>HoldHandles</methodname> method. Unlike with reference
+       counting, the <methodname>HoldHandles</methodname> method is idempotent,
+       meaning that calling it multiple times is equivalent to calling it once.
+       Instead of calling <methodname>HoldHandles</methodname>, clients can
+       instead pass <literal>True</literal> to the <parameter>Hold</parameter>
+       parameter of <methodname>Contacts.GetContactAttributes</methodname>.
+      </para>
 
-      <para>In the later sections we will mention when it actually makes sense to do this when using specific parts of the Telepathy API.</para>
+      <para>
+       A handle can be requested directly by its identifier using the
+       <methodname>RequestHandles</methodname> method. This method is
+       most commonly used when the user directly provides the identifier of
+       a resource (e.g. the name of a chatroom) to access. The handle
+       returned by <methodname>RequestHandles</methodname> is already held.
+      </para>
+
+      <para>
+       When a client is finished with a handle, it can be released with
+       <methodname>ReleaseHandles</methodname>. This doesn't neccesarily
+       mean the handle will instantly become invalid, it could still be
+       referenced internally by the connection, but it could become invalid
+       at any time.
+      </para>
+
+      <warning>
+       <title>Handles are Not Referenced Counted</title>
+       <para>
+        The <methodname>HoldHandles</methodname> D-Bus method is idempotent.
+        A single call to <methodname>ReleaseHandles</methodname>
+        indicates that a client is no longer interested in a handle, no
+        matter how many times <methodname>HoldHandles</methodname> or
+        equivalent were called. If required, it is up to the client to
+        implement some form of reference counting for handles.
+       </para>
+       <para>
+        Some language bindings however, may provide reference counting.
+       </para>
+      </warning>
+
+      <para>
+       Method calls like <methodname>Group.GetAllMembers</methodname> return
+       a list of handles, but do not hold any of the handles for the client.
+       Thus, if a contact goes leaves the channel (e.g. goes offline), it is
+       possible for the handle to become invalid in between the reply, and
+       the next request using those handles. It is important that clients
+       be aware of this possible race condition and handle it appropriately.
+       For this reason, method calls like
+       <methodname>GetContactAttributes</methodname> do not return the
+       <errorname>InvalidHandle</errorname> error if one of the handles has
+       already ceased to exist. Clients should listen to the appropriate
+       signals (e.g. <methodname>Group.MembersChangedDetailed</methodname>) to
+       determine if that handle has been made invalid in the intervening
+       time.
+      </para>
+
+    </sect2>
+
+    <sect2>
+     <title>Handles in telepathy-glib</title>
+
+     <para>
+      The use of <methodname>HoldHandles</methodname> and
+      <methodname>ReleaseHandles</methodname> is less necessary when using
+      telepathy-glib, because it automatically holds handles for the lifetime
+      of its objects, e.g. <classname>TpContact</classname>. When the object
+      is destroyed its handle will be dropped.
+     </para>
+
+     <para>
+      Additionally, telepathy-glib wraps the
+      <methodname>HoldHandles</methodname> and
+      <methodname>ReleaseHandles</methodname> D-Bus methods with the
+      <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles</function></ulink>
+      and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles</function></ulink>
+      functions which reference-count the client-side handle
+      &quot;hold&quot;.
+      This requires you to match each call of
+      <function>tp_connection_hold_handles</function> with a matching call
+      to <function>tp_connection_unref_handles</function>, similar to other
+      reference counted resources.
+     </para>
     </sect2>
 
   </sect1>
