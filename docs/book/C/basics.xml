@@ -46,7 +46,6 @@
      Connection managers are simply factories for connections; new
      connections are created using the
      <methodname>RequestConnection</methodname> method on the
-     <!-- FIXME - link to spec ? -->
      <interfacename>org.freedesktop.Telepathy.ConnectionManager</interfacename>
      interface.
     </para>
@@ -85,7 +84,6 @@
     </para>
     <para>
      The connection interface
-     <!-- FIXME - link to spec ? -->
      (<interfacename>org.freedesktop.Telepathy.Connection</interfacename>) is
      mainly concerned with the management of Handles and Channels. It's
      common for connections to have a number of other interfaces, such as
@@ -97,6 +95,11 @@
      If the connection wasn't already in the Disconnected state, a
      <!-- FIXME - is there a way to markup signals? -->
      StatusChanged signal is emitted.
+    </para>
+
+    <para>
+     Setting up and using connections is documented in
+     <xref linkend="chapter-connection"/>.
     </para>
    </sect2>
 
@@ -112,7 +115,7 @@
      client application or created in response to incoming communication.
     </para>
     <para>
-     A complete explanation channels is presented in
+     A complete explanation of channels is presented in
      <xref linkend="chapter-channel"/>.
     </para>
    </sect2>
@@ -120,34 +123,14 @@
    <sect2>
     <title>Handle</title>
     <para>
-     Handles are used to represent various kinds of protocol resources. Each
-     handle has an associated string identifier. Handles are used to avoid
-     normalisation problems: by having the connection be responsible for
-     mapping equivalent resource identifiers to the same handle, Telepathy
-     clients need only compare handles for integer equality. For instance,
-     protocol X might consider the identifiers foobar@example.com and
-     fooBaR@example.com equivalent, in which case a connection speaking
-     protocol X, when asked to convert both into handles, would return the
-     same handle for both.
+     Handles are used to represent various kinds of protocol resources
+     (e.g. contacts, chatrooms, contact lists, etc.). Each handle has an
+     associated string identifier. Handles are used to avoid
+     normalisation problems in string identifiers.
     </para>
+
     <para>
-     The handle 0 is never a valid handle, but may be used in the API to
-     indicate a special case.
-    </para>
-    <para>
-     Handles can be generated explicitly, using the RequestHandles method,
-     in which case the client owns a reference to those handles. The
-     reference can be relinquished using ReleaseHandles. In other cases, the
-     connection manager might generate handles implicitly, in which case
-     clients can obtain a reference using HoldHandles. Each client can only
-     obtain one reference to each handle; referencing a handle multiple
-     times is idempotent. A client's references are automatically released
-     when it exits.
-    </para>
-    <para>
-     Handles cease to exist when they have no implicit references (e.g. from
-     a channel that they are related to) and no explicit references from
-     clients.
+     The use of handles is documented in <xref linkend="sec-basics-handles"/>.
     </para>
    </sect2>
 
