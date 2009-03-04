@@ -41,13 +41,27 @@
    <!-- FIXME: some of this information is too detailed for this glossary
                and should be moved further down the manual -->
    <sect2>
+    <title>Mission Control</title>
+    <para>
+     Mission Control is responsible for the management of messaging
+     accounts, the creation of connections (if an account is considered
+     online) and setting the user's requested presence for that account.
+    </para>
+    <para>
+     This manual is specifically concerned with Mission Control 5. There are
+     earlier versions of Mission Control, but they are extremely different
+     to the version documented here.
+    </para>
+   </sect2>
+
+   <sect2>
     <title>Connection Manager</title>
     <para>
-     Connection managers are simply factories for connections; new
-     connections are created using the
-     <methodname>RequestConnection</methodname> method on the
-     <interfacename>org.freedesktop.Telepathy.ConnectionManager</interfacename>
-     interface.
+     Connection managers are simply factories for connections.
+     In general, there is little need for a client to interact much with
+     the <interfacename>ConnectionManager</interfacename> interface. Most of
+     the work in obtaining and managing connections should be done via
+     Mission Control.
     </para>
     <para>
      The term
@@ -60,14 +74,6 @@
      connection manager object to provide only the main connection manager
      interface (the common D-Bus introspection and properties interfaces
      excepted).
-    </para>
-    <para>
-     Connection managers are typically started via D-Bus service activation,
-     when a Telepathy application would like to create a new connection.
-    </para>
-    <para>
-     Connection managers are discussed in more detail in
-     <xref linkend="chapter-connection-manager"/>.
     </para>
    </sect2>
 

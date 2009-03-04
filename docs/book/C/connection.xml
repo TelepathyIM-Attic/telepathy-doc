@@ -129,6 +129,68 @@
     </para>
    </listitem>
   </itemizedlist>
+
+  <sect1 id="sect.connection-manager">
+    <title>Connection Manager</title>
+  
+    <para>
+     Support for the various communication protocols is provided by several
+     <literal>Connection Managers</literal>. For instance, the
+     <literal>telepathy-gabble</literal> Connection Manager provides support
+     for the <acronym>XMPP</acronym> protocol, also known as
+     <literal>Jabber</literal>.
+    </para>
+    
+    <para>
+     There is no central &app; D-Bus service in Telepathy. Instead there are
+     several connection manager services, activated on demand. Each
+     connection manager implements the Telepathy specification, allowing a
+     Telepathy client to utilise any messaging protocol.
+    </para>
+  
+    <para>
+     All Telepathy Connection Managers have <literal>bus name</literal>s that
+     begin with &quot;org.freedesktop.Telepathy.ConnectionManager&quot;.
+     You can discover all available connection managers by calling the D-Bus
+     <methodname>ListActivatableNames</methodname> method and then comparing
+     the names with that prefix.
+    </para>
+    
+    <para>
+     A Connection Manager may implement more than one protocol (e.g.
+     <application>telepathy-haze</application> is a connection manager using
+     <application>libpurple</application> and thus provides many protocols).
+     You may then discover what protocols are provided by each connection
+     manager by calling the ConnectionManagers's
+     <methodname>ListProtocols</methodname> method.
+    </para>
+
+    <para>
+     In general, there is little need for a client to interact much with
+     the <interfacename>ConnectionManager</interfacename> interface. Most of
+     the work in obtaining and managing connections should be done via
+     Mission Control.
+    </para>
+
+    <sect2>
+     <title>telepathy-glib</title>
+     <para>
+      telepathy-glib provides the
+      <ulink url="&url_telepathy_glib_base;connection-manager.html#tp-list-connection-managers"><function>tp_list_connection_managers</function></ulink> function
+      to list the available connection managers.
+     </para>
+ 
+     <para>
+      telepathy-glib's
+      <ulink url="&url_telepathy_glib_base;connection-manager.html"><classname>TpConnectionManager</classname></ulink>
+      object automatically calls <methodname>ListProtocols</methodname> upon
+      creation and emits the <literal>got-info</literal>
+      signal when it has returned. You can examine the
+      TpConnectionManager::protocols struct field in your signal handler.
+     </para>
+    </sect2>
+    
+  </sect1>
   
   <sect1>
     <title>Obtaining a Connection</title>
@@ -172,7 +234,7 @@
      <para>
       To setup your own connection to the remote server (e.g. your Jabber
       IM account) you need to call <methodname>RequestConnection</methodname>
-      on the appropriate <link xref="chapter-connection-manager">Connection
+      on the appropriate <link xref="sect.connection-manager">Connection
       Manager</link> (e.g. gabble), providing a map of connection details.
       Assuming the connection succeeds this method will return the
       <literal>bus name</literal> and <literal>object path</literal>

@@ -203,7 +203,7 @@
       <row>
        <entry>Valid</entry><entry>Boolean</entry>
        <entry>
-        Whether this account is considered by the Account Banager to be
+        Whether this account is considered by the Account Manager to be
 	complete and usable.
        </entry>
        <entry>True</entry>
