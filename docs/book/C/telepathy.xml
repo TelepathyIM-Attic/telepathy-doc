@@ -48,7 +48,7 @@
     </revhistory> 
 
     <authorgroup>
-      <author role="maintainer"> 
+      <author> 
         <firstname>Murray</firstname> 
         <surname>Cumming</surname> 
         <affiliation> 
@@ -56,7 +56,7 @@
           <address> <email>murrayc@openismus.com</email> </address> 
         </affiliation> 
       </author> 
-      <author>
+      <author role="maintainer">
         <firstname>Davyd</firstname>
         <surname>Madeley</surname>
         <affiliation>
@@ -85,7 +85,6 @@
 <xi:include href="basics.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="accounts.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="channel-dispatcher.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
-<xi:include href="connection-manager.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="connection.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="channel.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="tubes.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>

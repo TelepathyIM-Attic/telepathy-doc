@@ -19,7 +19,6 @@ DOC_INCLUDES = \
 	basics.xml \
 	accounts.xml \
 	channel-dispatcher.xml \
-	connection-manager.xml \
 	connection.xml \
 	channel.xml \
 	tubes.xml
@@ -107,17 +106,16 @@ pdf: pdf/telepathy.pdf
 validate: C/$(DOC_MODULE).xml
 	$(XMLLINT) --xinclude --postvalid --noout $<
 
-include $(top_srcdir)/docs/Makefile_web.am_fragment
+include $(top_srcdir)/docs/rsync-properties.make
 include $(top_srcdir)/docs/generate-figures.make
 
 post-online: post-html post-pdf
 
-post-html: html pdf
-	rsync $(rsync_args) -r html/ murrayc@$(web_host):$(web_path_docs)/html/
-	rsync $(rsync_args) -r pdf/ murrayc@$(web_host):$(web_path_docs)/pdf/
+post-html: html
+	rsync $(rsync_args) -r html/ $(rsync_target_html)
 
 post-pdf: pdf
-	rsync $(rsync_args) -r pdf/ murrayc@$(web_host):$(web_path_docs)/pdf/
+	rsync $(rsync_args) -r pdf/ $(rsync_target_pdf)
 
-CLEANFILES = C/telepathy-with-examples.xml C/telepathy_manual.xml
+CLEANFILES = C/telepathy-with-examples.xml
 EXTRA_DIST = 
