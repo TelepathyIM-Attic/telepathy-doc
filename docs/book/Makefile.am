@@ -45,7 +45,12 @@ MAIN = C/$(DOC_MODULE)-with-examples.xml
 HTML_STYLESHEET = book.css
 
 XSLTPROC = xsltproc
-DOCBOOK_STYLESHEET ?= http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
+PARENT_STYLESHEET ?= $(shell pkg-config --variable db2html gnome-doc-utils)
+DOCBOOK_STYLESHEET = xslt/db2html.xsl
+ICONS_DIR ?= $(shell pkg-config --variable icondir gnome-doc-utils)/hicolor/48x48
+
+xslt/db2html.xsl: xslt/db2html.xsl.in
+	sed -e "s|\@PARENT_STYLESHEET\@|$(PARENT_STYLESHEET)|" $< >$@
 
 # Create a html generation of the C locale's version of the DocBook, 
 # using our custom stylesheet and graphics:
@@ -55,30 +60,20 @@ DOCBOOK_STYLESHEET ?= http://docbook.sourceforge.net/release/xsl/current/html/ch
 #
 # We set refentry.generate.name and refentry.generate.title to get the title 
 # instead of "Name" as the title.
-html/index.html: $(MAIN) Makefile.am
+html/index.html: $(MAIN) Makefile.am $(DOCBOOK_STYLESHEET)
 	rm -rf html
 	$(mkinstalldirs) html
 	cp -r ../examples/ html/
 	cp -r C/figures html/
-	cp -r C/icons html/
-	-rm -rf html/*/.svn
-	cp $(HTML_STYLESHEET) html/
+	$(mkinstalldirs) html/icons
+	cp $(ICONS_DIR)/* html/icons/
 	$(XSLTPROC) \
-		--param toc.section.depth 1	\
-		--stringparam html.stylesheet "$(HTML_STYLESHEET)"	\
-		--stringparam admon.graphics 1	\
-		--stringparam admon.graphics.path "icons/"	\
-		--stringparam admon.graphics.extension ".png"	\
-		--stringparam chunker.output.indent yes	\
-		--stringparam chunker.output.encoding UTF-8	\
-		--stringparam navig.graphics yes	\
-		--stringparam navig.graphics.extension ".png"	\
-		--stringparam navig.graphics.path "icons/"	\
-		--stringparam toc.list.type "ul"	\
-		--stringparam use.id.as.filename "1" \
-		--stringparam refentry.generate.name "0" \
-		--stringparam refentry.generate.title "1" \
-		-o html/ --xinclude --catalogs $(DOCBOOK_STYLESHEET)	\
+		--param db.chunk.chunk_top 0 \
+		--stringparam db.chunk.basename "index" \
+		--stringparam db.chunk.extension ".html" \
+		--stringparam theme.icon.admon.path "icons/" \
+		-o html/index.html --nonet --xinclude \
+		$(DOCBOOK_STYLESHEET) \
 		$<
 
 html: html/index.html
