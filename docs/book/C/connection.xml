@@ -17,7 +17,7 @@
 ]>
 
 <chapter id="chapter-connection">
-  <title>Connection</title>
+  <title>Connections</title>
 
   <para>
    A <interfacename>Connection</interfacename> object in Telepathy
@@ -131,7 +131,7 @@
   </itemizedlist>
 
   <sect1 id="sect.connection-manager">
-    <title>Connection Manager</title>
+    <title>Connection Managers</title>
   
     <para>
      Support for the various communication protocols is provided by several

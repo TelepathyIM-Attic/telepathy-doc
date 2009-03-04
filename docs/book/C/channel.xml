@@ -17,7 +17,7 @@
 ]>
 
 <chapter id="chapter-channel">
-  <title>Channel</title>
+  <title>Channels</title>
   <para>
    Each <interfacename>Connection</interfacename> provides
    <ulink url="&url_spec_base;Channel"><interfacename>Channel</interfacename></ulink>s,
