@@ -45,8 +45,12 @@ MAIN = C/$(DOC_MODULE)-with-examples.xml
 HTML_STYLESHEET = book.css
 
 XSLTPROC = xsltproc
-DOCBOOK_STYLESHEET ?= $(shell pkg-config --variable db2html gnome-doc-utils)
+PARENT_STYLESHEET ?= $(shell pkg-config --variable db2html gnome-doc-utils)
+DOCBOOK_STYLESHEET = xslt/db2html.xsl
 ICONS_DIR ?= $(shell pkg-config --variable icondir gnome-doc-utils)/hicolor/48x48
+
+xslt/db2html.xsl: xslt/db2html.xsl.in
+	sed -e "s|\@PARENT_STYLESHEET\@|$(PARENT_STYLESHEET)|" $< >$@
 
 # Create a html generation of the C locale's version of the DocBook, 
 # using our custom stylesheet and graphics:
@@ -56,7 +60,7 @@ ICONS_DIR ?= $(shell pkg-config --variable icondir gnome-doc-utils)/hicolor/48x4
 #
 # We set refentry.generate.name and refentry.generate.title to get the title 
 # instead of "Name" as the title.
-html/index.html: $(MAIN) Makefile.am
+html/index.html: $(MAIN) Makefile.am $(DOCBOOK_STYLESHEET)
 	rm -rf html
 	$(mkinstalldirs) html
 	cp -r ../examples/ html/
@@ -71,24 +75,6 @@ html/index.html: $(MAIN) Makefile.am
 		-o html/index.html --nonet --xinclude \
 		$(DOCBOOK_STYLESHEET) \
 		$<
-
-# $(XSLTPROC) \
-# 	--param toc.section.depth 1	\
-# 	--stringparam html.stylesheet "$(HTML_STYLESHEET)"	\
-# 	--stringparam admon.graphics 1	\
-# 	--stringparam admon.graphics.path "icons/"	\
-# 	--stringparam admon.graphics.extension ".png"	\
-# 	--stringparam chunker.output.indent yes	\
-# 	--stringparam chunker.output.encoding UTF-8	\
-# 	--stringparam navig.graphics yes	\
-# 	--stringparam navig.graphics.extension ".png"	\
-# 	--stringparam navig.graphics.path "icons/"	\
-# 	--stringparam toc.list.type "ul"	\
-# 	--stringparam use.id.as.filename "1" \
-# 	--stringparam refentry.generate.name "0" \
-# 	--stringparam refentry.generate.title "1" \
-# 	-o html/ --xinclude --catalogs $(DOCBOOK_STYLESHEET)	\
-# 	$<
 
 html: html/index.html
 

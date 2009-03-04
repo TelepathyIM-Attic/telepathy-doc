@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- -*- indent-tabs-mode: nil -*- --> 
+
+<!-- Local Overrides for the gnome-doc-utils XSL stylesheets.
+     
+     Copyright (C) 2009, Collabora Ltd.
+
+     Authors: Davyd Madeley <davyd.madeley@collabora.co.uk>
+-->
+
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:exsl="http://exslt.org/common"
+                xmlns:set="http://exslt.org/sets"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:str="http://exslt.org/strings"
+                extension-element-prefixes="exsl"
+                xsl:exclude-result-prefixes="set str"
+                version="1.0"> 
+
+  <xsl:import href="@PARENT_STYLESHEET@"/>
+
+</xsl:stylesheet>
+
