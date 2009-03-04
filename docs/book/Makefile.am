@@ -46,6 +46,7 @@ HTML_STYLESHEET = book.css
 
 XSLTPROC = xsltproc
 DOCBOOK_STYLESHEET ?= $(shell pkg-config --variable db2html gnome-doc-utils)
+ICONS_DIR ?= $(shell pkg-config --variable icondir gnome-doc-utils)/hicolor/48x48
 
 # Create a html generation of the C locale's version of the DocBook, 
 # using our custom stylesheet and graphics:
@@ -60,12 +61,14 @@ html/index.html: $(MAIN) Makefile.am
 	$(mkinstalldirs) html
 	cp -r ../examples/ html/
 	cp -r C/figures html/
-	cp -r C/icons html/
-	-rm -rf html/*/.svn
+	$(mkinstalldirs) html/icons
+	cp $(ICONS_DIR)/* html/icons/
 	$(XSLTPROC) \
-		--param db.chunk.chunk_top 1 \
+		--param db.chunk.chunk_top 0 \
+		--stringparam db.chunk.basename "index" \
+		--stringparam db.chunk.extension ".html" \
 		--stringparam theme.icon.admon.path "icons/" \
-		-o html/ --nonet --xinclude \
+		-o html/index.html --nonet --xinclude \
 		$(DOCBOOK_STYLESHEET) \
 		$<
 
