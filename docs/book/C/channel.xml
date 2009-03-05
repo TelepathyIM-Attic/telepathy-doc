@@ -641,9 +641,72 @@
       </tbody>
      </tgroup>
     </table>
+
+    <para>
+     When the user wishes to part from a conversation, the channel's
+     <methodname>Close</methodname> method should be called. The channel
+     will be closed when the channel emits the
+     <methodname>Closed</methodname> signal. Be aware that if there are
+     still pending messages on the channel when it closes, a new, identical
+     channel will be created by the connection (heralded by the
+     <methodname>NewChannel</methodname> signal). This is to prevent message
+     loss due to a possible race.
+     <!-- FIXME: how does this fit into ChannelDispatcher -->
+     For one-to-one chats, this is identical to when a remote user sends you
+     a message.
+    </para>
+
+    <note>
+     <title>Close vs. Destroy</title>
+     <para>
+      To prevent any possible message loss, closing a channel with pending
+      messages using the <methodname>Close</methodname> method will cause a
+      new, identical channel to respawn that is the continuation of the
+      original channel.
+     </para>
+     <para>
+      Occasionally this behaviour is undesireable/problematic. For example,
+      when a particular text channel keeps crashing/causing errors in the
+      message renderer. Closing the channel will cause it to respawn with
+      the offending messages. In this case the
+      <methodname>Destroy</methodname> method of the
+      <interfacename>Destroyable</interfacename> interface can be used to
+      ensure a channel is not respawned, dropping any pending messages on
+      the channel.
+     </para>
+    </note>
+
+    <sect2 id="sec.channel.text.password">
+     <title>Private Channels</title>
+
+     <para>
+      Some channels (usually chatrooms) require a password to be able to
+      join them. Telepathy exposes this via the
+      <interfacename>Password</interfacename> interface.
+     </para>
+
+     <para>
+      Once a channel has been set up, and the interfaces retrieved, clients
+      should check for the presence of the
+      <interfacename>Password</interfacename> interface and if it exists
+      call the <methodname>GetPasswordFlags</methodname> method. Telepathy
+      currently has one flag: <type>Channel_Password_Flags_Provide</type>.
+      If this flag is set, a password must be provided before the channel
+      can be completely set up. Call the
+      <methodname>ProvidePassword</methodname> method. If this returns true,
+      then channel setup can continue.
+     </para>
+
+    </sect2>
   
-    <sect2 id="sec-channel-text-sending">
-      <title>Sending Messages</title>
+    <sect2 id="sec.channel.text.rich">
+     <title>Rich Text Interface</title>
+     <para>
+     </para>
+    </sect2>
+
+    <sect2 id="sect.channel.text.simple">
+     <title>Simple Messaging Interface</title>
       <para>
        Messages may be sent to the contact (or contact list) with the
        <ulink url="&url_spec_base;Channel.Type.Text.Send"><methodname>Send()</methodname></ulink>
@@ -667,24 +730,6 @@
        </para>
       </note>
   
-      <sect3>
-        <title>Example</title>
-        <para>This example sends a text message to a jabber contact via a text channel.</para>
-        <para><ulink url="&url_examples_base;send_message">Source Code</ulink></para>
-      </sect3>
-    </sect2>
-  
-    <sect2 id="sec-channel-text-receiving">
-      <title>Receiving Messages</title>
-      <para>TODO</para>
-    
-      <para>TODO: Notes: - Text channels may have ChatState (typing notification).</para> 
-  
-      <sect3>
-        <title>Example</title>
-        <para>This example receives text messages from a jabber contact via a text channel.</para>
-        <!-- TODO: <para><ulink url="&url_examples_base;receive_message">Source Code</ulink></para> -->
-      </sect3>
     </sect2>
   
   </sect1>
