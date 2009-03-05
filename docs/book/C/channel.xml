@@ -561,34 +561,86 @@
   </sect1>
   
   <sect1 id="sect-channel-text">
-    <title>Text Channel</title>
+    <title>Text Channels</title>
     <indexterm><primary>Text</primary></indexterm>
   
     <para>
-     The <ulink url="&url_spec_base;Channel.Type.Text"><interfacename>Text</interfacename></ulink>
-     channel sends and receives plain text messages, such as instant
+     A <interfacename>Text</interfacename> channel sends and receives text
+     messages, such as instant
      messages. Each <interfacename>Text</interfacename> channel represents
-     communication with a contact or group of contacts. A group of contacts
-     can be considered as a &quot;chat room&quot;. This contact or contacts
-     list must be specified when creating the channel with
-     <methodname>CreateChannel()</methodname>.
+     communication with a contact or group of contacts
+     (e.g. a &quot;chat room&quot;).
     </para>
-  
+
     <para>
-     The remote contact or contact list can be referred to by numeric
-     <link linkend="sec-basics-handles"><literal>Handles</literal></link>
-     (<property>TargetHandle</property>) or identifier
-     (<property>TargetID</property>) when obtaining the
-     <interfacename>Text</interfacename> channel, for instance via the
-     <methodname>CreateChannel()</methodname> or
-     <methodname>EnsureChannel()</methodname> D-Bus method, as described in
-     the <link linkend="sec-channel-requesting">Requesting Channels</link>
-     section.
+     Channels for text chat are usually <emphasis>ensured</emphasis>
+     (see <xref linkend="sec-channel-requesting"/>) with the channel type
+     <type>Channel_Type_Text</type>. For one-to-one chats, the target handle
+     is a contact (<type>Handle_Type_Contact</type>). For named chatrooms
+     (e.g. Jabber multi-user-chats, IRC chatrooms) the target handle is a
+     room (<type>Handle_Type_Room</type>); these channels should support the
+     <interfacename>Group</interfacename> interface.
     </para>
-  
+
     <para>
-     TODO: Notes: Password interfaces
+     Some protocols (e.g. MSN) support transient, unnamed chatrooms that
+     are just defined by their members. These chatrooms are represented by
+     an anonymous channel (<type>Handle_Type_None</type>, handle id 0) and
+     implement the <interfacename>Group</interfacename> interface. On some
+     protocols, i.e. ones where all chats are simply transient chatrooms,
+     setting up a channel for a one-to-one chat with a contact may result
+     in this type of channel; with the target contact simply a member.
     </para>
+
+    <para>
+     A summary of the various text channels is given in
+     <xref linkend="table.channel.text.channels-summary"/>.
+    </para>
+
+    <table id="table.channel.text.channels-summary">
+     <title>Summary of Text Channels</title>
+     <tgroup cols="5">
+      <thead>
+       <row>
+        <entry>Channel Function</entry>
+	<entry>Example Usage</entry>
+	<entry>Required Handle Type</entry>
+	<entry>Required Interfaces</entry>
+	<entry>Notes</entry>
+       </row>
+      </thead>
+      <tbody>
+
+       <row>
+        <entry>One-to-One Chat</entry>
+	<entry>XMPP 1-1 chat, IRC private messages</entry>
+	<entry><type>Handle_Type_Contact</type></entry>
+	<entry></entry>
+	<entry>
+	 Requests for this sort of channel may be upgraded to a transient
+	 chatroom.
+        </entry>	
+       </row>
+
+       <row>
+        <entry>Named Chatroom</entry>
+	<entry>XMPP MUC, IRC chatroom</entry>
+	<entry><type>Handle_Type_Room</type></entry>
+	<entry><interfacename>Group</interfacename></entry>
+	<entry></entry>
+       </row>
+
+       <row>
+        <entry>Transient Chatroom</entry>
+	<entry>MSN conversation</entry>
+	<entry>Handle_Type_None</entry>
+	<entry><interfacename>Group</interfacename></entry>
+	<entry>Appears as an anonymous channel.</entry>
+       </row>
+
+      </tbody>
+     </tgroup>
+    </table>
   
     <sect2 id="sec-channel-text-sending">
       <title>Sending Messages</title>
