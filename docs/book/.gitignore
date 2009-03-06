@@ -1,3 +1,6 @@
 Makefile
 Makefile.in
 /html/
+C/figures/telepathy-architecture-overview.png
+C/figures/bus-conceptual.png
+C/figures/bus-hierarchy-conceptual.png

@@ -60,7 +60,7 @@ xslt/db2html.xsl: xslt/db2html.xsl.in
 #
 # We set refentry.generate.name and refentry.generate.title to get the title 
 # instead of "Name" as the title.
-html/index.html: $(MAIN) Makefile.am $(DOCBOOK_STYLESHEET)
+html/index.html: $(MAIN) Makefile.am $(DOCBOOK_STYLESHEET) $(DOC_FIGURES) figures-png
 	rm -rf html
 	$(mkinstalldirs) html
 	cp -r ../examples/ html/
