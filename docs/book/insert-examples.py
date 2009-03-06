@@ -53,13 +53,24 @@ for example in examples:
 		begin = False
 		lines = []
 		for line in contents.split ('\n'):
-			if begin and line.find ('end %s' % id) != -1:
-				break
-			elif begin:
-				lines.append (line)
-			elif not begin and line.find ('begin %s' % id) != -1:
-				begin = True
-				continue
+			if begin:
+				idx = line.find ('end %s' % id)
+				l = len('end %s' % id)
+				if idx != -1 and \
+					    (len(line) == idx + l or \
+						     line[idx + l] == ' '):
+					break
+				else:
+					lines.append (line)
+			else:
+				idx = line.find ('begin %s' % id)
+				l = len('begin %s' % id)
+				
+				if idx != -1 and \
+					    (len(line) == idx + l or \
+						     line[idx + l] == ' '):
+					begin = True
+					continue
 
 		if lines != []: contents = '\n'.join (lines)
 
@@ -91,7 +102,19 @@ for nicename in included_files:
 	# find the starting offsets for each id in the file
 	def get_tuple (prefix, id):
 		str = '%s %s' % (prefix, id)
-		return (contents.find (str), prefix, id, len (str))
+		start = 0
+		while start < len(contents):
+			idx = contents.find (str, start)
+			start = idx + 1
+			l = len(str)
+			if idx != -1 and \
+				    (len(contents) == idx + l or \
+					     contents[idx + l] == ' ' or \
+					     contents[idx + l] == '\n'):
+				return (idx, prefix, id, len (str))
+			elif idx == -1:
+				return (idx, prefix, id, len (str))
+
 	offsets = map (lambda id: get_tuple ('begin', id),
 			included_files[nicename]) + \
 		  map (lambda id: get_tuple ('end', id),
