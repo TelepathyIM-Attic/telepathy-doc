@@ -74,8 +74,23 @@ class TextChannel (telepathy.client.Channel):
             print '}'
         print '-' * 78
 
+        # let's echo the content back
+        new_message = [
+            {}, # let the CM fill in the headers
+            {
+                'content': '%s?' % message[1]['content'], # FIXME may be wrong part
+                'content-type': 'text/plain',
+            },
+        ]
+        channel[CHANNEL_INTERFACE_MESSAGES].SendMessage(new_message, 0,
+            reply_handler = self.send_message_cb,
+            error_handler = self.parent.error_cb)
+
     def pending_messages_removed_cb (self, message_ids):
         print "Acked messages %s" % message_ids
+
+    def send_message_cb (self, token):
+        print "Sending message with token %s" % token
 
 class Example (object):
     def __init__ (self, account, password):
