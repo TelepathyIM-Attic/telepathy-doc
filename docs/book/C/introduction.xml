@@ -103,7 +103,7 @@
    </para>
   </note>
 
-  <sect1>
+  <sect1 id="sect.introduction.rationale">
    <title>Rationale</title>
    <!-- much of this was crimed from
         http://telepathy.freedesktop.org/wiki/Rationale -->

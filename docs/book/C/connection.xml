@@ -192,7 +192,7 @@
     
   </sect1>
   
-  <sect1>
+  <sect1 id="sect.connection.obtaining">
     <title>Obtaining a Connection</title>
 
     <sect2>

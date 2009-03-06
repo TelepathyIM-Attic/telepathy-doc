@@ -21,7 +21,7 @@
 
   <para>This chapter introduces some basic techniques and concepts that you must understand to use Telepathy confidently. You should read through this chapter before proceeding, but you will probably want to refer back here again later.</para>
 
-  <sect1>
+  <sect1 id="sect.basics.terminology">
    <title>Terminology</title>
    <para>
     This section aims to be a glossary of the different terms you will
