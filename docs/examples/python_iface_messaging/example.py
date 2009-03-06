@@ -21,44 +21,20 @@ from telepathy.constants import CONNECTION_STATUS_CONNECTED, \
 
 DBUS_PROPERTIES = 'org.freedesktop.DBus.Properties'
 
-class EnsureChannel (object):
-    def __init__ (self, parent, channel_type, handle_type, target_id,
-                  reply_handler, error_handler = None):
+class TextChannel (telepathy.client.Channel):
+    def __init__ (self, parent, channel_path):
         self.parent = parent
-        self.conn = conn = parent.conn
-        self._reply_handler = reply_handler
+        conn = parent.conn
 
-        if error_handler is None: error_handler = self.parent.error_cb
+        super (TextChannel, self).__init__ (conn.service_name, channel_path)
+        channel = self
 
-        conn[CONNECTION_INTERFACE_REQUESTS].EnsureChannel({
-            CHANNEL + '.ChannelType'     : channel_type,
-            CHANNEL + '.TargetHandleType': handle_type,
-            CHANNEL + '.TargetID'        : target_id,
-            },
-            reply_handler = self.ensure_channel_cb,
-            error_handler = error_handler)
-
-    def ensure_channel_cb (self, yours, path, properties):
-        self.channel = telepathy.client.Channel (self.conn.service_name,
-                                                 path)
-
-        self._reply_handler (yours, self.channel, properties)
-
-class TextChannel (EnsureChannel):
-    def __init__ (self, parent, handle_type, target_id):
-        super (TextChannel, self).__init__ (parent,
-                                            CHANNEL_TYPE_TEXT,
-                                            handle_type, target_id,
-                                            self.channel_cb)
-
-    def channel_cb (self, yours, channel, properties):
-        # get the interfaces on this channel
         channel[DBUS_PROPERTIES].Get(CHANNEL, 'Interfaces',
                                      reply_handler = self.interfaces_cb,
                                      error_handler = self.parent.error_cb)
 
     def interfaces_cb (self, interfaces):
-        channel = self.channel
+        channel = self
 
         print "Channel Interfaces:"
         for interface in interfaces:
@@ -70,8 +46,18 @@ class TextChannel (EnsureChannel):
             channel[CHANNEL_INTERFACE_MESSAGES].connect_to_signal(
                 'PendingMessagesRemoved', self.pending_messages_removed_cb)
 
+            # find out if we have any pending messages
+            channel[DBUS_PROPERTIES].Get(CHANNEL_INTERFACE_MESSAGES,
+                'PendingMessages',
+                reply_handler = self.get_pending_messages,
+                error_handler = self.parent.error_cb)
+
+    def get_pending_messages (self, messages):
+        for message in messages:
+            self.message_received_cb (message)
+
     def message_received_cb (self, message):
-        channel = self.channel
+        channel = self
 
         # we need to acknowledge the message
         msg_id = message[0]['pending-message-id']
@@ -166,9 +152,15 @@ class Example (object):
             print " - %s" % interface
 
         if CONNECTION_INTERFACE_REQUESTS in interfaces:
-            # set up a channel
-            TextChannel (self, HANDLE_TYPE_CONTACT,
-                               "davyd.madeley@collabora.co.uk")
+            conn[CONNECTION_INTERFACE_REQUESTS].connect_to_signal('NewChannels',
+                self.new_channels_cb)
+
+    def new_channels_cb (self, channels):
+        for channel, props in channels:
+            if props[CHANNEL + '.ChannelType'] == CHANNEL_TYPE_TEXT:
+                print 'New chat from %s' % props[CHANNEL + '.TargetID']
+                # let's hook up to this channel
+                TextChannel(self, channel)
 
 if __name__ == '__main__':
     import getpass
