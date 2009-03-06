@@ -643,6 +643,13 @@
     </table>
 
     <para>
+     The <interfacename>Group</interfacename> interface present on
+     chatroom-like channels is the same as that used for
+     <interfacename>ContactList</interfacename>s, and is described in detail
+     in <xref linkend="sect.channel.groups"/>.
+    </para>
+
+    <para>
      When the user wishes to part from a conversation, the channel's
      <methodname>Close</methodname> method should be called. The channel
      will be closed when the channel emits the
@@ -701,35 +708,147 @@
   
     <sect2 id="sec.channel.text.rich">
      <title>Rich Text Interface</title>
+
+     <note>
+      <para>
+       The <interfacename>Messages</interfacename> interface is the
+       preferred interface for text messaging, because it supports the full
+       range of messaging features exposed by the protocols.
+      </para>
+      <para>
+       Some older connection managers may not support this interface. If
+       this is the case, or if you really only want to send simple messages
+       (e.g. for a status reporting system), you can use the
+       <link linkend="sect.channel.text.simple">simple messaging
+       interface</link> documented below.
+      </para>
+     </note>
+
      <para>
+      Telepathy provides support for rich-text messaging via the
+      <interfacename>Messages</interfacename> interface. Rich-text messaging
+      can include features like formatted (rich text) messages, alternatives
+      (similar to MIME's multipart/alternative) and attachments. Messages
+      are formatted in
+      <ulink url="http://xmpp.org/extensions/xep-0071.html">XHTML-IM</ulink>.
      </para>
+
+     <sect3>
+      <title>Message Structure</title>
+
+      <para>
+       Messages are sent and received as an array of
+       <type>Message_Part</type> key-value mappings, the first of which
+       contains the message headers.
+       <xref linkend="ex.channel.text.rich.message-structure"/> shows an
+       example message.
+      </para>
+
+      <example id="ex.channel.text.rich.message-structure">
+       <title>Example Message</title>
+
+       <para>
+        An example message consisting of four <type>Message_Part</type>s:
+	the headers, two alternatives and an attachment.
+       </para>
+
+       <informaltable>
+        <tgroup cols="2">
+	 <thead>
+	  <row>
+	   <entry>Key</entry>
+	   <entry>Value</entry>
+	  </row>
+	 </thead>
+	 <tbody>
+
+	  <row>
+	   <entry>message-token</entry>
+	   <entry>"9de9546a-3400-4419-a505-3ea270cb834c"</entry>
+	  </row>
+	  <row>
+	   <entry>message-sender</entry>
+	   <entry>42</entry>
+	  </row>
+	  <row>
+	   <entry>message-sent</entry>
+	   <entry>1210067943</entry>
+	  </row>
+	  <row>
+	   <entry>message-received</entry>
+	   <entry>1210067947</entry>
+	  </row>
+	  <row>
+	   <entry>message-type</entry>
+	   <entry><type>Channel_Text_Message_Type_Normal</type></entry>
+	  </row>
+	  <row rowsep="1">
+	   <entry>pending-message-id</entry>
+	   <entry>437</entry>
+	  </row>
+
+	  <row>
+	   <entry>alternative</entry>
+	   <entry>"main"</entry>
+	  </row>
+	  <row>
+	   <entry>content-type</entry>
+	   <entry>"text/html"</entry>
+	  </row>
+	  <row rowsep="1">
+	   <entry>content</entry>
+	   <entry><![CDATA["""Here is a photo of my cat:<br /><img src="cid:catphoto" alt="lol!" /><br />Isn't it cute?"""]]></entry>
+	  </row>
+
+	  <row>
+	   <entry>alternative</entry>
+	   <entry>"main"</entry>
+	  </row>
+	  <row>
+	   <entry>content-type</entry>
+	   <entry>"text/plain"</entry>
+	  </row>
+	  <row rowsep="1">
+	   <entry>content</entry>
+	   <entry><![CDATA["""Here is a photo of my cat:\n[IMG: lol!]\nIsn't it cute?"""]]></entry>
+	  </row>
+
+	  <row>
+	   <entry>identifier</entry>
+	   <entry>"catphoto"</entry>
+	  </row>
+	  <row>
+	   <entry>content-type</entry>
+	   <entry>"image/jpeg"</entry>
+	  </row>
+	  <row>
+	   <entry>size</entry>
+	   <entry>101000</entry>
+	  </row>
+	  <row>
+	   <entry>needs-retrieval</entry>
+	   <entry>True</entry>
+	  </row>
+
+	 </tbody>
+        </tgroup>	
+       </informaltable>
+      </example>
+     </sect3>
+
     </sect2>
 
     <sect2 id="sect.channel.text.simple">
      <title>Simple Messaging Interface</title>
       <para>
        Messages may be sent to the contact (or contact list) with the
-       <ulink url="&url_spec_base;Channel.Type.Text.Send"><methodname>Send()</methodname></ulink>
+       <methodname>Send</methodname>
        method. Sending messages can be requested using the Send method,
        which will return successfully. Other parts of your application may
        handle the <literal>Sent</literal> signal, for instance to log that
        side of the conversation.
       </para>
     
-      <note>
-       <para>
-        Some Connection Managers also provide the
-        <ulink url="&url_spec_base;Channel.Interface.Messages"><interface>Messages</interface></ulink>
-        interface on the <interfacename>Text</interfacename> channel object.
-        This optional interface allows sending and receiving of formatted
-        messages and delivery reports. For instance, you might use the
-        <interfacename>Message</interfacename> interface's
-        <ulink url="&url_spec_base;Channel.Interface.Messages.SendMessage"><methodname>SendMessage()</methodname></ulink>
-        method instead of the main <interfacename>Text</interfacename>
-        interface's <methodname>Send()</methodname> method.
-       </para>
-      </note>
-  
     </sect2>
   
   </sect1>
