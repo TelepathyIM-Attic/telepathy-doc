@@ -22,6 +22,13 @@ from telepathy.interfaces import CONNECTION_MANAGER, \
                                  CHANNEL_INTERFACE_GROUP
 from telepathy.constants import CONNECTION_STATUS_CONNECTED, \
                                 CONNECTION_STATUS_DISCONNECTED, \
+                                CONNECTION_PRESENCE_TYPE_AVAILABLE, \
+                                CONNECTION_PRESENCE_TYPE_BUSY, \
+                                CONNECTION_PRESENCE_TYPE_AWAY, \
+                                CONNECTION_PRESENCE_TYPE_EXTENDED_AWAY, \
+                                CONNECTION_PRESENCE_TYPE_UNSET, \
+                                CONNECTION_PRESENCE_TYPE_UNKNOWN, \
+                                CONNECTION_PRESENCE_TYPE_OFFLINE, \
                                 HANDLE_TYPE_CONTACT, \
                                 HANDLE_TYPE_LIST, \
                                 HANDLE_TYPE_GROUP
@@ -151,13 +158,38 @@ class Contact(object):
             elif key == CONNECTION_INTERFACE_SIMPLE_PRESENCE + '/presence':
                 self.presence = value
 
+    def get_state(self):
+        return self.presence[0]
+
     def get_status(self):
-        return self.presence[1]
+        if self.presence[2] != '':
+            return self.presence[2]
+        else:
+            return self.presence[1]
+
+    def __repr__(self):
+        return 'Contact(%s)' % self.contact_id
+
+    def __cmp__(self, other):
+        ordering_map = {
+            CONNECTION_PRESENCE_TYPE_AVAILABLE      : 0,
+            CONNECTION_PRESENCE_TYPE_BUSY           : 1,
+            CONNECTION_PRESENCE_TYPE_AWAY           : 2,
+            CONNECTION_PRESENCE_TYPE_EXTENDED_AWAY  : 3,
+            CONNECTION_PRESENCE_TYPE_UNSET          : 4,
+            CONNECTION_PRESENCE_TYPE_UNKNOWN        : 4,
+            CONNECTION_PRESENCE_TYPE_OFFLINE        : 5,
+        }
+
+        c = cmp (ordering_map[self.get_state()], ordering_map[other.get_state()])
+        if c != 0: return c
+        c = cmp (self.alias, other.alias)
+        return c
 
 class StateMachine(gobject.GObject):
     __gsignals__ = {
         'contacts-updated'  : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                               ()),
+                               (gobject.TYPE_PYOBJECT,)),
     }
 
     def __init__(self):
@@ -223,15 +255,9 @@ class StateMachine(gobject.GObject):
         self.contacts_updated(presences.keys())
 
     def contacts_updated(self, handles):
-        print ' -- Contacts updated --'
-
         contacts = [ self.contacts[h] for h in handles if h in self.contacts]
 
-        for contact in contacts:
-            print "%s: %s (%s)" % (
-                contact.contact_id, contact.alias, contact.get_status())
-
-        self.emit('contacts-updated')
+        self.emit('contacts-updated', contacts)
 
     def tp_disconnect(self):
         print 'Disconnecting...'
