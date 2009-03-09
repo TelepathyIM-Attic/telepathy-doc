@@ -15,6 +15,7 @@
 
 import sys
 import os.path
+import re
 from lxml import etree
 
 doc = etree.parse (sys.stdin)
@@ -49,15 +50,18 @@ for example in examples:
 
 	if id:
 		print >> sys.stderr, "Including `%s' from `%s'..." % (id, filename)
-		
+
+		begin_re = re.compile ('begin %s(\\s|$)' % id)
+		end_re = re.compile ('end %s(\\s|$)' % id)
+
 		begin = False
 		lines = []
 		for line in contents.split ('\n'):
-			if begin and line.find ('end %s' % id) != -1:
+			if begin and end_re.search (line):
 				break
 			elif begin:
 				lines.append (line)
-			elif not begin and line.find ('begin %s' % id) != -1:
+			elif not begin and begin_re.search (line):
 				begin = True
 				continue
 
