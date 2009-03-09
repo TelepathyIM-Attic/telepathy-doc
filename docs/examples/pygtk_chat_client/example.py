@@ -125,16 +125,20 @@ class ContactList(Channel):
             print 'Channel does not implement Group... strange'
 
     def _members_cb(self, handles):
+        # these are the interfaces we're seeking
+        interfaces = [
+                 CONNECTION_INTERFACE_ALIASING,
+                 CONNECTION_INTERFACE_SIMPLE_PRESENCE,
+            ]
+
+        # work out what interfaces are available
+        interfaces = list (set(interfaces) & set(self.conn.interfaces))
+        interfaces += [ CONNECTION ]
+
         # look them up via the contacts interface
         if CONNECTION_INTERFACE_CONTACTS in self.conn.interfaces:
             self.conn[CONNECTION_INTERFACE_CONTACTS].GetContactAttributes(
-                handles,
-                [
-                 CONNECTION,
-                 CONNECTION_INTERFACE_ALIASING,
-                 CONNECTION_INTERFACE_SIMPLE_PRESENCE,
-                ],
-                False,
+                handles, interfaces, False,
                 reply_handler = self._attributes_cb,
                 error_handler = self.sm.error)
 
