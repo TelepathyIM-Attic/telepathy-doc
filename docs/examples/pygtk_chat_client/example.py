@@ -154,13 +154,21 @@ class Contact(object):
     def get_status(self):
         return self.presence[1]
 
-class StateMachine(object):
-    def __init__(self, account, password):
+class StateMachine(gobject.GObject):
+    __gsignals__ = {
+        'contacts-updated'  : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                               ()),
+    }
+
+    def __init__(self):
+        super(StateMachine, self).__init__()
+
+        self.contacts = {}
+
+    def tp_connect(self, account, password):
         """e.g. account  = 'bob@example.com/test'
                 password = 'bigbob'
         """
-
-        self.contacts = {}
 
         reg = telepathy.client.ManagerRegistry()
         reg.LoadManagers()
@@ -180,7 +188,7 @@ class StateMachine(object):
     def error(self, error):
         print "Telepathy Error: %s" % error
         print "Disconnecting..."
-        self.disconnect()
+        self.tp_disconnect()
 
     def connection_ready(self, conn):
         print "Connection Ready"
@@ -217,28 +225,43 @@ class StateMachine(object):
     def contacts_updated(self, handles):
         print ' -- Contacts updated --'
 
-        for contact in [ self.contacts[h] for h in handles if h in self.contacts]:
+        contacts = [ self.contacts[h] for h in handles if h in self.contacts]
+
+        for contact in contacts:
             print "%s: %s (%s)" % (
                 contact.contact_id, contact.alias, contact.get_status())
 
-    def disconnect(self):
+        self.emit('contacts-updated')
+
+    def tp_disconnect(self):
+        print 'Disconnecting...'
         try:
             self.conn.disconnect()
         except:
             gtk.main_quit()
 
+gobject.type_register(StateMachine)
+
 if __name__ == '__main__':
     import getpass
+
+    from RosterWindow import RosterWindow
+
     account = sys.argv[1]
     password = getpass.getpass()
     
-    sm = StateMachine(account, password)
+    sm = StateMachine()
+    roster = RosterWindow(sm)
+    roster.show()
+
+    sm.tp_connect(account, password)
+    roster.connect ('destroy', lambda w: sm.tp_disconnect())
         
     try:
         print 'Running...'
         gtk.main()
     except KeyboardInterrupt:
         print "Terminating connection..."
-        sm.disconnect()
+        sm.tp_disconnect()
         # reengage the mainloop so that we can disconnect cleanly
         gtk.main()
