@@ -95,7 +95,11 @@ for nicename in included_files:
 	# find the starting offsets for each id in the file
 	def get_tuple (prefix, id):
 		str = '%s %s' % (prefix, id)
-		return (contents.find (str), prefix, id, len (str))
+		m = re.search (str + '(\\s|$)', contents)
+		if m is None: idx = None
+		else:
+			idx = m.span()[0]
+		return (idx, prefix, id, len (str))
 	offsets = map (lambda id: get_tuple ('begin', id),
 			included_files[nicename]) + \
 		  map (lambda id: get_tuple ('end', id),
@@ -107,6 +111,8 @@ for nicename in included_files:
 	elem = None
 
 	for (offset, prefix, id, l) in offsets:
+		if offset is None: continue
+
 		# append the CDATA to elem
 		cdata = contents[cumoff:offset]
 		if elem is not None: elem.tail = cdata
@@ -121,6 +127,10 @@ for nicename in included_files:
 		pl.append (em)
 
 		elem = em
-	elem.tail = contents[cumoff:]
+
+	if elem is None:
+		pl.text = contents[cumoff:]
+	else:
+		elem.tail = contents[cumoff:]
 
 sys.stdout.write (etree.tostring (doc))
