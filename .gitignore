@@ -11,3 +11,4 @@ config.status
 configure
 depcomp
 *.sw?
+*.pyc
