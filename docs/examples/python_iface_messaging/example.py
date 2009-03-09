@@ -21,12 +21,14 @@ from telepathy.constants import CONNECTION_STATUS_CONNECTED, \
 
 DBUS_PROPERTIES = 'org.freedesktop.DBus.Properties'
 
+# begin ex.channel.requesting.python.class
 class TextChannel (telepathy.client.Channel):
     def __init__ (self, parent, channel_path):
         self.parent = parent
         conn = parent.conn
 
         super (TextChannel, self).__init__ (conn.service_name, channel_path)
+        # end ex.channel.requesting.python.class
         channel = self
 
         channel[DBUS_PROPERTIES].Get(CHANNEL, 'Interfaces',
