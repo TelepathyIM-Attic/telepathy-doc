@@ -132,13 +132,35 @@ class ContactList(Channel):
                 error_handler = self.sm.error)
 
     def _attributes_cb(self, map):
-        print 'Got contact list'
+        for handle, attributes in map.iteritems():
+            contact = Contact (self.sm, handle, attributes)
+            self.sm.contacts[handle] = contact
+
+        self.sm.contacts_updated()
+
+class Contact(object):
+    def __init__(self, sm, handle, attributes={}):
+        self.sm = sm
+        self.handle = handle
+
+        for key, value in attributes.iteritems():
+            if key == CONNECTION + '/contact-id':
+                self.contact_id = value
+            elif key == CONNECTION_INTERFACE_ALIASING + '/alias':
+                self.alias = value
+            elif key == CONNECTION_INTERFACE_SIMPLE_PRESENCE + '/presence':
+                self.presence = value
+
+    def get_status(self):
+        return self.presence[1]
 
 class StateMachine(object):
     def __init__(self, account, password):
         """e.g. account  = 'bob@example.com/test'
                 password = 'bigbob'
         """
+
+        self.contacts = {}
 
         reg = telepathy.client.ManagerRegistry()
         reg.LoadManagers()
@@ -164,9 +186,40 @@ class StateMachine(object):
         print "Connection Ready"
         self.conn = conn
 
+        # set up signals for interfaces we're interested in
+        if CONNECTION_INTERFACE_ALIASING in conn.interfaces:
+            conn[CONNECTION_INTERFACE_ALIASING].connect_to_signal(
+                'AliasesChanged', self._aliases_changed)
+
+        if CONNECTION_INTERFACE_SIMPLE_PRESENCE in conn.interfaces:
+            conn[CONNECTION_INTERFACE_SIMPLE_PRESENCE].connect_to_signal(
+                'PresencesChanged', self._presences_changed)
+
         # request the contact lists
         print 'Requesting roster...'
         self.conn.ensure_channel (ContactList, HANDLE_TYPE_LIST, 'subscribe')
+        self.conn.ensure_channel (ContactList, HANDLE_TYPE_LIST, 'publish')
+
+    def _aliases_changed(self, aliases):
+        for handle, alias in aliases:
+            if handle not in self.contacts: continue
+            self.contacts[handle].alias = alias
+
+        self.contacts_updated()
+
+    def _presences_changed(self, presences):
+        for handle, presence in presences.iteritems():
+            if handle not in self.contacts: continue
+            self.contacts[handle].presence = presence
+
+        self.contacts_updated()
+
+    def contacts_updated(self):
+        print 'Contacts updated'
+
+        for contact in self.contacts.values():
+            print "%s: %s (%s)" % (
+                contact.contact_id, contact.alias, contact.get_status())
 
     def disconnect(self):
         try:
