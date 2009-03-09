@@ -633,7 +633,7 @@
        <row>
         <entry>Transient Chatroom</entry>
 	<entry>MSN conversation</entry>
-	<entry>Handle_Type_None</entry>
+	<entry><type>Handle_Type_None</type></entry>
 	<entry><interfacename>Group</interfacename></entry>
 	<entry>Appears as an anonymous channel.</entry>
        </row>
@@ -733,7 +733,7 @@
       <ulink url="http://xmpp.org/extensions/xep-0071.html">XHTML-IM</ulink>.
      </para>
 
-     <sect3>
+     <sect3 id="sect.channel.text.messages.format">
       <title>Message Structure</title>
 
       <para>
@@ -834,6 +834,63 @@
         </tgroup>	
        </informaltable>
       </example>
+
+      <para>
+       Alternatives with the same name should be ordered from highest
+       fidelity to lowest fidelity (i.e. rich text before plain text).
+       Clients should display the first alternative they understand.
+      </para>
+
+     </sect3>
+
+     <sect3 id="sect.channel.text.messages.receiving">
+      <title>Receiving Messages</title>
+
+      <para>
+       When a remote user initiates a new text chat, Telepathy will
+       automatically create a new channel for the chat, who's creation will
+       be heralded by the <methodname>NewChannels</methodname> signal.
+       Filter on the channels given for channels of type
+       <type>Channel_Type_Text</type>.
+       <xref linkend="ex.channel.text.messages.newchannels"/> shows
+       how to discover this channel.
+      </para>
+
+      <example id="ex.channel.text.messages.receiving.newchannels"
+               file="python_iface_messaging/example.py">
+        <title>Discovering Incoming Channels</title>
+      </example>
+
+      <para>
+       Set up a D-Bus proxy for the channel, like you would for any other
+       channel (see <xref linkend="sec-channel-requesting"/>). Check to
+       ensure that the <interfacename>Messages</interfacename> interface
+       is available.
+      </para>
+
+      <para>
+       Incoming messages are announced with the
+       <methodname>MessageReceived</methodname> signal, which places them on
+       the pending message queue. To remove messages from the pending
+       message queue, they must be acknowledged with
+       <methodname>Text.AcknowledgePendingMessages</methodname>. There will
+       already be messages pending, the ones that caused the creation of
+       the channel. These can be accessed via the
+       <property>PendingMessages</property> property.
+       See <xref linkend="ex.channel.text.messages.receiving.main"/>.
+      </para>
+
+      <para>
+       The message id to acknowledge the message is contained in the headers
+       of the message as the key <literal>pending-message-id</literal>
+       (see <xref linkend="sect.channel.text.messages.format"/>).
+      </para>
+      
+      <example id="ex.channel.text.messages.receiving.main"
+               file="python_iface_messaging/example.py">
+        <title>Setting Up and Receiving Messages</title>
+      </example>
+
      </sect3>
 
     </sect2>

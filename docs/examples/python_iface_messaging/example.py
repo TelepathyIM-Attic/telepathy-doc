@@ -32,7 +32,7 @@ class TextChannel (telepathy.client.Channel):
         channel[DBUS_PROPERTIES].Get(CHANNEL, 'Interfaces',
                                      reply_handler = self.interfaces_cb,
                                      error_handler = self.parent.error_cb)
-
+    # begin ex.channel.text.messages.receiving.main
     def interfaces_cb (self, interfaces):
         channel = self
 
@@ -64,6 +64,7 @@ class TextChannel (telepathy.client.Channel):
         channel[CHANNEL_TYPE_TEXT].AcknowledgePendingMessages([msg_id],
             reply_handler = self.parent.generic_reply,
             error_handler = self.parent.error_cb)
+        # end ex.channel.text.messages.receiving.main
 
         print '-' * 78
         print 'Received Message:'
@@ -159,6 +160,7 @@ class Example (object):
         conn[CONNECTION].GetInterfaces(reply_handler = self.get_interfaces_cb,
                                        error_handler = self.error_cb)
 
+    # begin ex.channel.text.messages.receiving.newchannels
     def get_interfaces_cb (self, interfaces):
         conn = self.conn
 
@@ -176,6 +178,7 @@ class Example (object):
                 print 'New chat from %s' % props[CHANNEL + '.TargetID']
                 # let's hook up to this channel
                 TextChannel(self, channel)
+    # end ex.channel.text.messages.receiving.newchannels
 
 if __name__ == '__main__':
     import getpass
