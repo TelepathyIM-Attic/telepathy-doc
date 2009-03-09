@@ -136,7 +136,7 @@ class ContactList(Channel):
             contact = Contact (self.sm, handle, attributes)
             self.sm.contacts[handle] = contact
 
-        self.sm.contacts_updated()
+        self.sm.contacts_updated(map.keys())
 
 class Contact(object):
     def __init__(self, sm, handle, attributes={}):
@@ -205,19 +205,19 @@ class StateMachine(object):
             if handle not in self.contacts: continue
             self.contacts[handle].alias = alias
 
-        self.contacts_updated()
+        self.contacts_updated(map(lambda (h, a): h, aliases))
 
     def _presences_changed(self, presences):
         for handle, presence in presences.iteritems():
             if handle not in self.contacts: continue
             self.contacts[handle].presence = presence
 
-        self.contacts_updated()
+        self.contacts_updated(presences.keys())
 
-    def contacts_updated(self):
-        print 'Contacts updated'
+    def contacts_updated(self, handles):
+        print ' -- Contacts updated --'
 
-        for contact in self.contacts.values():
+        for contact in [ self.contacts[h] for h in handles if h in self.contacts]:
             print "%s: %s (%s)" % (
                 contact.contact_id, contact.alias, contact.get_status())
 
