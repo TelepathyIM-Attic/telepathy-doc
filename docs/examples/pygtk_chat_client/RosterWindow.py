@@ -1,6 +1,8 @@
 import gtk
 import gobject
 
+from ChatWindow import ChatWindow
+
 class RosterWindow(gtk.Window):
 
     def __init__(self, sm):
@@ -22,6 +24,7 @@ class RosterWindow(gtk.Window):
         vbox.show_all()
 
         self.sm.connect('contacts-updated', self._contacts_updated)
+        self.sm.connect('new-chat', self._new_chat)
 
         # set up the treeview
         renderer = gtk.CellRendererText()
@@ -63,5 +66,10 @@ class RosterWindow(gtk.Window):
         # list store
         for contact in contacts:
             self.contacts.append ((contact,))
+
+    def _new_chat(self, sm, channel):
+        w = ChatWindow(channel)
+        w.set_transient_for(self)
+        w.show()
 
 gobject.type_register(RosterWindow)

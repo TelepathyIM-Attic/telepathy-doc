@@ -86,16 +86,20 @@ class Connection(telepathy.client.Connection):
 
         if CONNECTION_INTERFACE_REQUESTS in self.interfaces:
             self[CONNECTION_INTERFACE_REQUESTS].EnsureChannel(d,
-                reply_handler = lambda a, b, c: channel_obj(self, b, a),
+                reply_handler = lambda a, b, c: channel_obj(self, b, c, a),
                 error_handler = self._ensure_channel_error)
         else:
             self.sm.error("Requests interface unavailable, get a better CM")
 
 class Channel(telepathy.client.Channel):
-    def __init__(self, conn, object_path, yours = False):
+    def __init__(self, conn, object_path, props, yours = False):
         self.conn = conn
         self.sm = conn.sm
         self.yours = yours
+
+        self.target_id = props[CHANNEL + '.TargetID']
+        self.handle = props[CHANNEL + '.TargetHandle']
+        self.handle_type = props[CHANNEL + '.TargetHandleType']
 
         print 'Channel came up... requesting interfaces'
         super(Channel, self).__init__(conn.service_name, object_path)
@@ -104,6 +108,13 @@ class Channel(telepathy.client.Channel):
                                    reply_handler = self._interfaces_cb,
                                    error_handler = self.sm.error)
     
+    def close(self):
+        self[CHANNEL].Close(reply_handler = generic_reply,
+                            error_handler = self.sm.error)
+
+    def get_target_id(self):
+        return self.target_id
+
     def _interfaces_cb(self, interfaces):
         self.interfaces = interfaces
 
@@ -148,6 +159,12 @@ class ContactList(Channel):
             self.sm.contacts[handle] = contact
 
         self.sm.contacts_updated(map.keys())
+
+class TextChannel(Channel):
+    channel_type = CHANNEL_TYPE_TEXT
+
+    def ready(self):
+        self.sm.new_text_channel(self)
 
 class Contact(object):
     def __init__(self, sm, handle, attributes={}):
@@ -194,6 +211,8 @@ class StateMachine(gobject.GObject):
     __gsignals__ = {
         'contacts-updated'  : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
                                (gobject.TYPE_PYOBJECT,)),
+        'new-chat'          : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                               (gobject.TYPE_PYOBJECT,)),
     }
 
     def __init__(self):
@@ -239,10 +258,19 @@ class StateMachine(gobject.GObject):
             conn[CONNECTION_INTERFACE_SIMPLE_PRESENCE].connect_to_signal(
                 'PresencesChanged', self._presences_changed)
 
+        if CONNECTION_INTERFACE_REQUESTS in conn.interfaces:
+            conn[CONNECTION_INTERFACE_REQUESTS].connect_to_signal(
+                'NewChannels', self._new_channels)
+        else:
+            self.sm.error("Requests interface unavailable, get a better CM")
+
         # request the contact lists
         print 'Requesting roster...'
         self.conn.ensure_channel (ContactList, HANDLE_TYPE_LIST, 'subscribe')
         self.conn.ensure_channel (ContactList, HANDLE_TYPE_LIST, 'publish')
+
+    def new_text_channel(self, channel):
+        self.emit('new-chat', channel)
 
     def _aliases_changed(self, aliases):
         for handle, alias in aliases:
@@ -257,6 +285,13 @@ class StateMachine(gobject.GObject):
             self.contacts[handle].presence = presence
 
         self.contacts_updated(presences.keys())
+
+    def _new_channels(self, channels):
+        for channel_path, props in channels:
+            channel_type = props[CHANNEL + '.ChannelType']
+
+            if channel_type == TextChannel.channel_type:
+                TextChannel(self.conn, channel_path, props)
 
     def contacts_updated(self, handles):
         contacts = [ self.contacts[h] for h in handles if h in self.contacts]
