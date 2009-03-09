@@ -864,6 +864,104 @@
       </example>
 
       <para>
+       The known headers for a message are:
+      </para>
+
+      <informaltable>
+       <tgroup cols="3">
+        <thead>
+	 <row>
+	  <entry>Key</entry>
+	  <entry>Type</entry>
+	  <entry>Description</entry>
+	 </row>
+        </thead>
+
+	<tbody>
+	 <row>
+          <entry>message-token</entry>
+	  <entry>String</entry>
+	  <entry>
+	   An opaque, globally-unique identifier for the entire message. Which
+	   may be treated the same as a MIME message-id for the mid: and cid:
+	   URI schemes. Not always present.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>message-sent, message-received</entry>
+	  <entry><type>Unix_Timestamp64</type></entry>
+	  <entry>
+	   The time the message was sent and received respectively. May not
+	   be present if a time cannot be determined.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>message-sender</entry>
+	  <entry><type>Contact_Handle</type></entry>
+	  <entry>
+	   The handle id of the contact who sent the message. May be 0 or
+	   ommitted, if the sender cannot be determined.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>message-type</entry>
+	  <entry><type>Channel_Text_Message_Type</type></entry>
+	  <entry>
+	   The type of message. Defaults to
+	   <type>Channel_Text_Message_Type_Normal</type> if ommitted.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>pending-message-id</entry>
+	  <entry><type>Message_ID</type></entry>
+	  <entry>
+	   The incoming message ID, only valid for as long as the message
+	   is unacknowledged.
+
+	   <important><para>
+	    This header is important for acknowledging the received message.
+	   </para></important>
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>interface</entry>
+	  <entry><type>DBus_Interface</type></entry>
+	  <entry>
+	   This message is specific to the given interface, which is neither
+	   Text nor Messages. This key can also appear in subsequent
+	   parts of the message.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>scrollback</entry>
+	  <entry>Boolean</entry>
+	  <entry>
+	   If true, the incoming message was part of a replay of message
+	   history. Defaults to false.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>rescued</entry>
+	  <entry>Boolean</entry>
+	  <entry>
+	   If true, the incoming message has been seen in a previous channel
+	   during the lifetime of the Connection, but had not been
+	   acknowledged when that channel closed. Defaults to false.
+	  </entry>
+	 </row>
+
+        </tbody>
+       </tgroup>
+      </informaltable>
+
+      <para>
        Alternatives with the same name should be ordered from highest
        fidelity to lowest fidelity (i.e. rich text before plain text).
        Clients should display the first alternative they understand.
@@ -914,6 +1012,26 @@
        (see <xref linkend="sect.channel.text.messages.format"/>).
       </para>
       
+      <important>
+       <title>Always Acknowledge Messages</title>
+       <para>
+        You must always acknowledge a received message, but you should only
+	do so after you have attempted to parse it.
+       </para>
+       <para>
+        Failure to acknowledge a message will result in a new channel
+	being created with the pending messages when the current channel is
+	closed.
+       </para>
+       <para>
+        It's posssible that a bug in your application's message parser could
+	cause an application crash.
+        You should attempt to parse the message before acknowledging it.
+	Thus, if your application has a crash, the message will still be
+	pending when the client reloads.
+       </para>
+      </important>
+
       <example id="ex.channel.text.messages.receiving.main"
                file="python_iface_messaging/example.py">
         <title>Setting Up and Receiving Messages</title>
