@@ -15,6 +15,7 @@
 
 import sys
 import os.path
+import re
 from lxml import etree
 
 doc = etree.parse (sys.stdin)
@@ -49,28 +50,20 @@ for example in examples:
 
 	if id:
 		print >> sys.stderr, "Including `%s' from `%s'..." % (id, filename)
-		
+
+		begin_re = re.compile ('begin %s(\\s|$)' % id)
+		end_re = re.compile ('end %s(\\s|$)' % id)
+
 		begin = False
 		lines = []
 		for line in contents.split ('\n'):
-			if begin:
-				idx = line.find ('end %s' % id)
-				l = len('end %s' % id)
-				if idx != -1 and \
-					    (len(line) == idx + l or \
-						     line[idx + l] == ' '):
-					break
-				else:
-					lines.append (line)
-			else:
-				idx = line.find ('begin %s' % id)
-				l = len('begin %s' % id)
-				
-				if idx != -1 and \
-					    (len(line) == idx + l or \
-						     line[idx + l] == ' '):
-					begin = True
-					continue
+			if begin and end_re.search (line):
+				break
+			elif begin:
+				lines.append (line)
+			elif not begin and begin_re.search (line):
+				begin = True
+				continue
 
 		if lines != []: contents = '\n'.join (lines)
 
@@ -102,19 +95,11 @@ for nicename in included_files:
 	# find the starting offsets for each id in the file
 	def get_tuple (prefix, id):
 		str = '%s %s' % (prefix, id)
-		start = 0
-		while start < len(contents):
-			idx = contents.find (str, start)
-			start = idx + 1
-			l = len(str)
-			if idx != -1 and \
-				    (len(contents) == idx + l or \
-					     contents[idx + l] == ' ' or \
-					     contents[idx + l] == '\n'):
-				return (idx, prefix, id, len (str))
-			elif idx == -1:
-				return (idx, prefix, id, len (str))
-
+		m = re.search (str + '(\\s|$)', contents)
+		if m is None: idx = None
+		else:
+			idx = m.span()[0]
+		return (idx, prefix, id, len (str))
 	offsets = map (lambda id: get_tuple ('begin', id),
 			included_files[nicename]) + \
 		  map (lambda id: get_tuple ('end', id),
@@ -126,6 +111,8 @@ for nicename in included_files:
 	elem = None
 
 	for (offset, prefix, id, l) in offsets:
+		if offset is None: continue
+
 		# append the CDATA to elem
 		cdata = contents[cumoff:offset]
 		if elem is not None: elem.tail = cdata
@@ -140,6 +127,10 @@ for nicename in included_files:
 		pl.append (em)
 
 		elem = em
-	elem.tail = contents[cumoff:]
+
+	if elem is None:
+		pl.text = contents[cumoff:]
+	else:
+		elem.tail = contents[cumoff:]
 
 sys.stdout.write (etree.tostring (doc))

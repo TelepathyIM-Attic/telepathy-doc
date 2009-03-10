@@ -220,13 +220,6 @@
      </tgroup>
     </informaltable>
 
-    <para>
-     Telepathy-glib provides the
-     <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-create-channel"><function>tp_cli_connection_interface_requests_call_create_channel()</function></ulink>
-     and <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-ensure-channel"><function>tp_cli_connection_interface_requests_call_ensure_channel()</function></ulink>
-     functions for this purpose.
-    </para>
-
    <warning>
     <title>RequestChannel</title>
     <para>
@@ -268,6 +261,41 @@
      If you must call <methodname>RequestChannel</methodname>, XXX WRITE ME
     </para>
    </warning>
+
+   <sect2 id="sec.channel.requesting.python">
+    <title>telepathy-python</title>
+
+    <para>
+      telepathy-python provides the
+      <classname>telepathy.client.Channel</classname> class as a D-Bus proxy
+      object. To construct this proxy you need to pass the connection's
+      D-Bus service name and the path to the channel object.
+    </para>
+
+    <para>
+     <classname>telepathy.client.Channel</classname> can be inherited like
+     any other Python class, so that you can pass around all of the methods
+     and state relating to that channel as one object. This is shown in
+     <xref linkend="ex.channel.requesting.python.class"/>.
+    </para>
+
+    <example id="ex.channel.requesting.python.class"
+             file="python_iface_messaging/example.py">
+     <title>Inheriting telepathy.client.Channel</title>
+    </example>
+   </sect2>
+   
+   <sect2 id="sect.channel.requesting.glib">
+    <title>telepathy-glib</title>
+    
+    <para>
+     Telepathy-glib provides the
+     <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-create-channel"><function>tp_cli_connection_interface_requests_call_create_channel()</function></ulink>
+     and <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-ensure-channel"><function>tp_cli_connection_interface_requests_call_ensure_channel()</function></ulink>
+     functions for this purpose.
+    </para>
+
+   </sect2>
 
   </sect1>
 
@@ -633,7 +661,7 @@
        <row>
         <entry>Transient Chatroom</entry>
 	<entry>MSN conversation</entry>
-	<entry>Handle_Type_None</entry>
+	<entry><type>Handle_Type_None</type></entry>
 	<entry><interfacename>Group</interfacename></entry>
 	<entry>Appears as an anonymous channel.</entry>
        </row>
@@ -733,7 +761,7 @@
       <ulink url="http://xmpp.org/extensions/xep-0071.html">XHTML-IM</ulink>.
      </para>
 
-     <sect3>
+     <sect3 id="sect.channel.text.messages.format">
       <title>Message Structure</title>
 
       <para>
@@ -834,6 +862,181 @@
         </tgroup>	
        </informaltable>
       </example>
+
+      <para>
+       The known headers for a message are:
+      </para>
+
+      <informaltable>
+       <tgroup cols="3">
+        <thead>
+	 <row>
+	  <entry>Key</entry>
+	  <entry>Type</entry>
+	  <entry>Description</entry>
+	 </row>
+        </thead>
+
+	<tbody>
+	 <row>
+          <entry>message-token</entry>
+	  <entry>String</entry>
+	  <entry>
+	   An opaque, globally-unique identifier for the entire message. Which
+	   may be treated the same as a MIME message-id for the mid: and cid:
+	   URI schemes. Not always present.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>message-sent, message-received</entry>
+	  <entry><type>Unix_Timestamp64</type></entry>
+	  <entry>
+	   The time the message was sent and received respectively. May not
+	   be present if a time cannot be determined.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>message-sender</entry>
+	  <entry><type>Contact_Handle</type></entry>
+	  <entry>
+	   The handle id of the contact who sent the message. May be 0 or
+	   ommitted, if the sender cannot be determined.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>message-type</entry>
+	  <entry><type>Channel_Text_Message_Type</type></entry>
+	  <entry>
+	   The type of message. Defaults to
+	   <type>Channel_Text_Message_Type_Normal</type> if ommitted.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>pending-message-id</entry>
+	  <entry><type>Message_ID</type></entry>
+	  <entry>
+	   The incoming message ID, only valid for as long as the message
+	   is unacknowledged.
+
+	   <important><para>
+	    This header is important for acknowledging the received message.
+	   </para></important>
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>interface</entry>
+	  <entry><type>DBus_Interface</type></entry>
+	  <entry>
+	   This message is specific to the given interface, which is neither
+	   Text nor Messages. This key can also appear in subsequent
+	   parts of the message.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>scrollback</entry>
+	  <entry>Boolean</entry>
+	  <entry>
+	   If true, the incoming message was part of a replay of message
+	   history. Defaults to false.
+	  </entry>
+	 </row>
+
+	 <row>
+	  <entry>rescued</entry>
+	  <entry>Boolean</entry>
+	  <entry>
+	   If true, the incoming message has been seen in a previous channel
+	   during the lifetime of the Connection, but had not been
+	   acknowledged when that channel closed. Defaults to false.
+	  </entry>
+	 </row>
+
+        </tbody>
+       </tgroup>
+      </informaltable>
+
+      <para>
+       Alternatives with the same name should be ordered from highest
+       fidelity to lowest fidelity (i.e. rich text before plain text).
+       Clients should display the first alternative they understand.
+      </para>
+
+     </sect3>
+
+     <sect3 id="sect.channel.text.messages.receiving">
+      <title>Receiving Messages</title>
+
+      <para>
+       When a remote user initiates a new text chat, Telepathy will
+       automatically create a new channel for the chat, who's creation will
+       be heralded by the <methodname>NewChannels</methodname> signal.
+       Filter on the channels given for channels of type
+       <type>Channel_Type_Text</type>.
+       <xref linkend="ex.channel.text.messages.newchannels"/> shows
+       how to discover this channel.
+      </para>
+
+      <example id="ex.channel.text.messages.receiving.newchannels"
+               file="python_iface_messaging/example.py">
+        <title>Discovering Incoming Channels</title>
+      </example>
+
+      <para>
+       Set up a D-Bus proxy for the channel, like you would for any other
+       channel (see <xref linkend="sec-channel-requesting"/>). Check to
+       ensure that the <interfacename>Messages</interfacename> interface
+       is available.
+      </para>
+
+      <para>
+       Incoming messages are announced with the
+       <methodname>MessageReceived</methodname> signal, which places them on
+       the pending message queue. To remove messages from the pending
+       message queue, they must be acknowledged with
+       <methodname>Text.AcknowledgePendingMessages</methodname>. There will
+       already be messages pending, the ones that caused the creation of
+       the channel. These can be accessed via the
+       <property>PendingMessages</property> property.
+       See <xref linkend="ex.channel.text.messages.receiving.main"/>.
+      </para>
+
+      <para>
+       The message id to acknowledge the message is contained in the headers
+       of the message as the key <literal>pending-message-id</literal>
+       (see <xref linkend="sect.channel.text.messages.format"/>).
+      </para>
+      
+      <important>
+       <title>Always Acknowledge Messages</title>
+       <para>
+        You must always acknowledge a received message, but you should only
+	do so after you have attempted to parse it.
+       </para>
+       <para>
+        Failure to acknowledge a message will result in a new channel
+	being created with the pending messages when the current channel is
+	closed.
+       </para>
+       <para>
+        It's posssible that a bug in your application's message parser could
+	cause an application crash.
+        You should attempt to parse the message before acknowledging it.
+	Thus, if your application has a crash, the message will still be
+	pending when the client reloads.
+       </para>
+      </important>
+
+      <example id="ex.channel.text.messages.receiving.main"
+               file="python_iface_messaging/example.py">
+        <title>Setting Up and Receiving Messages</title>
+      </example>
+
      </sect3>
 
     </sect2>
