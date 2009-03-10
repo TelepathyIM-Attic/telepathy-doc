@@ -18,7 +18,6 @@ from telepathy.interfaces import CONNECTION_MANAGER, \
                                  CHANNEL, \
                                  CHANNEL_TYPE_CONTACT_LIST, \
                                  CHANNEL_TYPE_TEXT, \
-                                 CHANNEL_INTERFACE_MESSAGES, \
                                  CHANNEL_INTERFACE_GROUP
 from telepathy.constants import CONNECTION_STATUS_CONNECTED, \
                                 CONNECTION_STATUS_DISCONNECTED, \
@@ -136,29 +135,7 @@ class ContactList(Channel):
             print 'Channel does not implement Group... strange'
 
     def _members_cb(self, handles):
-        # these are the interfaces we're seeking
-        interfaces = [
-                 CONNECTION_INTERFACE_ALIASING,
-                 CONNECTION_INTERFACE_SIMPLE_PRESENCE,
-            ]
-
-        # work out what interfaces are available
-        interfaces = list (set(interfaces) & set(self.conn.interfaces))
-        interfaces += [ CONNECTION ]
-
-        # look them up via the contacts interface
-        if CONNECTION_INTERFACE_CONTACTS in self.conn.interfaces:
-            self.conn[CONNECTION_INTERFACE_CONTACTS].GetContactAttributes(
-                handles, interfaces, False,
-                reply_handler = self._attributes_cb,
-                error_handler = self.sm.error)
-
-    def _attributes_cb(self, map):
-        for handle, attributes in map.iteritems():
-            contact = Contact (self.sm, handle, attributes)
-            self.sm.contacts[handle] = contact
-
-        self.sm.contacts_updated(map.keys())
+        Contact.lookup_from_handles(self.sm, handles)
 
 class TextChannel(Channel):
     channel_type = CHANNEL_TYPE_TEXT
@@ -178,6 +155,34 @@ class Contact(object):
                 self.alias = value
             elif key == CONNECTION_INTERFACE_SIMPLE_PRESENCE + '/presence':
                 self.presence = value
+
+    @classmethod
+    def lookup_from_handles(self, sm, handles, callback = None):
+        # these are the interfaces we're seeking
+        interfaces = [
+                 CONNECTION_INTERFACE_ALIASING,
+                 CONNECTION_INTERFACE_SIMPLE_PRESENCE,
+            ]
+
+        # work out what interfaces are available
+        interfaces = list (set(interfaces) & set(sm.conn.interfaces))
+        interfaces += [ CONNECTION ]
+
+        def _new_handle_attributes_cb(map):
+            for handle, attributes in map.iteritems():
+                contact = Contact (sm, handle, attributes)
+                sm.contacts[handle] = contact
+
+            sm.contacts_updated(map.keys())
+
+            if callback is not None: callback()
+
+        # look them up via the contacts interface
+        if CONNECTION_INTERFACE_CONTACTS in sm.conn.interfaces:
+            sm.conn[CONNECTION_INTERFACE_CONTACTS].GetContactAttributes(
+                handles, interfaces, False,
+                reply_handler = _new_handle_attributes_cb,
+                error_handler = sm.error)
 
     def get_state(self):
         return self.presence[0]
