@@ -503,8 +503,8 @@
      online or available, then its <interfacename>Connection</interfacename>
      will provide the <interfacename>SimplePresence</interfacename> interface.
      This interface provides functions to set and get the user's current
-     presence as well as the presence of other accounts (usually accounts
-     the on the user's roster).
+     presence as well as the presence of other accounts (usually the accounts
+     on the user's roster).
     </para>
 
     <warning>
