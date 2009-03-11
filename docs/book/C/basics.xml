@@ -767,7 +767,7 @@
           <varlistentry>
             <term>tp_cli_</term> 
             <listitem>
-              <para>These functions are useful for client applications. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_run_connect()</ulink>.</para>
+              <para>These functions are useful for client applications. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_call_connect()</ulink>.</para>
             </listitem>
           </varlistentry>
 
