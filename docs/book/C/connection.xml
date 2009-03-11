@@ -542,7 +542,7 @@
        <link linkend="chapter-accounts">Account Manager</link>, then the
        user's presence can be set on the appropriate
        <link linkend="sect.accounts.accounts">Account</link> object using
-       the <property>RequestPresence</property> property of the
+       the <property>RequestedPresence</property> property of the
        <interfacename>Account</interfacename> interface. This property takes
        a <type>SimplePresence</type> as its value.
       </para>
