@@ -398,7 +398,7 @@
     set of available interfaces (e.g. IRC provides no avatars). Thus the
     interfaces available for use with the
     <interfacename>Contacts</interfacename> interface are available through
-    the <property>ContractAttributeInterfaces</property> property.
+    the <property>ContactAttributeInterfaces</property> property.
    </para>
 
    <para>
@@ -406,7 +406,7 @@
     <methodname>GetContactAttributes</methodname> method, which takes an
     array of contact handles (e.g. from a contact list), an array of
     interfaces you re interested in (from the
-    <property>ContractAttributeInterfaces</property>) and whether or not
+    <property>ContactAttributeInterfaces</property>) and whether or not
     to hold the handles (as if <methodname>HoldHandles</methodname> was
     called). The return value is a nested mapping of handles to mapped
     key/value pairs. <xref linkend="ex.connection.contacts.return"/> gives
