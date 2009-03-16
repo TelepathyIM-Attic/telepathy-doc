@@ -443,7 +443,7 @@
 	<para>
 	 This sort of scenario occurs with plugin architectures and shared
 	 D-Bus connections. One plugin "knows" it's a client, not a service;
-	 and another plugin, shaing the same connection, "knows" it's a
+	 and another plugin, sharing the same connection, "knows" it's a
 	 service, not a client. This results in a process that is both a
 	 service and a client (and hence deadlock-prone).
 	</para>
