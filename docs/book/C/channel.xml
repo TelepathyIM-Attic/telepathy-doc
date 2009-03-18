@@ -581,7 +581,7 @@
     <para>
      Information about a list of contacts can be looked up using the
      connection's <interfacename>Contacts</interfacename> interface. This
-     is documented in <xref linkend="sect.connection.contacts"/>.
+     is documented in <xref linkend="sect.contactinfo.contacts"/>.
     </para>
 
     <para>

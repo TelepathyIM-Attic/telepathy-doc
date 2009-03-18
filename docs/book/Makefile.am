@@ -21,6 +21,7 @@ DOC_INCLUDES = \
 	channel-dispatcher.xml \
 	connection.xml \
 	channel.xml \
+	contactinfo.xml \
 	tubes.xml
 
 # these are figures that need to be rasterised

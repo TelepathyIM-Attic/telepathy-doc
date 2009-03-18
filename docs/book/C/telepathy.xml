@@ -87,6 +87,7 @@
 <xi:include href="channel-dispatcher.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="connection.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="channel.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="contactinfo.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="tubes.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 <!--
@@ -96,26 +97,6 @@ simple GTK+ UI and will be implemented with dbus-glib. There will also be small
 code snippets which will also be in dbus-glib, but python versions could be 
 added in future.
 -->
-
-<chapter id="chapter-contacts">
-  <title>Accessing/managing contact information</title> <!-- TODO: rename the title. -->
-  <para>TODO:
- - Contact Lists
-   - publish/subscribe
-   - Groups
- - Contact Information
-   - Aliases
-   - Avatars
-   - Presence
-  </para>
-
-  <sect1>
-  <title>Example</title>
-  <para>This example connects to a jabber account and lists all contacts for that account.</para>
-  <para><ulink url="&url_examples_base;list_contacts">Source Code</ulink></para>
-  </sect1>
-
-</chapter>
 
 <chapter id="chapter-chat-client">
   <title>Implementing a Chat Client</title>
