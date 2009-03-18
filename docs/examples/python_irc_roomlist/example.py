@@ -88,12 +88,11 @@ class Example(object):
 
     def got_roomlist(self, channel_path):
         print 'Got Roomlist Channel'
-        self.roomlist = channel = telepathy.client.Channel(
-            self.conn.service_name, channel_path)
+        channel = telepathy.client.Channel(self.conn.service_name, channel_path)
         channel[CHANNEL_TYPE_ROOM_LIST].connect_to_signal('GotRooms',
             self.got_rooms)
         channel[CHANNEL_TYPE_ROOM_LIST].connect_to_signal('ListingRooms',
-            self.listing_rooms)
+            lambda *args: self.listing_rooms(channel, *args))
         channel[CHANNEL_TYPE_ROOM_LIST].ListRooms(reply_handler = generic_handler,
                                                   error_handler = self.error)
 
@@ -101,13 +100,13 @@ class Example(object):
         for handle, channel_type, info in rooms:
             print " - %(name)s (%(members)i) :: %(subject)s" % info
 
-    def listing_rooms(self, listing):
+    def listing_rooms(self, channel, listing):
         print "listing rooms", listing
 
         if listing == False:
             # close the room list channel
-            self.roomlist.Close(reply_handler = generic_handler,
-                                error_handler = self.error)
+            channel[CHANNEL].Close(reply_handler = generic_handler,
+                                   error_handler = self.error)
 
     def error(self, error):
         print 'Error:', error

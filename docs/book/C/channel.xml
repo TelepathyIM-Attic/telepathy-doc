@@ -1056,4 +1056,139 @@
   
   </sect1>
 
+  <sect1 id="sect.channel.roomlist">
+   <title>Room Lists</title>
+
+   <para>
+    The <interfacename>RoomList</interfacename> channel is used to access the
+    available named chatrooms available on a server (e.g. XMPP multiuser
+    chats, IRC chatrooms).
+   </para>
+
+   <para>
+    <interfacename>RoomList</interfacename>s channels are stateful, so
+    they should be <emphasis>created</emphasis> (see
+    <xref linkend="sec-channel-requesting"/>). On protocols that support
+    multiple conference servers (e.g. XMPP), the <property>Server</property>
+    property can be included in the request.
+   </para>
+    
+   <example id="example.channel.roomlist.examplemap">
+    <title>Example Maps For Requesting a Room List</title>
+    <informaltable>
+     <tgroup cols="3">
+      <thead>
+       <row>
+        <entry>Key</entry>
+        <entry>Value</entry>
+        <entry>Notes</entry>
+       </row>
+      </thead>
+
+      <tbody>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+        <entry>org.freedesktop.Telepathy.Channel.Type.RoomList</entry>
+	<entry></entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+        <entry>Handle_Type_None</entry>
+	<entry></entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.TargetHandle</entry>
+        <entry>0</entry>
+	<entry></entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.Type.RoomList.Server</entry>
+	<entry>conference.xmpp.example.com</entry>
+	<entry>Optional</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </example>
+    
+   <para>
+    It can take some time for the information on the available rooms to be
+    collected, thus the room list is returned via the
+    <methodname>GotRooms</methodname> signal. Clients should connect this
+    signal before calling <methodname>ListRooms</methodname>.
+   </para>
+
+   <para>
+    The channel should be closed
+    once it's finished with, so that the room handles
+    (<type>Handle_Type_Room</type>) can be released.
+   </para>
+
+   <para>
+    <methodname>GotRooms</methodname> returns a list of handles of type
+    <type>Handle_Type_Room</type>, channel types (as D-Bus interfaces, e.g.
+    <literal>org.freedesktop.Telepathy.Channel.Type.Text</literal> and
+    property maps. Known keys in the property map are:
+   </para>
+    
+    <informaltable>
+     <tgroup cols="3">
+      <tbody>
+       <row>
+        <entry>handle-name</entry>
+	<entry>String</entry>
+	<entry>
+	 The name of the handle, as returned by
+	 <methodname>InspectHandles</methodname>
+        </entry>
+       </row>
+       <row>
+        <entry>name</entry>
+	<entry>String</entry>
+	<entry>
+	 The human readable name of the channel.
+        </entry>	
+       </row>
+       <row>
+        <entry>description</entry>
+	<entry>String</entry>
+	<entry>
+	 The description of the room's purpose.
+	</entry>
+       </row>
+       <row>
+        <entry>subject</entry>
+	<entry>String</entry>
+	<entry>
+	 The current subject or topic of conversation.
+        </entry>
+       </row>
+       <row>
+        <entry>members</entry>
+	<entry>Unsigned integer</entry>
+	<entry>
+	 The number of members in the room.
+	</entry>
+       </row>
+       <row>
+        <entry>password</entry>
+	<entry>Boolean</entry>
+	<entry>
+	 If a password is required for this channel.
+	 See <xref linkend="sec.channel.text.password"/>.
+        </entry>
+       </row>
+       <row>
+        <entry>invite-only</entry>
+	<entry>Boolean</entry>
+	<entry>
+	 If true, you must be invited to this channel.
+	</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+
+  </sect1>
+
 </chapter>
