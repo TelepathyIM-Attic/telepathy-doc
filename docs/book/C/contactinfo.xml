@@ -27,14 +27,14 @@
 
  <para>
   A list of handles usually comes from a channel with the
-  <link xref="sect.channel.groups">Group</link> interface (i.e. a chatroom
-  or a <link xref="sect.channel.contactlist">contact list</link>).
+  <link linkend="sect.channel.groups">Group</link> interface (i.e. a chatroom
+  or a <link linkend="sect.channel.contactlist">contact list</link>).
  </para>
 
  <para>
   In general, a client will connect the relevant signals to receive updates
   for presence, aliases, avatars, capabilities, and so on; and then use
-  the <link xref="sect.contactinfo.contacts">Contacts</link> interface to
+  the <link linkend="sect.contactinfo.contacts">Contacts</link> interface to
   bulk request the intial state.
  </para>
   

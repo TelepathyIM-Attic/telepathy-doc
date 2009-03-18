@@ -988,7 +988,7 @@
        be heralded by the <methodname>NewChannels</methodname> signal.
        Filter on the channels given for channels of type
        <type>Channel_Type_Text</type>.
-       <xref linkend="ex.channel.text.messages.newchannels"/> shows
+       <xref linkend="ex.channel.text.messages.receiving.newchannels"/> shows
        how to discover this channel.
       </para>
 

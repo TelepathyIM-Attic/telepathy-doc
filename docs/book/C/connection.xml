@@ -23,7 +23,7 @@
    A <interfacename>Connection</interfacename> object in Telepathy
    represents an active (or activatable) protocol session. Connections are
    created by the appropriate
-   <link xref="sect.connection.connection-manager">Connection Manager</link>.
+   <link linkend="sect.connection.connection-manager">Connection Manager</link>.
   </para>
 
   <para>
@@ -235,7 +235,7 @@
      <para>
       To setup your own connection to the remote server (e.g. your Jabber
       IM account) you need to call <methodname>RequestConnection</methodname>
-      on the appropriate <link xref="sect.connection.connection-manager">
+      on the appropriate <link linkend="sect.connection.connection-manager">
       Connection Manager</link> (e.g. gabble), providing a map of connection
       details. Assuming the connection succeeds this method will return the
       <literal>bus name</literal> and <literal>object path</literal>
@@ -373,8 +373,9 @@
 
      <example id="example.connection.establish-connection">
       <title>Establishing a Connection</title>
+      <para></para><!-- bodge validity -->
       <!--
-      <para><ulink url="&url_examples_base;connect">Source Code</ulink></para>
+      url="&url_examples_base;connect">
       -->
      </example>
      
