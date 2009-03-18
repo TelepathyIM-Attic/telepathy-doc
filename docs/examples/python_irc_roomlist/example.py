@@ -80,6 +80,7 @@ class Example(object):
         else:
             print 'Falling back to RequestChannel'
 
+            # begin ex.channel.requestchannel
             self.conn[CONNECTION].RequestChannel(CHANNEL_TYPE_ROOM_LIST,
                                                  HANDLE_TYPE_NONE, 0,
                                                  True,
@@ -89,6 +90,7 @@ class Example(object):
     def got_roomlist(self, channel_path):
         print 'Got Roomlist Channel'
         channel = telepathy.client.Channel(self.conn.service_name, channel_path)
+        # end ex.channel.requestchannel
         channel[CHANNEL_TYPE_ROOM_LIST].connect_to_signal('GotRooms',
             self.got_rooms)
         channel[CHANNEL_TYPE_ROOM_LIST].connect_to_signal('ListingRooms',

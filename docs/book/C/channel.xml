@@ -182,7 +182,7 @@
     </tip>
 
     <para>
-     The properties argument for <methodname>RequestChannel</methodname> and
+     The properties argument for <methodname>CreateChannel</methodname> and
      <methodname>EnsureChannel</methodname> is a map of property names on
      the desired channel, and their values.
      In general every channel requires at least three channel
@@ -258,8 +258,17 @@
     </itemizedlist>
 
     <para>
-     If you must call <methodname>RequestChannel</methodname>, XXX WRITE ME
+     If you must call <methodname>RequestChannel</methodname>, you call it
+     with the same three arguments required for all channels (channel type,
+     handle type and handle). The <parameter>Suppress_Handler</parameter>
+     argument should <emphasis>always</emphasis> be True.
+     <xref linkend="ex.channel.requestchannel"/> shows how to do this.
     </para>
+
+    <example id="ex.channel.requestchannel"
+             file="python_irc_roomlist/example.py">
+     <title>Requesting a channel using RequestChannel</title>
+    </example>
    </warning>
 
    <sect2 id="sec.channel.requesting.python">
