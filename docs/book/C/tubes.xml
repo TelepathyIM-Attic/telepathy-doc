@@ -26,7 +26,7 @@
   <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
-<chapter id="chapter-tubes">
+<chapter id="chapter.tubes">
   <title>Tubes</title>
   <para>TODO:
    - Helps me to implement an ad-hoc protocol or data-exchange structure above 

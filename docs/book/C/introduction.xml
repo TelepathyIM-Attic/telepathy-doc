@@ -26,7 +26,7 @@
   <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
-<chapter id="chapter-introduction">
+<chapter id="chapter.introduction">
   <title>Introduction</title>
   <para>
    Telepathy is a flexible, modular communications framework that enables

@@ -16,14 +16,14 @@
   <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
-<chapter id="chapter-connection">
+<chapter id="chapter.connection">
   <title>Connections</title>
 
   <para>
    A <interfacename>Connection</interfacename> object in Telepathy
    represents an active (or activatable) protocol session. Connections are
    created by the appropriate
-   <link xref="chapter-connection-manager">Connection Manager</link>.
+   <link xref="sect.connection.connection-manager">Connection Manager</link>.
   </para>
 
   <para>
@@ -56,9 +56,9 @@
     <para><interfacename>Requests</interfacename></para>
     <para>
      The <interfacename>Requests</interfacename> interface is used to
-     obtain <link linkend="chapter-channel">channels</link>, which are how
+     obtain <link linkend="chapter.channel">channels</link>, which are how
      data is exchanged in Telepathy. Its use is documented in
-     <xref linkend="sec-channel-requesting"/>.
+     <xref linkend="sect.channel.requesting"/>.
     </para>
    </listitem>
    <listitem>
@@ -131,7 +131,7 @@
    </listitem>
   </itemizedlist>
 
-  <sect1 id="sect.connection-manager">
+  <sect1 id="sect.connection.connection-manager">
     <title>Connection Managers</title>
   
     <para>
@@ -173,7 +173,7 @@
      Mission Control.
     </para>
 
-    <sect2>
+    <sect2 id="sect.connection.connection-manager.glib">
      <title>telepathy-glib</title>
      <para>
       telepathy-glib provides the
@@ -196,7 +196,7 @@
   <sect1 id="sect.connection.obtaining">
     <title>Obtaining a Connection</title>
 
-    <sect2>
+    <sect2 id="sect.connection.obtaining.account-manager">
      <title>From the Account Manager</title>
 
      <note>
@@ -216,13 +216,13 @@
       In general, Telepathy clients will want to share the same set of
       already-configured accounts rather than managing their own accounts
       and setting up their own connections. The
-      <link linkend="chapter-accounts">Account Manager</link> manages
+      <link linkend="chapter.accounts">Account Manager</link> manages
       connections for configured accounts which can be retrieved as a
       property from each <interfacename>Account</interfacename> object.
      </para>
     </sect2>
 
-    <sect2>
+    <sect2 id="sect.connection.obtaining.connection-manager">
      <title>From a Connection Manager</title>
      <para>
       There might be times when you are using Telepathy without an
@@ -235,9 +235,9 @@
      <para>
       To setup your own connection to the remote server (e.g. your Jabber
       IM account) you need to call <methodname>RequestConnection</methodname>
-      on the appropriate <link xref="sect.connection-manager">Connection
-      Manager</link> (e.g. gabble), providing a map of connection details.
-      Assuming the connection succeeds this method will return the
+      on the appropriate <link xref="sect.connection.connection-manager">
+      Connection Manager</link> (e.g. gabble), providing a map of connection
+      details. Assuming the connection succeeds this method will return the
       <literal>bus name</literal> and <literal>object path</literal>
       of a newly created Telepathy <interfacename>Connection</interfacename>
       object.
@@ -366,9 +366,9 @@
      <!--
      <para>As of this writing, there is no hand-coded telepathy-glib function to request the connection and directly provide a <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> proxy. However, you may use the generated <ulink url="&url_telepathy_glib_base;connection-manager.html#tp_cli_connection_manager_call_request_connection"><function>tp_cli_connection_manager_call_request_connection()</function></ulink> function. In the callback, you can then use the provided <literal>bus name</literal> and <literal>object path</literal> to instantiate a TpConnection proxy object.</para>
  
-     <note><para>See the <link linkend="sec-basics-language-bindings-telepathy-glib-generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
+     <note><para>See the <link linkend="sect.basics.language-bindings.telepathy-glib.generated">Basics</link> chapter for an explanation of hand-coded and generated API in telepathy-glib.</para></note>
  
-     <para>See the <link linkend="chapter-channel">Channels</link> section about obtaining and using <interfacename>Channel</interfacename>s from the <interfacename>Connection</interfacename> with which you can list groups of contacts .</para>
+     <para>See the <link linkend="chapter.channel">Channels</link> section about obtaining and using <interfacename>Channel</interfacename>s from the <interfacename>Connection</interfacename> with which you can list groups of contacts.</para>
      -->
 
      <example id="example.connection.establish-connection">
@@ -403,10 +403,10 @@
      </para>
     </warning>
 
-    <sect2>
+    <sect2 id="sect.connection.presence.user">
      <title>Setting the User's Presence</title>
 
-     <sect3>
+     <sect3 id="sect.connection.presence.user.account-manager">
       <title>Via the Account Manager</title>
       <note>
        <para>
@@ -424,7 +424,7 @@
 
       <para>
        If this Connection was obtained from the
-       <link linkend="chapter-accounts">Account Manager</link>, then the
+       <link linkend="chapter.accounts">Account Manager</link>, then the
        user's presence can be set on the appropriate
        <link linkend="sect.accounts.accounts">Account</link> object using
        the <property>RequestedPresence</property> property of the
@@ -433,7 +433,7 @@
       </para>
      </sect3>
 
-     <sect3>
+     <sect3 id="sect.connection.presence.connection">
       <title>Via the Connection</title>
       <para>
        The user sets their own presence via the
@@ -453,7 +453,7 @@
      </sect3>
     </sect2>
 
-    <sect2>
+    <sect2 id="sect.connection.presence.contacts">
      <title>Retrieving Contacts' Presence</title>
 
      <para>

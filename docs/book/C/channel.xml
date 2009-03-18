@@ -16,11 +16,11 @@
   <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
-<chapter id="chapter-channel">
+<chapter id="chapter.channel">
   <title>Channels</title>
   <para>
    Each <interfacename>Connection</interfacename> provides
-   <ulink url="&url_spec_base;Channel"><interfacename>Channel</interfacename></ulink>s,
+   <interfacename>Channel</interfacename>s,
    which allow the local application to exchange data with the remote server,
    for instance to retrieve a list of contacts in a chat room, or to send a
    message to a contact.
@@ -43,7 +43,7 @@
      <varlistentry>
        <term>
          <indexterm><primary>ContactList</primary></indexterm>
-         <ulink url="&url_spec_base;Channel.Type.ContactList"><interfacename>ContactList</interfacename></ulink>
+         <interfacename>ContactList</interfacename>
        </term>
        <listitem>
          <para>
@@ -52,7 +52,7 @@
 	  contacts to whom you publish your presence information.
 	 </para>
 	 <para>
-	  See <xref linkend="sect-channel-contactlist"/>.
+	  See <xref linkend="sect.channel.contactlist"/>.
 	 </para>
        </listitem>
      </varlistentry>
@@ -60,12 +60,15 @@
      <varlistentry>
        <term>
          <indexterm><primary>RoomList</primary></indexterm>
-         <ulink url="&url_spec_base;Channel.Type.RoomList"><interfacename>RoomList</interfacename></ulink>
+         <interfacename>RoomList</interfacename>
        </term>
        <listitem>
          <para>
 	  A channel type for listing named channels (e.g. chatrooms)
 	  available on the server.
+	 </para>
+	 <para>
+	  See <xref linkend="sect.channel.roomlist"/>.
 	 </para>
        </listitem>
      </varlistentry>
@@ -73,7 +76,7 @@
      <varlistentry>
        <term>
          <indexterm><primary>Text</primary></indexterm>
-         <ulink url="&url_spec_base;Channel.Type.Text"><interfacename>Text</interfacename></ulink>
+         <interfacename>Text</interfacename>
        </term>
        <listitem>
          <para>
@@ -81,7 +84,7 @@
 	  messages.
 	 </para>
 	 <para>
-	  See <xref linkend="sect-channel-text"/>.
+	  See <xref linkend="sect.channel.text"/>.
 	 </para>
        </listitem>
      </varlistentry>
@@ -89,7 +92,7 @@
      <varlistentry>
        <term>
          <indexterm><primary>StreamedMedia</primary></indexterm>
-         <ulink url="&url_spec_base;Channel.Type.StreamedMedia"><interfacename>StreamedMedia</interfacename></ulink>
+         <interfacename>StreamedMedia</interfacename>
        </term>
        <listitem>
          <para>
@@ -102,7 +105,7 @@
      <!--varlistentry>
        <term>
          <indexterm><primary>Tubes</primary></indexterm>
-         <ulink url="&url_spec_base;Channel.Type.Tubes"><interfacename>Tubes</interfacename></ulink>
+         <interfacename>Tubes</interfacename>
        </term>
        <listitem>
          <para>
@@ -113,8 +116,7 @@
      <varlistentry>
        <term>
          <indexterm><primary>FileTransfer</primary></indexterm>
-         <ulink
-	 url="&url_spec_base;Channel.Type.FileTransfer"><interfacename>FileTransfer</interfacename></ulink>
+         <interfacename>FileTransfer</interfacename>
        </term>
        <listitem>
          <para>
@@ -125,13 +127,12 @@
 
   </variablelist>
   
-  <sect1 id="sec-channel-requesting">
+  <sect1 id="sect.channel.requesting">
     <title>Requesting Channels</title>
 
     <para>
      Channels are requested from a <classname>Connection</classname> object
-     using the <ulink url="&url_spec_base;Connection.Interface.Requests"><interfacename>Requests</interfacename></ulink>
-     interface.
+     using the <interfacename>Requests</interfacename> interface.
     </para>
 
     <para>
@@ -271,7 +272,7 @@
     </example>
    </warning>
 
-   <sect2 id="sec.channel.requesting.python">
+   <sect2 id="sect.channel.requesting.python">
     <title>telepathy-python</title>
 
     <para>
@@ -308,7 +309,7 @@
 
   </sect1>
 
-  <sect1 id="sect-channel-contactlist">
+  <sect1 id="sect.channel.contactlist">
     <title>Contact Lists</title>
     <indexterm><primary>ContactList</primary></indexterm>
   
@@ -322,7 +323,7 @@
     <para>
      Like individual remote contacts themselves, lists of remote contacts
      is referred to by numeric
-     <link linkend="sec-basics-handles">handle</link> of type
+     <link linkend="sect.basics.handles">handle</link> of type
      <type>Handle_Type_List</type> (for
      <link linkend="sect.channel.contactlist.server-defined">server defined
      lists</link>) or
@@ -335,7 +336,7 @@
     <para>
      To request a contact list, three properties must be provided to
      <methodname>EnsureChannel</methodname>
-     (see <xref linkend="sec-channel-requesting"/>): the channel type
+     (see <xref linkend="sect.channel.requesting"/>): the channel type
      (org.freedesktop.Telepathy.Channel.Type.ContactList), the target handle
      type (either <type>Handle_Type_List</type> or
      <type>Handle_Type_Group</type>) and
@@ -597,7 +598,7 @@
   
   </sect1>
   
-  <sect1 id="sect-channel-text">
+  <sect1 id="sect.channel.text">
     <title>Text Channels</title>
     <indexterm><primary>Text</primary></indexterm>
   
@@ -611,7 +612,7 @@
 
     <para>
      Channels for text chat are usually <emphasis>ensured</emphasis>
-     (see <xref linkend="sec-channel-requesting"/>) with the channel type
+     (see <xref linkend="sect.channel.requesting"/>) with the channel type
      <type>Channel_Type_Text</type>. For one-to-one chats, the target handle
      is a contact (<type>Handle_Type_Contact</type>). For named chatrooms
      (e.g. Jabber multi-user-chats, IRC chatrooms) the target handle is a
@@ -720,7 +721,7 @@
      </para>
     </note>
 
-    <sect2 id="sec.channel.text.password">
+    <sect2 id="sect.channel.text.password">
      <title>Private Channels</title>
 
      <para>
@@ -743,7 +744,7 @@
 
     </sect2>
   
-    <sect2 id="sec.channel.text.rich">
+    <sect2 id="sect.channel.text.rich">
      <title>Rich Text Interface</title>
 
      <note>
@@ -998,7 +999,7 @@
 
       <para>
        Set up a D-Bus proxy for the channel, like you would for any other
-       channel (see <xref linkend="sec-channel-requesting"/>). Check to
+       channel (see <xref linkend="sect.channel.requesting"/>). Check to
        ensure that the <interfacename>Messages</interfacename> interface
        is available.
       </para>
@@ -1077,7 +1078,7 @@
    <para>
     <interfacename>RoomList</interfacename>s channels are stateful, so
     they should be <emphasis>created</emphasis> (see
-    <xref linkend="sec-channel-requesting"/>). On protocols that support
+    <xref linkend="sect.channel.requesting"/>). On protocols that support
     multiple conference servers (e.g. XMPP), the <property>Server</property>
     property can be included in the request.
    </para>
@@ -1184,7 +1185,7 @@
 	<entry>Boolean</entry>
 	<entry>
 	 If a password is required for this channel.
-	 See <xref linkend="sec.channel.text.password"/>.
+	 See <xref linkend="sect.channel.text.password"/>.
         </entry>
        </row>
        <row>

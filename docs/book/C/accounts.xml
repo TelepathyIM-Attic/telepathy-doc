@@ -16,7 +16,7 @@
   <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
-<chapter id="chapter-accounts">
+<chapter id="chapter.accounts">
   <title>Accounts and AccountManager</title>
   <note>
    <para>
@@ -57,7 +57,7 @@
    <title>Accounts</title>
    <para>
     Account objects store off of the information that is used for making a
-    <link linkend="chapter-connection">Connection</link> to a remote
+    <link linkend="chapter.connection">Connection</link> to a remote
     service. Mission Control can be used to establish connections for valid
     accounts.
    </para>
@@ -156,7 +156,7 @@
        <entry>ConnectAutomatically</entry><entry>Boolean</entry>
        <entry>
         Whether or not the Account Manager should automatically establish a
-	<link xref="chapter-connection">Connection</link> for this account.
+	<link linkend="chapter.connection">Connection</link> for this account.
        </entry>
        <entry>True</entry>
       </row>

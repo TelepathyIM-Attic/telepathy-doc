@@ -98,14 +98,14 @@ code snippets which will also be in dbus-glib, but python versions could be
 added in future.
 -->
 
-<chapter id="chapter-chat-client">
+<chapter id="chapter.chat-client">
   <title>Implementing a Chat Client</title>
   <para>TODO:
  - Text Channels (Messages Interface?)
   </para>
 </chapter>
 
-<chapter id="chapter-voip-client">
+<chapter id="chapter.voip-client">
   <title>Creating a VoIP Client</title>
   <para>TODO: 
   (Streaming Audio/Video)
@@ -113,13 +113,13 @@ added in future.
   </para>
 </chapter>
 
-<chapter id="chapter-transferring-files">
+<chapter id="chapter.transferring-files">
   <title>Transferring Files</title>
   <para>TODO
   </para>
 </chapter>
 
-<chapter id="chapter-networked-application">
+<chapter id="chapter.networked-application">
   <title>Making an application networked</title> <!-- TODO: Rename the title. -->
   <para>TODO:
   - For instance, turn-based Tic-Tac-Toe.

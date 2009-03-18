@@ -16,8 +16,8 @@
   <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
-<chapter id="chapter-channel-dispatcher">
-  <title>TODO: ChannelDispatcher</title>
+<chapter id="chapter.channel-dispatcher">
+  <title>ChannelDispatcher</title>
   <para>TODO:
    Notes:
    - This is in mission control.

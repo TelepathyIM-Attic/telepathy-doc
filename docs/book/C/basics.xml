@@ -16,7 +16,7 @@
   <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
-<chapter id="chapter-basics">
+<chapter id="chapter.basics">
   <title>Basics</title>
 
   <para>This chapter introduces some basic techniques and concepts that you must understand to use Telepathy confidently. You should read through this chapter before proceeding, but you will probably want to refer back here again later.</para>
@@ -32,7 +32,7 @@
    <para>
     The design of Telepathy is heavily influenced by D-Bus, so much of its
     terminology is shared in common with D-Bus. For those unfamiliar with
-    D-Bus, a quick primer is presented in <xref linkend="sec-basics-dbus"/>.
+    D-Bus, a quick primer is presented in <xref linkend="sect.basics.dbus"/>.
     For more indepth information, consult A MANUAL THAT PROBABLY HASN'T BEEN
     WRITTEN YET.<!-- FIXME -->
    </para>
@@ -40,7 +40,7 @@
    <!-- FIXME: what order do these go in? -->
    <!-- FIXME: some of this information is too detailed for this glossary
                and should be moved further down the manual -->
-   <sect2>
+   <sect2 id="sect.basics.terminology.mission-control">
     <title>Mission Control</title>
     <para>
      Mission Control is responsible for the management of messaging
@@ -54,7 +54,7 @@
     </para>
    </sect2>
 
-   <sect2>
+   <sect2 id="sect.basics.terminology.connection-manager">
     <title>Connection Manager</title>
     <para>
      Connection managers are simply factories for connections.
@@ -77,7 +77,7 @@
     </para>
    </sect2>
 
-   <sect2>
+   <sect2 id="sect.basics.terminology.connection">
     <title>Connection</title>
     <para>
      Connections represent active protocol sessions. A connection has a set
@@ -105,11 +105,11 @@
 
     <para>
      Setting up and using connections is documented in
-     <xref linkend="chapter-connection"/>.
+     <xref linkend="chapter.connection"/>.
     </para>
    </sect2>
 
-   <sect2>
+   <sect2 id="sect.basics.terminology.channel">
     <title>Channel</title>
     <para>
      A <interfacename>Channel</interfacename> is used by Telepathy to
@@ -122,11 +122,11 @@
     </para>
     <para>
      A complete explanation of channels is presented in
-     <xref linkend="chapter-channel"/>.
+     <xref linkend="chapter.channel"/>.
     </para>
    </sect2>
 
-   <sect2>
+   <sect2 id="sect.basics.terminology.handle">
     <title>Handle</title>
     <para>
      Handles are used to represent various kinds of protocol resources
@@ -136,18 +136,18 @@
     </para>
 
     <para>
-     The use of handles is documented in <xref linkend="sec-basics-handles"/>.
+     The use of handles is documented in <xref linkend="sect.basics.handles"/>.
     </para>
    </sect2>
 
-   <sect2>
+   <sect2 id="sect.basics.terminology.interface">
     <title>Interface</title>
     <para>
     </para>
    </sect2>
   </sect1>
 
-  <sect1 id="sec-basics-dbus">
+  <sect1 id="sect.basics.dbus">
     <title>Using D-Bus</title>
     <para>
      Telepathy is a <indexterm><primary>D-Bus</primary></indexterm>D-Bus API.
@@ -168,7 +168,7 @@
 
     <para>
     Most of the Telepathy examples in this book will use a
-    <link linkend="sec-basics-language-bindings">language binding</link>
+    <link linkend="sect.basics.language-bindings">language binding</link>
     instead of using D-Bus directly. However, an understanding of D-Bus is
     very helpful when learning Telepathy.
     </para>
@@ -475,7 +475,7 @@
      </para>
     </tip>
 
-    <sect2 id="sect.basics-dbus-glib.types">
+    <sect2 id="sect.basics.dbus.types">
      <title>D-Bus Type Signatures</title>
 
      <para>
@@ -488,7 +488,7 @@
      <!-- FIXME: should write more here -->
     </sect2>
 
-    <sect2 id="sec-basics-dbus-glib">
+    <sect2 id="sect.basics.dbus.glib">
       <title>Using D-Bus from C, with glib</title>
 
       <!-- FIXME: something about dbus-glib
@@ -523,7 +523,7 @@
        <title>Acquiring a Proxy Object</title>
       </example>
 
-      <sect3 id="sect-basics-dbus-glib-methods">
+      <sect3 id="sect.basics.dbus.glib.methods">
        <title>Calling Methods</title>
        <para>
         Method calls in D-Bus should <emphasis>always</emphasis> be made
@@ -569,7 +569,7 @@
        </example>
       </sect3>
 
-      <sect3 id="sect-basics-dbus-glib-properties">
+      <sect3 id="sect.basics.dbus.glib.properties">
        <title>Using Properties</title>
        <para>
         D-Bus properties are available via an additional
@@ -593,7 +593,7 @@
        </example>
       </sect3>
 
-      <sect3 id="sect-basics-dbus-glib-signals">
+      <sect3 id="sect.basics.dbus.glib.signals">
        <title>Handling Signals</title>
        <para>
         Handlers for D-Bus signals may be connected with the function
@@ -620,7 +620,7 @@
 
     </sect2>
 
-    <sect2 id="sec-basics-dbus-python">
+    <sect2 id="sect.basics.dbus.python">
       <title>Using D-Bus from Python</title>
 
       <para>
@@ -659,7 +659,7 @@
        <title>Acquiring a Proxy Object</title>
       </example>
 
-      <sect3 id="sect-basics-dbus-python-methods">
+      <sect3 id="sect.basics.dbus.python.methods">
        <title>Calling Methods</title>
        <para>
 	<xref linkend="dbus-python-call-method"/>
@@ -687,7 +687,7 @@
        </example>
       </sect3>
 
-      <sect3 id="sect-basics-dbus-python-properties">
+      <sect3 id="sect.basics.dbus.python.properties">
        <title>Using Properties</title>
        <para>
         D-Bus properties are available via an additional
@@ -709,7 +709,7 @@
        </example>
       </sect3>
 
-      <sect3 id="sect-basics-dbus-python-signals">
+      <sect3 id="sect.basics.dbus.python.signals">
        <title>Handling Signals</title>
        <para>
         D-Bus signal handlers may be specified in Python with the proxy object's
@@ -731,14 +731,29 @@
     </sect2>
    </sect1>
 
-   <sect1 id="sec-basics-language-bindings">
+   <sect1 id="sect.basics.language-bindings">
     <title>Language Bindings</title>
-    <para>As mentioned in the <link linkend="sec-basics-dbus">Using D-Bus</link> section, many programming languages have their own generic ways of using D-Bus APIs. In addition, there are some Telepathy-specific APIs to make the use of Telepathy even easier. For instance, <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20GLib">telepathy-glib</ulink> provides an API that is familiar to users of Glib and GTK+, using the GObject system and related conventions.</para>
-    <para>Likewise, the <ulink url="http://telepathy.freedesktop.org/wiki/TelepathyQt">Telepathy-Qt</ulink> project provides a more Qt-like API for Telepathy and <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20Python">Telepathy-Python</ulink> does the same for Python.</para> <!-- TODO: Link to Telepathy-Qt4 when it is ready. -->
+    <para>
+     As mentioned in <xref linkend="sect.basics.dbus"/>, many programming
+     languages have their own generic ways of using D-Bus APIs. In addition,
+     there are some Telepathy-specific APIs to make the use of Telepathy
+     easier. For instance,
+     <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20GLib">telepathy-glib</ulink>
+     provides an API that aims to be more familiar to users of Glib and GTK+.
+     Likewise,
+     <ulink url="http://telepathy.freedesktop.org/wiki/TelepathyQt">Telepathy-Qt</ulink>
+     provides a Qt API for Telepathy and
+     <ulink url="http://telepathy.freedesktop.org/wiki/Telepathy%20Python">Telepathy-Python</ulink> for Python.
+    </para>
 
-    <para>Remember that, like raw use of D-Bus from these programming languages, the Telepathy language bindings only create <literal>proxies</literal> to the D-Bus objects, providing a way to use their API. The actual objects are instantiated in the service's process.</para>
+    <para>
+     Remember that, like raw use of D-Bus from these programming languages,
+     the Telepathy language bindings only create <literal>proxies</literal>
+     to the D-Bus objects, providing a way to use their API. The actual
+     objects are instantiated in the service's process.
+    </para>
   
-    <sect2 id="sec-basics-language-bindings-telepathy-glib">
+    <sect2 id="sect.basics.language-bindings.telepathy-glib">
       <title>telepathy-glib</title>
       <para>The C examples in this book will use telepathy-glib, which provides a GObject-based API for the Telepathy framework.</para>
 
@@ -746,9 +761,21 @@
       <para>The reference documentation only makes sense in terms of the Telepathy D-Bus Specification.</para>
       -->
 
-      <sect3 id="sec-basics-language-bindings-telepathy-glib-async">
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.async">
         <title>Asynchronous Calls</title>
-        <para>For each Telepathy D-Bus method, telepathy-glib generally provides both a &quot;run&quot; and a &quot;call&quot; function. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_run_connect()</ulink> and <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-call-connect">tp_cli_connection_call_connect()</ulink>. The &quot;run&quot; function is synchronous, blocking until the D-Bus service has returned the value, whereas the &quot;call&quot; function is asynchronous, immediately returning and later providing the result to a callback function.</para>
+        <para>
+	 For each Telepathy D-Bus method, telepathy-glib generally provides
+	 both a &quot;run&quot; and a &quot;call&quot; function.
+	 For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect"><methodname>tp_cli_connection_run_connect</methodname></ulink>
+	 and <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-call-connect"><methodname>tp_cli_connection_call_connect</methodname></ulink>.
+	 The &quot;run&quot; functions are synchronous, and blocks until the
+	 D-Bus service has returned the value. They have been deprecated and
+	 should never be used in Telepathy programs (see
+	 <xref linkend="warning.dbus.sync"/>). Instead use the &quot;call&quot;
+	 functions, which are asynchronous; immediately returning and later
+	 providing the result to a callback function.
+	</para>
+
         <para>
 	 However, the use of the &quot;run&quot; functions is strongly
 	 discouraged (see <xref linkend="warning.dbus.sync"/>), so all
@@ -758,67 +785,122 @@
 	</para>
       </sect3>
 
-      <sect3 id="sec-basics-language-bindings-telepathy-glib-generated">
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.generated">
         <title>Generated Functions</title>
-        <para>telepathy-glib provides both hand-coded and generated API. The generated functions have these prefixes:</para>
+        <para>
+	 telepathy-glib provides both hand-coded and generated API. The
+	 generated functions have these prefixes:
+	</para>
 
         <variablelist>
 
           <varlistentry>
             <term>tp_cli_</term> 
-            <listitem>
-              <para>These functions are useful for client applications. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_call_connect()</ulink>.</para>
-            </listitem>
+            <listitem><para>
+	      These functions are used for client applications. For instance,
+	      <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect"><methodname>tp_cli_connection_call_connect</methodname></ulink>.
+	    </para></listitem>
           </varlistentry>
 
           <varlistentry>
             <term>tp_svc_</term> 
-            <listitem>
-              <para>These functions are useful for service implementations, such as connection managers. For instance, <ulink url="&url_telepathy_glib_base;svc-connection.html#tp-svc-connection-implement-connect">tp_svc_connection_implement_connect()</ulink>.</para>
-            </listitem>
+            <listitem><para>
+	      These functions are used for service implementations, such as
+	      connection managers. For instance,
+	      <ulink url="&url_telepathy_glib_base;svc-connection.html#tp-svc-connection-implement-connect"><methodname>tp_svc_connection_implement_connect</methodname></ulink>.
+	    </para></listitem>
           </varlistentry>
 
         </variablelist>
 
-        <para>The generated functions make simple direct calls to the D-Bus methods, without any additional logic and without using more appropriate types. For instance, they use unsigned integers for parameters because D-Bus does not have a concept of enumerations. However, the Telepathy D-Bus Specification does describe enumerations of possible values for these parameters, so the hand-written functions do use enums. Likewise, raw D-Bus methods can only identify object instances in terms of a <literal>bus name</literal> and <literal>object path</literal> combination, but telepathy-glib can directly provide a GObject instance that is a proxy for a D-Bus object without exposing those intermediate details.</para>
-        <para>Hand-coded functions have a simple <literal>tp_</literal> prefix and should be preferred whenever they exist. The generated functions exist only because hand-written functions have not yet been implemented for all Telepathy D-Bus methods.</para>  
-        <para>In addition to more pleasant syntax, some hand-written objects contain a large amount of useful logic which can simplify application code. For instance, <ulink url="&url_telepathy_glib_base;contact.html"><classname>TpContact</classname></ulink> uses GObject signals. <!-- TODO: Finish this sentence. --></para>
+	<!-- FIXME: huh? -->
+        <para>
+	 The generated functions make direct calls to the D-Bus methods,
+	 without any additional logic and without using more appropriate
+	 types. For instance, they use unsigned integers for parameters
+	 because D-Bus does not have a concept of enumerations.
+	 However, the Telepathy D-Bus Specification does describe enumerations
+	 of possible values for these parameters, so the hand-written
+	 functions do use enums. Likewise, raw D-Bus methods can only
+	 identify object instances in terms of a <literal>bus name</literal>
+	 and <literal>object path</literal> combination, but telepathy-glib
+	 can directly provide a GObject instance that is a proxy for a
+	 D-Bus object without exposing those intermediate details.
+	</para>
+        
+	<para>
+	 Hand-coded functions have a simple <literal>tp_</literal> prefix and
+	 should be preferred whenever they exist. The generated functions
+	 exist only because hand-written functions have not yet been
+	 implemented for all Telepathy D-Bus methods.
+	</para>
+        
+	<para>
+	 In addition to more pleasant syntax, some hand-written objects
+	 contain a large amount of useful logic which can simplify
+	 application code. For instance,
+	 <ulink url="&url_telepathy_glib_base;contact.html"><classname>TpContact</classname></ulink>
+	 uses GObject signals. <!-- TODO: Finish this sentence. -->
+	</para>
       </sect3>
 
-      <sect3>
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.readiness">
         <title>Instantiation and Readiness</title>
         <!-- TODO: Keep any eye on http://bugs.freedesktop.org/show_bug.cgi?id=13422 -->
-        <para>Some of the hand-coded objects, such as <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> and <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpChannel</classname></ulink>, call additional D-Bus methods to acquire necessary information. When they have received this information they are then &quot;ready&quot;, meaning that other hand-written functions can then be called. This concept of &quot;readiness&quot; does not exist in the raw D-Bus API because it describes the status of the hand-written behaviour. For instance, you should call <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready">tp_connection_call_when_ready()</ulink> after instantiating a TpConnection, or <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready">tp_channel_call_when_ready()</ulink> after instantiating a TpChannel.</para>
+        <para>
+	 Some of the hand-coded objects, such as
+	 <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> and
+	 <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpChannel</classname></ulink>,
+	 call additional D-Bus methods to acquire necessary information. When they have received this information they are then &quot;ready&quot;,
+	 meaning that other hand-written functions can then be called.
+	 This concept of &quot;readiness&quot; does not exist in the raw
+	 D-Bus API because it describes the status of the hand-written
+	 behaviour. For instance, you should call
+	 <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready"><methodname>tp_connection_call_when_ready</methodname></ulink>
+	 after instantiating a <classname>TpConnection</classname>, or
+	 <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready"><methodname>tp_channel_call_when_ready</methodname></ulink>
+	 after instantiating a <classname>TpChannel</classname>.
+	</para>
 
       </sect3>
 
-      <sect3>
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.linking">
         <title>Headers and Linking</title>
-        <para>To use the telepathy-glib API, you must include the headers for the library, and link to its shared library. The necessary compiler and linker commands can be obtained from the <literal>pkg-config</literal> utiltity like so:</para>
         <para>
-<programlisting>
+	 To use the telepathy-glib API, you must include the headers for the
+	 library, and link to its shared library. The necessary compiler
+	 and linker commands can be obtained from the
+	 <application>pkg-config</application> utiltity like so:
+	</para>
+
+        <informalexample><programlisting>
 pkg-config telepathy-glib --cflags
-pkg-config telepathy-glib --libs
-</programlisting>
-        </para>
-        <para>However, if you are using the &quot;autotools&quot; (automake, autoconf, etc) build system, you will find it more convenient to use the <function>PKG_CHECK_MODULES</function> macro in your <literal>configure.ac</literal> file.
+pkg-config telepathy-glib --libs</programlisting>
+        </informalexample>
+
+        <para>
+	 However, if you are using the &quot;autotools&quot;
+	 (automake, autoconf, etc) build system, you will find it more
+	 convenient to use the <function>PKG_CHECK_MODULES</function> macro
+	 in your <filename>configure.ac</filename> file.
        </para>
-       <para>
-<programlisting>
+
+       <informalexample><programlisting>
 PKG_CHECK_MODULES(EXAMPLE, telepathy-glib)
 AC_SUBST(EXAMPLE_CFLAGS)
-AC_SUBST(EXAMPLE_LIBS)
-</programlisting>
-        </para>
-        <para>You should then use the generated _CFLAGS and _LIBS definitions in your Makefile.am files.</para>
+AC_SUBST(EXAMPLE_LIBS)</programlisting>
+        </informalexample>
+
+        <para>
+	 You should then use the generated _CFLAGS and _LIBS definitions in your Makefile.am files.
+	</para>
       </sect3>
 
     </sect2>
 
   </sect1>
 
-  <!-- TODO: Notes: The interfaces are often called their type, particularly for channels. Explain. -->
-  <sect1 id="sec-basics-optional-interfaces">
+  <sect1 id="sect.basics.optional-interfaces">
     <title>Optional Interfaces</title>
 
     <para>
@@ -895,7 +977,7 @@ AC_SUBST(EXAMPLE_LIBS)
     <!-- TODO: Add dbus-glib and Python examples of checking-for and using an Interface. -->
   </sect1>
 
-  <sect1 id="sec-basics-handles">
+  <sect1 id="sect.basics.handles">
     <title>Handles</title>
 
     <para>
@@ -942,7 +1024,7 @@ AC_SUBST(EXAMPLE_LIBS)
      the anonymous handle, and also has special meaning.
     </para>
 
-    <sect2>
+    <sect2 id="sect.basics.handle.lifecycle">
       <title>Handle Lifecycle</title>
 
       <para>
@@ -1011,7 +1093,7 @@ AC_SUBST(EXAMPLE_LIBS)
 
     </sect2>
 
-    <sect2>
+    <sect2 id="sect.basics.handles.telepathy-glib">
      <title>Handles in telepathy-glib</title>
 
      <para>
@@ -1039,7 +1121,7 @@ AC_SUBST(EXAMPLE_LIBS)
 
   </sect1>
 
-  <sect1 id="sec-basics-api-conventions">
+  <sect1 id="sect.basics.api-conventions">
    <title>API conventions</title>
 
    <para>

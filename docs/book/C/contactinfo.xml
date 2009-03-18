@@ -139,7 +139,7 @@
    </informaltable>
   </example>
 
-  <sect2>
+  <sect2 id="sect.contactinfo.contacts.receiving-updates">
    <title>Receiving Updates</title>
    <para>
     While <interfacename>Contacts</interfacename>/
