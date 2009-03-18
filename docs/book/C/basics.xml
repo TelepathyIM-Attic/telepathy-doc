@@ -767,7 +767,7 @@
           <varlistentry>
             <term>tp_cli_</term> 
             <listitem>
-              <para>These functions are useful for client applications. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_run_connect()</ulink>.</para>
+              <para>These functions are useful for client applications. For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect">tp_cli_connection_call_connect()</ulink>.</para>
             </listitem>
           </varlistentry>
 
@@ -996,7 +996,7 @@ AC_SUBST(EXAMPLE_LIBS)
       <para>
        Method calls like <methodname>Group.GetAllMembers</methodname> return
        a list of handles, but do not hold any of the handles for the client.
-       Thus, if a contact goes leaves the channel (e.g. goes offline), it is
+       Thus, if a contact leaves the channel (e.g. goes offline), it is
        possible for the handle to become invalid in between the reply, and
        the next request using those handles. It is important that clients
        be aware of this possible race condition and handle it appropriately.

@@ -398,7 +398,7 @@
     set of available interfaces (e.g. IRC provides no avatars). Thus the
     interfaces available for use with the
     <interfacename>Contacts</interfacename> interface are available through
-    the <property>ContractAttributeInterfaces</property> property.
+    the <property>ContactAttributeInterfaces</property> property.
    </para>
 
    <para>
@@ -406,7 +406,7 @@
     <methodname>GetContactAttributes</methodname> method, which takes an
     array of contact handles (e.g. from a contact list), an array of
     interfaces you re interested in (from the
-    <property>ContractAttributeInterfaces</property>) and whether or not
+    <property>ContactAttributeInterfaces</property>) and whether or not
     to hold the handles (as if <methodname>HoldHandles</methodname> was
     called). The return value is a nested mapping of handles to mapped
     key/value pairs. <xref linkend="ex.connection.contacts.return"/> gives
@@ -503,8 +503,8 @@
      online or available, then its <interfacename>Connection</interfacename>
      will provide the <interfacename>SimplePresence</interfacename> interface.
      This interface provides functions to set and get the user's current
-     presence as well as the presence of other accounts (usually accounts
-     the on the user's roster).
+     presence as well as the presence of other accounts (usually the accounts
+     on the user's roster).
     </para>
 
     <warning>
@@ -542,7 +542,7 @@
        <link linkend="chapter-accounts">Account Manager</link>, then the
        user's presence can be set on the appropriate
        <link linkend="sect.accounts.accounts">Account</link> object using
-       the <property>RequestPresence</property> property of the
+       the <property>RequestedPresence</property> property of the
        <interfacename>Account</interfacename> interface. This property takes
        a <type>SimplePresence</type> as its value.
       </para>
