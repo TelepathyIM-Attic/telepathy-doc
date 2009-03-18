@@ -99,9 +99,15 @@ pdf/telepathy.pdf: $(MAIN)
 pdf: pdf/telepathy.pdf
 
 
-# Validate the source XML, not the one with the examples added in:
-validate: C/$(DOC_MODULE).xml
-	$(XMLLINT) --xinclude --postvalid --noout $<
+# Validate the source XML, to check for XML correctness but not DTD validation
+raw-validate: C/$(DOC_MODULE).xml
+	$(XMLLINT) --xinclude --noout $<
+
+# Validate the compiled XML for DTD correctness after validating the source XML
+# for XML well-formedness
+validate: raw-validate $(MAIN)
+	@echo "----------------------------------------------------------"
+	$(XMLLINT) --xinclude --postvalid --noout $(MAIN)
 
 include $(top_srcdir)/docs/rsync-properties.make
 include $(top_srcdir)/docs/generate-figures.make

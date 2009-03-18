@@ -33,7 +33,7 @@ for example in examples:
 	nicename = example.get ('file')
 	filename = os.path.join (examplesdir, nicename)
 
-	# del (example.attrib['file']) # unset the file property
+	del example.attrib['file'] # unset the file property
 
 	# attempt to load the file
 	try:
@@ -72,7 +72,8 @@ for example in examples:
 
 	etree.SubElement (example, 'programlisting').text = etree.CDATA (contents)
 	p = etree.SubElement (example, 'para')
-	etree.SubElement (p, 'link', linkend='appendix.source-code.%s' % nicename).text = "Complete Source Code"
+	xmlname = re.sub (r'/', '.', nicename)
+	etree.SubElement (p, 'link', linkend='appendix.source-code.%s' % xmlname).text = "Complete Source Code"
 
 	f.close ()
 
@@ -80,9 +81,10 @@ for example in examples:
 appendix = doc.xpath ('/book/appendix[@id="source-code"]')[0]
 for nicename in included_files:
 	filename = os.path.join (examplesdir, nicename)
+	xmlname = re.sub (r'/', '.', nicename)
 
 	s = etree.SubElement (appendix, 'sect1',
-				id='appendix.source-code.%s' % nicename)
+				id='appendix.source-code.%s' % xmlname)
 	etree.SubElement (s, 'title').text = nicename
 
 	try:
