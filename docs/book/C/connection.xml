@@ -124,9 +124,11 @@
    </listitem>
     -->
    <listitem>
-    <para>Renaming</para>
+    <para><interfacename>Renaming</interfacename></para>
     <para>
-     Describe me
+     <interfacename>Renaming</interfacename> is implemented for protocols
+     that can allow handles to be renamed (e.g. IRC). It is documented in
+     <xref linkend="sect.connection.renaming"/>.
     </para>
    </listitem>
   </itemizedlist>
@@ -463,6 +465,54 @@
      </para>
 
     </sect2>
+
+  </sect1>
+
+  <sect1 id="sect.connection.renaming">
+   <title>Handle Renaming</title>
+
+   <para>
+    In some protocols, contacts can change their contact handle identifier
+    (the one passed to <methodname>RequestHandles</methodname> and returned
+    by <methodname>InspectHandles</methodname>). For example on the IRC
+    protocol, a user may change his/her &quot;nick&quot; (their Telepathy
+    handle) from <literal>sheeba</literal> to <literal>sheeba|afk</literal>.
+    This renaming is facilitated by the
+    <interfacename>Renaming</interfacename> interface.
+   </para>
+
+   <sect2 id="sect.connection.renaming.self">
+    <title>Changing Your Own Handle Name</title>
+
+    <para>
+     The method <methodname>RequestRename</methodname> can be called to
+     change the string identifier for your own handle. This is used, for
+     example, to change your IRC nick.
+    </para>
+
+    <para>
+     The <methodname>Renamed</methodname> signal will be emitted for your
+     own handle id (the handle returned by
+     <methodname>GetSelfHandle</methodname>), as with any other handle
+     rename, so you don't need to special-case your own handle renaming in
+     the user interface view.
+    </para>
+
+    <para>
+     A given protocol may enforce certain rules with regards to possible
+     handles (valid characters), or whether your handle can be changed at
+     this time (e.g. IRC channels have a mode bit that disables rename while
+     you're a member). Thus <methodname>RequestRename</methodname> can
+     return several possible, non-fatal errors that should be reported to
+     the user.
+     <!-- FIXME: how does a client discover what's possible, to inform
+          the user? -->
+    </para>
+   </sect2>
+
+   <sect2 id="sect.connection.renaming.signal">
+    <title>Receiving Renames</title>
+   </sect2>
 
   </sect1>
 
