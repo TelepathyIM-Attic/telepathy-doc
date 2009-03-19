@@ -1,0 +1,371 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY appversion "0.7">
+  <!ENTITY manrevision "0.2">
+  <!ENTITY date "12 August 2008">
+  <!ENTITY app_no_markup "Telepathy">
+  <!ENTITY app "<application>&app_no_markup;</application>">
+  <!ENTITY url_examples_base "./examples/">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
+  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
+  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
+  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
+  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
+  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
+]>
+
+<chapter id="chapter.messaging">
+ <title>Text Messaging</title>
+
+ <para>
+  Text messaging is a common feature of practically all communications
+  protocols. In Telepathy it is done using
+  <link linkend="sect.channel.text">text channels</link>.
+  See <xref linkend="sect.channel.text"/> for a description of how to set
+  up a text channel.
+ </para>
+
+ <para>
+  Telepathy provides two APIs for text messaging. The preferred API is the
+  new <link linkend="sect.messaging.rich">Messages</link> interface, which
+  provides for rich-text messages, attachments and other messaging
+  capabilities.
+ </para>
+
+ <para>
+  The second API is the <link linkend="sect.messaging.simple">simple
+  interface</link>. This API only supports plain text messages, and no
+  advanced features like attachments and may be deprecated in the future.
+ </para>
+
+ <tip>
+  <para>
+   Some connection managers do not currently support
+   <interfacename>Messages</interfacename>. If your client needs to be
+   compatible with older connection managers, it is advisable to implement
+   both interfaces.
+  </para>
+ </tip>
+
+ <sect1 id="sect.messaging.rich">
+  <title>Rich Text Interface</title>
+
+  <note>
+   <para>
+    The <interfacename>Messages</interfacename> interface is the
+    preferred interface for text messaging, because it supports the full
+    range of messaging features exposed by the protocols.
+   </para>
+   <para>
+    Some older connection managers may not support this interface. If
+    this is the case, or if you really only want to send simple messages
+    (e.g. for a status reporting system), you can use the
+    <link linkend="sect.messaging.simple">simple messaging
+    interface</link> documented below.
+   </para>
+  </note>
+
+  <para>
+   Telepathy provides support for rich-text messaging via the
+   <interfacename>Messages</interfacename> interface. Rich-text messaging
+   can include features like formatted (rich text) messages, alternatives
+   (similar to MIME's multipart/alternative) and attachments. Messages
+   are formatted in
+   <ulink url="http://xmpp.org/extensions/xep-0071.html">XHTML-IM</ulink>.
+  </para>
+
+  <sect2 id="sect.messaging.messages.format">
+   <title>Message Structure</title>
+
+   <para>
+    Messages are sent and received as an array of
+    <type>Message_Part</type> key-value mappings, the first of which
+    contains the message headers.
+    <xref linkend="ex.channel.text.rich.message-structure"/> shows an
+    example message.
+   </para>
+
+   <example id="ex.channel.text.rich.message-structure">
+    <title>Example Message</title>
+
+    <para>
+     An example message consisting of four <type>Message_Part</type>s:
+     the headers, two alternatives and an attachment.
+    </para>
+
+    <informaltable>
+     <tgroup cols="2">
+      <thead>
+       <row>
+        <entry>Key</entry>
+        <entry>Value</entry>
+       </row>
+      </thead>
+      <tbody>
+
+       <row>
+        <entry>message-token</entry>
+        <entry>"9de9546a-3400-4419-a505-3ea270cb834c"</entry>
+       </row>
+       <row>
+        <entry>message-sender</entry>
+        <entry>42</entry>
+       </row>
+       <row>
+        <entry>message-sent</entry>
+        <entry>1210067943</entry>
+       </row>
+       <row>
+        <entry>message-received</entry>
+        <entry>1210067947</entry>
+       </row>
+       <row>
+        <entry>message-type</entry>
+        <entry><type>Channel_Text_Message_Type_Normal</type></entry>
+       </row>
+       <row rowsep="1">
+        <entry>pending-message-id</entry>
+        <entry>437</entry>
+       </row>
+
+       <row>
+        <entry>alternative</entry>
+        <entry>"main"</entry>
+       </row>
+       <row>
+        <entry>content-type</entry>
+        <entry>"text/html"</entry>
+       </row>
+       <row rowsep="1">
+        <entry>content</entry>
+        <entry><![CDATA["""Here is a photo of my cat:<br /><img src="cid:catphoto" alt="lol!" /><br />Isn't it cute?"""]]></entry>
+       </row>
+
+       <row>
+        <entry>alternative</entry>
+        <entry>"main"</entry>
+       </row>
+       <row>
+        <entry>content-type</entry>
+        <entry>"text/plain"</entry>
+       </row>
+       <row rowsep="1">
+        <entry>content</entry>
+        <entry><![CDATA["""Here is a photo of my cat:\n[IMG: lol!]\nIsn't it cute?"""]]></entry>
+       </row>
+
+       <row>
+        <entry>identifier</entry>
+        <entry>"catphoto"</entry>
+       </row>
+       <row>
+        <entry>content-type</entry>
+        <entry>"image/jpeg"</entry>
+       </row>
+       <row>
+        <entry>size</entry>
+        <entry>101000</entry>
+       </row>
+       <row>
+        <entry>needs-retrieval</entry>
+        <entry>True</entry>
+       </row>
+
+      </tbody>
+     </tgroup>	
+    </informaltable>
+   </example>
+
+   <para>
+    The known headers for a message are:
+   </para>
+
+   <informaltable>
+    <tgroup cols="3">
+     <thead>
+      <row>
+       <entry>Key</entry>
+       <entry>Type</entry>
+       <entry>Description</entry>
+      </row>
+     </thead>
+
+     <tbody>
+      <row>
+       <entry>message-token</entry>
+       <entry>String</entry>
+       <entry>
+        An opaque, globally-unique identifier for the entire message. Which
+        may be treated the same as a MIME message-id for the mid: and cid:
+        URI schemes. Not always present.
+       </entry>
+      </row>
+
+      <row>
+       <entry>message-sent, message-received</entry>
+       <entry><type>Unix_Timestamp64</type></entry>
+       <entry>
+        The time the message was sent and received respectively. May not
+        be present if a time cannot be determined.
+       </entry>
+      </row>
+
+      <row>
+       <entry>message-sender</entry>
+       <entry><type>Contact_Handle</type></entry>
+       <entry>
+        The handle id of the contact who sent the message. May be 0 or
+        ommitted, if the sender cannot be determined.
+       </entry>
+      </row>
+
+      <row>
+       <entry>message-type</entry>
+       <entry><type>Channel_Text_Message_Type</type></entry>
+       <entry>
+        The type of message. Defaults to
+        <type>Channel_Text_Message_Type_Normal</type> if ommitted.
+       </entry>
+      </row>
+
+      <row>
+       <entry>pending-message-id</entry>
+       <entry><type>Message_ID</type></entry>
+       <entry>
+        The incoming message ID, only valid for as long as the message
+        is unacknowledged.
+
+        <important><para>
+         This header is important for acknowledging the received message.
+        </para></important>
+       </entry>
+      </row>
+
+      <row>
+       <entry>interface</entry>
+       <entry><type>DBus_Interface</type></entry>
+       <entry>
+        This message is specific to the given interface, which is neither
+        Text nor Messages. This key can also appear in subsequent
+        parts of the message.
+       </entry>
+      </row>
+
+      <row>
+       <entry>scrollback</entry>
+       <entry>Boolean</entry>
+       <entry>
+        If true, the incoming message was part of a replay of message
+        history. Defaults to false.
+       </entry>
+      </row>
+
+      <row>
+       <entry>rescued</entry>
+       <entry>Boolean</entry>
+       <entry>
+        If true, the incoming message has been seen in a previous channel
+        during the lifetime of the Connection, but had not been
+        acknowledged when that channel closed. Defaults to false.
+       </entry>
+      </row>
+
+     </tbody>
+    </tgroup>
+   </informaltable>
+
+   <para>
+    Alternatives with the same name should be ordered from highest
+    fidelity to lowest fidelity (i.e. rich text before plain text).
+    Clients should display the first alternative they understand.
+   </para>
+
+  </sect2>
+
+  <sect2 id="sect.messaging.messages.receiving">
+   <title>Receiving Messages</title>
+
+   <para>
+    When a remote user initiates a new text chat, Telepathy will
+    automatically create a new channel for the chat, who's creation will
+    be heralded by the <methodname>NewChannels</methodname> signal.
+    Filter on the channels given for channels of type
+    <type>Channel_Type_Text</type>.
+    <xref linkend="ex.channel.text.messages.receiving.newchannels"/> shows
+    how to discover this channel.
+   </para>
+
+   <example id="ex.channel.text.messages.receiving.newchannels"
+            file="python_iface_messaging/example.py">
+     <title>Discovering Incoming Channels</title>
+   </example>
+
+   <para>
+    Set up a D-Bus proxy for the channel, like you would for any other
+    channel (see <xref linkend="sect.channel.requesting"/>). Check to
+    ensure that the <interfacename>Messages</interfacename> interface
+    is available.
+   </para>
+
+   <para>
+    Incoming messages are announced with the
+    <methodname>MessageReceived</methodname> signal, which places them on
+    the pending message queue. To remove messages from the pending
+    message queue, they must be acknowledged with
+    <methodname>Text.AcknowledgePendingMessages</methodname>. There will
+    already be messages pending, the ones that caused the creation of
+    the channel. These can be accessed via the
+    <property>PendingMessages</property> property.
+    See <xref linkend="ex.channel.text.messages.receiving.main"/>.
+   </para>
+
+   <para>
+    The message id to acknowledge the message is contained in the headers
+    of the message as the key <literal>pending-message-id</literal>
+    (see <xref linkend="sect.messaging.messages.format"/>).
+   </para>
+   
+   <important>
+    <title>Always Acknowledge Messages</title>
+    <para>
+     You must always acknowledge a received message, but you should only
+     do so after you have attempted to parse it.
+    </para>
+    <para>
+     Failure to acknowledge a message will result in a new channel
+     being created with the pending messages when the current channel is
+     closed.
+    </para>
+    <para>
+     It's posssible that a bug in your application's message parser could
+     cause an application crash.
+     You should attempt to parse the message before acknowledging it.
+     Thus, if your application has a crash, the message will still be
+     pending when the client reloads.
+    </para>
+   </important>
+
+   <example id="ex.channel.text.messages.receiving.main"
+            file="python_iface_messaging/example.py">
+     <title>Setting Up and Receiving Messages</title>
+   </example>
+
+  </sect2>
+
+ </sect1>
+
+ <sect1 id="sect.messaging.simple">
+  <title>Simple Messaging Interface</title>
+   <para>
+    Messages may be sent to the contact (or contact list) with the
+    <methodname>Send</methodname>
+    method. Sending messages can be requested using the Send method,
+    which will return successfully. Other parts of your application may
+    handle the <literal>Sent</literal> signal, for instance to log that
+    side of the conversation.
+   </para>
+ 
+ </sect1>
+</chapter>
