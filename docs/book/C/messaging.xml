@@ -574,5 +574,42 @@
 
   </sect2>
 
+  <sect2 id="sect.messages.simple.sending">
+   <title>Sending Messages</title>
+
+   <para>
+    Sending a text message is done using the <methodname>Send</methodname>
+    method, which takes a message type
+    (<type>Channel_Text_Message_Type</type>) and a plain text message to
+    send, on an establish text channel
+    (<interfacename>Channel.Type.Text</interfacename>).
+    The receipient(s) of the message are set by the channel, which might
+    either be a one-to-one chat or a chatroom.
+   </para>
+   
+   <para>
+    If you don't already have one, setting up a new text channel is
+    documented in <xref linkend="sect.channel.text"/>.
+   </para>
+
+   <tip>
+    <title>Private Messages</title>
+    <para>
+     All messages sent to a chatroom channel will be transmitted to all
+     members of the chatroom.
+    </para>
+    <para>
+     To send a private message to a single member of a chatroom (for
+     example, an IRC private message), a whole new channel must
+     be created with that contact as the target.
+    </para>
+    <para>
+     Similarly, if you are sent a private message. This will appear as a new
+     channel (announced by the signal <methodname>NewChannels</methodname>)
+     and not in an existing chatroom you share with that user.
+    </para>
+   </tip>
+  </sect2>
+
  </sect1>
 </chapter>
