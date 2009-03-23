@@ -358,14 +358,118 @@
 
  <sect1 id="sect.messaging.simple">
   <title>Simple Messaging Interface</title>
+  <para>
+   The simple messaging interface allows the sending and receiving of
+   simple (plain/unformatted) text messages. All of its features are also
+   available in the more powerful
+   <link linkend="sect.messaging.rich">rich text interface</link>, which is
+   not complex for plain text messaging. Where possible you should use the
+   newer interface instead.
+  </para>
+
+  <warning>
+   <title>Possible Candidate for Deprecation</title>
    <para>
-    Messages may be sent to the contact (or contact list) with the
-    <methodname>Send</methodname>
-    method. Sending messages can be requested using the Send method,
-    which will return successfully. Other parts of your application may
-    handle the <literal>Sent</literal> signal, for instance to log that
-    side of the conversation.
+    The methods of this interface are a possible candidate for future
+    deprecation.
    </para>
- 
+   <para>
+    The <link linkend="sect.messaging.rich">rich text interface</link>,
+    <interfacename>Messages</interfacename> provides all of the
+    functionality that is provided by this interface. The
+    <interfacename>Messages</interfacename> interface is not significantly
+    more complex for the case of simple text messaging, and should be used
+    in preference to this interface.
+   </para>
+  </warning>
+
+  <sect2 id="sect.messaging.simple.receiving">
+   <title>Receiving Messages</title>
+
+   <para>
+    Receiving messages using the simple interface is more or less identical
+    to using the rich interface (see
+    <xref linkend="sect.messaging.messages.receiving"/>).
+   </para>
+
+   <para>
+    The creation of a new text channel will be heralded by the
+    <methodname>NewChannels</methodname> signal. Filter on the new channels
+    for channels of type <type>Channel_Type_Text</type>
+    (see <xref linkend="ex.channel.text.messages.receiving.newchannels"/>).
+   </para>
+
+   <para>
+    Incoming messages are announced with the
+    <methodname>Received</methodname> signal on the
+    <interfacename>Channel.Type.Text</interfacename> interface. This is
+    emmitted at the same time as
+    <methodname>Messages.MessageReceived</methodname> (if for some reason
+    you have both signals connected).
+   </para>
+
+   <para>
+    The format for <methodname>Received</methodname> is:
+   </para>
+   <informaltable>
+    <tgroup cols="3">
+     <thead>
+      <row>
+       <entry>Parameter</entry>
+       <entry>Type</entry>
+       <entry>Description</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>ID</entry>
+       <entry>Unsigned integer</entry>
+       <entry>
+        The ID used to acknowledge the message, this is the same ID as
+	<literal>pending-message-id</literal> in the rich interface.
+       </entry>
+      </row>
+      <row>
+       <entry>Timestamp</entry>
+       <entry>Unix timestamp</entry>
+       <entry>
+        The time the message was received. The same as
+	<literal>message-received</literal>.
+       </entry>
+      </row>
+      <row>
+       <entry>Sender</entry>
+       <entry><type>Handle_Type_Contact</type></entry>
+       <entry>
+        The handle of the message sender. The same as
+	<literal>message-sender</literal>.
+       </entry>
+      </row>
+      <row>
+       <entry>Type</entry>
+       <entry><type>Channel_Text_Message_Type</type></entry>
+       <entry>
+        The type of the message: normal, action, notice, auto-reply or
+	delivery report. The same as <literal>message-type</literal>.
+       </entry>
+      </row>
+      <row>
+       <entry>Flags</entry>
+       <entry><type>Channel_Text_Message_Flags</type></entry>
+       <entry>
+        Message flags.
+       </entry>
+      </row>
+      <row>
+       <entry>Text</entry>
+       <entry>String</entry>
+       <entry>The message content as plain text.</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+
+  </sect2>
+
  </sect1>
 </chapter>
