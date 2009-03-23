@@ -512,6 +512,36 @@
 
    <sect2 id="sect.connection.renaming.signal">
     <title>Receiving Renames</title>
+
+    <note>
+     <para>
+      Rename announcements depend on the protocol specification. Just holding
+      a handle or being in a channel which has that contact as a member may
+      not be enough to get the rename announcement.
+     </para>
+
+     <para>
+      For example, in IRC you must be a member of a chatroom with the user
+      to receive the rename notification.
+     </para>
+    </note>
+
+    <para>
+     Handle IDs are considered to be immutable, so when the identifier
+     changes, a new handle ID is issued.
+     When a contact changes its identifier,
+     the <methodname>Renamed</methodname> signal will be emitted providing
+     the original handle ID and a new ID for the contact.
+    </para>
+
+    <para>
+     If the contact is a member of channels that implement
+     <interfacename>Group</interfacename> (e.g. contact lists or chatrooms),
+     these will emit <methodname>MembersChanged</methodname> after
+     <methodname>Renamed</methodname> has been emitted. The reason
+     (<type>Channel_Group_Change_Reason</type>) will be given as Renamed.
+    </para>
+
    </sect2>
 
   </sect1>
