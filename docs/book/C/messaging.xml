@@ -457,7 +457,8 @@
        <entry>Flags</entry>
        <entry><type>Channel_Text_Message_Flags</type></entry>
        <entry>
-        Message flags.
+        Message flags. See
+	<xref linkend="sect.messages.simple.receiving.flags"/>.
        </entry>
       </row>
       <row>
@@ -508,6 +509,68 @@
      pending when the client reloads.
     </para>
    </important>
+
+   <sect3 id="sect.messages.simple.receiving.flags">
+    <title>Message Flags</title>
+
+    <para>
+     A message may have one or several flags applied to it (as a bitwise OR).
+     These flags have similar meaning to boolean headers that may be present
+     in the rich text interface. They are documented in the spec as the type
+     <type>Channel_Text_Message_Flags</type>. The current flags are
+     documented in <xref linkend="table.messages.simple.receiving.flags"/>.
+    </para>
+
+    <table id="table.messages.simple.receiving.flags">
+     <title>Message Flags for Simple Messages</title>
+      <tgroup cols="3">
+       <thead>
+        <row>
+	 <entry>Flag</entry>
+	 <entry><interfacename>Messages</interfacename> header equivalent</entry>
+	 <entry>Description</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+	 <entry>Truncated</entry>
+	 <entry>truncated</entry>
+	 <entry>
+	  The incoming message was truncated to a shorter length by the
+	  server or the connection manager.
+	 </entry>
+	</row>
+	<row>
+	 <entry>Non_Text_Content</entry>
+	 <entry>-</entry>
+	 <entry>
+	  The incoming message contained non-text content which cannot
+	  be represented by this interface.
+	  The intention is that if this flag is set, clients should inform
+	  the user that part of the message was not understood.
+	 </entry>
+	</row>
+	<row>
+	 <entry>Scrollback</entry>
+	 <entry>scrollback</entry>
+	 <entry>
+	  The incoming message was part of a replay of message history.
+	 </entry>
+       </row>
+       <row>
+        <entry>Rescued</entry>
+	<entry>rescued</entry>
+	<entry>
+	 The incoming message has been seen in a previous channel during the
+	 lifetime of the Connection, but had not been acknowledged when that
+	 channel closed, causing this channel to open.
+	</entry>
+       </row>
+       </tbody>
+      </tgroup>
+    </table>
+
+   </sect3>
 
   </sect2>
 
