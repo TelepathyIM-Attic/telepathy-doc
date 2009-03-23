@@ -403,7 +403,7 @@
     Incoming messages are announced with the
     <methodname>Received</methodname> signal on the
     <interfacename>Channel.Type.Text</interfacename> interface. This is
-    emmitted at the same time as
+    emitted at the same time as
     <methodname>Messages.MessageReceived</methodname> (if for some reason
     you have both signals connected).
    </para>
@@ -468,6 +468,46 @@
      </tbody>
     </tgroup>
    </informaltable>
+
+   <para>
+    When the channel is created, there may already be pending messages (the
+    messages that created the channel in the first place). The pending
+    messages can be read by calling
+    <methodname>ListPendingMessages</methodname>. The
+    <parameter>Clear</parameter> parameter should
+    <emphasis>always</emphasis> be set to False
+    (see <xref linkend="important.messages.simple.ack"/>). The return type
+    of <methodname>ListPendingMessages</methodname> is an array of structs
+    with members the same as the parameters of
+    <methodname>Received</methodname>.
+   </para>
+
+   <para>
+    Pending messages are acknowledged by a call to
+    <methodname>AcknowledgePendingMessages</methodname>, citing the message
+    IDs given by the <methodname>Received</methodname> signal. Messages
+    should only be acknowledged after they have been parsed and displayed.
+   </para>
+   
+   <important id="important.messages.simple.ack">
+    <title>Always Acknowledge Messages</title>
+    <para>
+     You must always acknowledge a received message, but you should only
+     do so after you have attempted to parse it.
+    </para>
+    <para>
+     Failure to acknowledge a message will result in a new channel
+     being created with the pending messages when the current channel is
+     closed.
+    </para>
+    <para>
+     It's posssible that a bug in your application's message parser could
+     cause an application crash.
+     You should attempt to parse the message before acknowledging it.
+     Thus, if your application has a crash, the message will still be
+     pending when the client reloads.
+    </para>
+   </important>
 
   </sect2>
 
