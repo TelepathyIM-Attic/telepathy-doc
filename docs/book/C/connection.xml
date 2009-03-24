@@ -180,7 +180,8 @@
      <para>
       telepathy-glib provides the
       <ulink url="&url_telepathy_glib_base;connection-manager.html#tp-list-connection-managers"><function>tp_list_connection_managers</function></ulink> function
-      to list the available connection managers.
+      to list the available connection managers. This is demonstrated in
+      <xref linkend="ex.connection.connection-manager.glib"/>.
      </para>
  
      <para>
@@ -191,6 +192,11 @@
       signal when it has returned. You can examine the
       TpConnectionManager::protocols struct field in your signal handler.
      </para>
+
+     <example id="ex.connection.connection-manager.glib"
+              file="glib_list_protocols/example.c">
+      <title>tp_list_connection_managers Example</title>
+     </example>
     </sect2>
     
   </sect1>

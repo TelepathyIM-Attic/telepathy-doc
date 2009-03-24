@@ -5,6 +5,21 @@
 
 static GMainLoop *loop = NULL;
 
+static void got_connection_managers (TpConnectionManager	* const * cms,
+				     gsize			 ncms,
+				     const GError		*error,
+				     gpointer			 user_data,
+				     GObject			*weak_object);
+
+/* begin ex.connection.connection-manager.glib */
+static void
+get_connection_managers (TpDBusDaemon *bus_daemon)
+{
+	/* let's get a list of the connection managers */
+	tp_list_connection_managers (bus_daemon, got_connection_managers,
+			NULL, NULL, NULL);
+}
+
 static void
 got_connection_managers (TpConnectionManager	* const * cms,
 			 gsize			 ncms,
@@ -43,6 +58,7 @@ got_connection_managers (TpConnectionManager	* const * cms,
 		}
 	}
 }
+/* end ex.connection.connection-manager.glib */
 
 int main (int argc, char **argv)
 {
@@ -60,9 +76,7 @@ int main (int argc, char **argv)
 		g_error ("%s", error->message);
 	}
 
-	/* let's get a list of the connection managers */
-	tp_list_connection_managers (bus_daemon, got_connection_managers,
-			NULL, NULL, NULL);
+	get_connection_managers (bus_daemon);
 
 	g_main_loop_run (loop);
 
