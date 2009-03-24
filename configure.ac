@@ -10,10 +10,9 @@ GNOME_DOC_INIT([0.9.0])
 
 PKG_CHECK_MODULES(GNOME_DOC_UTILS, gnome-doc-utils)
 
-# We depend on GTK+ too, because that allows us to create more realistic 
-# examples that are easier to play with. But we will try to write only a small 
-# amount of UI code. 
-PKG_CHECK_MODULES(TELEPATHY_DOCS, telepathy-glib >= 0.7.3 gtk+-2.0 >= 2.12.0)
+PKG_CHECK_MODULES(TELEPATHY_GLIB, telepathy-glib >= 0.7.3 gtk+-2.0 >= 2.12.0)
+AC_SUBST(TELEPATHY_GLIB_CFLAGS)
+AC_SUBST(TELEPATHY_GLIB_LIBS)
 
 # Use C:
 AC_PROG_CC()
@@ -24,17 +23,7 @@ AC_OUTPUT([
 
   docs/Makefile
     docs/examples/Makefile
-      docs/examples/basics_dbus_glib_methods/Makefile
-      docs/examples/basics_dbus_glib_properties/Makefile
-      docs/examples/basics_dbus_glib_signals/Makefile
-      docs/examples/basics_dbus_python_methods/Makefile
-      docs/examples/basics_dbus_python_properties/Makefile
-      docs/examples/basics_dbus_python_signals/Makefile
-      docs/examples/connect/Makefile
-      docs/examples/list_all_protocols/Makefile
-      docs/examples/list_contacts/Makefile
-      docs/examples/set_presence/Makefile
-      docs/examples/send_message/Makefile
+      docs/examples/glib_list_protocols/Makefile
 
     docs/book/Makefile
 ])
