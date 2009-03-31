@@ -844,6 +844,81 @@
 	</para>
       </sect3>
 
+      <sect3 id="sect.basica.language-bindings.telepathy-glib.maps">
+       <title>a{sv} Maps</title>
+
+       <para>
+        Telepathy makes extensive use of a{sv} maps (i.e. a map of string
+	keys to variant types) for passing and returning properties from
+	calls (this allows for something similar to polymorphic functions
+	via D-Bus). Unforunately, C and GLib do not offer many functions for
+	convieniently handling this type of map.
+       </para>
+
+       <para>
+        To make handling these maps easier, Telepathy provides a number of
+	functions, <function>tp_asv_*</function> for manipulating these
+	maps.
+       </para>
+
+       <para>
+        Telepathy uses a standard <classname>GHashTable</classname> that is
+	set up to use string keys, and GSlice-allocated
+	<classname>GValue</classname> values. The easiest way to create a
+	new map with <function>tp_asv_new</function>. This function will
+	automatically destroy values when they are overwritten, removed or
+	the hash table is destroyed. The standard GHashTable functions
+	<function>g_hash_table_destroy</function>,
+	<function>g_hash_table_ref</function>, etc. can all be used with
+	this map.
+       </para>
+
+       <para>
+        <function>tp_asv_new</function> can optionally take a
+	NULL-terminated list of initial values as (key, type, value) tuples,
+	as shown in
+	<xref linkend="ex.basics.language-bindings.telepathy-glib.tp_asv_new"/>.
+       </para>
+
+       <example id="ex.basics.language-bindings.telepathy-glib.tp_asv_new">
+        <title>Creating an a{sv} map with tp_asv_new()</title>
+	<!-- FIXME: pull from source example? -->
+	<programlisting>
+<![CDATA[GHashTable *parameters = tp_asv_new (
+	"account", G_TYPE_STRING, "bob@mcbadgers.com"
+	"password", G_TYPE_STRING, password,
+	NULL);]]></programlisting>
+       </example>
+
+       <para>
+        The map can be further edited or appended to with the
+	<function>tp_asv_set_*</function> functions (e.g.
+	<function>tp_asv_set_string</function>).
+       </para>
+
+       <para>
+        To read values from the map, use the
+	<function>tp_asv_get_*</function> functions (e.g.
+	<function>tp_asv_get_string</function>). These functions return the
+	value on success, or NULL/False/0 if the key is unavailable.
+	Some accessor functions
+	(e.g. <function>tp_asv_get_boolean</function>,
+	<function>tp_asv_get_double</function>,
+	<function>tp_asv_get_int32</function>, etc.) take an optional
+	parameter <parameter>*valid</parameter>, which can be used to
+	determine, without ambiguity, if the key exists in the map.
+       </para>
+
+       <tip>
+        <title>tp_asv_dump()</title>
+	<para>
+	 The function <function>tp_asv_dump</function> can be used to dump
+	 a string representation of the map out to the debugging console.
+	</para>
+       </tip>
+
+      </sect3>
+
       <sect3 id="sect.basics.language-bindings.telepathy-glib.readiness">
         <title>Instantiation and Readiness</title>
         <!-- TODO: Keep any eye on http://bugs.freedesktop.org/show_bug.cgi?id=13422 -->
