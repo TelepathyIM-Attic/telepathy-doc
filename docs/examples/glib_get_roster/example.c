@@ -22,24 +22,48 @@ handle_error (const GError *error)
 }
 
 static void
+new_channels_cb (TpConnection		*conn,
+                 const GPtrArray	*channels,
+		 gpointer		 user_data,
+		 GObject		*weak_obj)
+{
+	/* channels has the D-Bus type a(oa{sv}), which decomposes to:
+	 *  - a GPtrArray containing a GValueArray for each channel
+	 *  - each GValueArray contains
+	 *     - an object path
+	 *     - an a{sv} map
+	 */
+
+	int i;
+	for (i = 0; i < channels->len; i++)
+	{
+		GValueArray *channel = g_ptr_array_index (channels, i);
+		char *object_path = g_value_get_boxed (
+				g_value_array_get_nth (channel, 0));
+		GHashTable *map = g_value_get_boxed (
+				g_value_array_get_nth (channel, 1));
+
+		char *type = tp_asv_get_string (map,
+				TP_IFACE_CHANNEL ".ChannelType");
+
+		g_print (" - New Channel -\n");
+		g_print ("Path: %s\n", object_path);
+		g_print ("Type: %s\n", type);
+	}
+}
+
+static void
 get_channels_cb (TpProxy	*proxy,
-                 const GValue	*value,
+		 const GValue	*value,
 		 const GError	*in_error,
 		 gpointer	 user_data,
 		 GObject	*weak_obj)
 {
 	handle_error (in_error);
 
-	g_print (" > get_channels_cb\n");
-}
+	GPtrArray *channels = g_value_get_boxed (value);
 
-static void
-new_channels_cb (TpConnection		*conn,
-                 const GPtrArray	*channels,
-		 gpointer		 user_data,
-		 GObject		*weak_obj)
-{
-	g_print (" > new channels (%i)\n", channels->len);
+	new_channels_cb (conn, channels, user_data, weak_obj);
 }
 
 static void
