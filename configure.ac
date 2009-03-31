@@ -24,6 +24,7 @@ AC_OUTPUT([
   docs/Makefile
     docs/examples/Makefile
       docs/examples/glib_list_protocols/Makefile
+      docs/examples/glib_get_roster/Makefile
 
     docs/book/Makefile
 ])
