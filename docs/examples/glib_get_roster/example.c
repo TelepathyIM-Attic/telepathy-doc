@@ -2,14 +2,16 @@
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
+#include <telepathy-glib/interfaces.h>
 #include <telepathy-glib/util.h>
 #include <telepathy-glib/debug.h>
 
 static GMainLoop *loop = NULL;
 static TpDBusDaemon *bus_daemon = NULL;
+static TpConnection *conn = NULL;
 
 static void
-handle_error (const GError *error, TpConnection *conn)
+handle_error (const GError *error)
 {
 	if (error)
 	{
@@ -20,16 +22,62 @@ handle_error (const GError *error, TpConnection *conn)
 }
 
 static void
+get_channels_cb (TpProxy	*proxy,
+                 const GValue	*value,
+		 const GError	*in_error,
+		 gpointer	 user_data,
+		 GObject	*weak_obj)
+{
+	handle_error (in_error);
+
+	g_print (" > get_channels_cb\n");
+}
+
+static void
+new_channels_cb (TpConnection		*conn,
+                 const GPtrArray	*channels,
+		 gpointer		 user_data,
+		 GObject		*weak_obj)
+{
+	g_print (" > new channels (%i)\n", channels->len);
+}
+
+static void
 conn_ready (TpConnection	*conn,
             const GError	*in_error,
 	    gpointer		 user_data)
 {
+	GError *error = NULL;
+
 	g_print (" > conn_ready\n");
 
-	handle_error (in_error, conn);
+	handle_error (in_error);
 
-	/* disconnect */
-	tp_cli_connection_call_disconnect (conn, -1, NULL, NULL, NULL, NULL);
+	/* print out a list of available interfaces */
+	char **interfaces, **ptr;
+	g_object_get (conn, "interfaces", &interfaces, NULL);
+	for (ptr = interfaces; ptr && *ptr; ptr++)
+	{
+		g_print ("- %s\n", *ptr);
+	}
+	g_strfreev (interfaces);
+
+	/* check if the Requests interface is available */
+	if (tp_proxy_has_interface_by_id (conn,
+				TP_IFACE_QUARK_CONNECTION_INTERFACE_REQUESTS))
+	{
+		/* request the current channels */
+		tp_cli_dbus_properties_call_get (conn, -1,
+				TP_IFACE_CONNECTION_INTERFACE_REQUESTS,
+				"Channels",
+				get_channels_cb,
+				NULL, NULL, NULL);
+
+		tp_cli_connection_interface_requests_connect_to_new_channels (
+				conn, new_channels_cb,
+				NULL, NULL, NULL, &error);
+		handle_error (error);
+	}
 }
 
 static void
@@ -51,15 +99,6 @@ status_changed_cb (TpConnection	*conn,
 }
 
 static void
-new_channels_cb (TpConnection		*conn,
-                 const GPtrArray	*channels,
-		 gpointer		 user_data,
-		 GObject		*weak_obj)
-{
-	g_print (" > new channels\n");
-}
-
-static void
 request_connection_cb (TpConnectionManager	*cm,
                        const char		*bus_name,
 		       const char		*object_path,
@@ -73,21 +112,14 @@ request_connection_cb (TpConnectionManager	*cm,
 
 	if (in_error) g_error ("%s", in_error->message);
 
-	TpConnection *conn = tp_connection_new (bus_daemon,
-			bus_name, object_path, &error);
+	conn = tp_connection_new (bus_daemon, bus_name, object_path, &error);
 	if (error) g_error ("%s", error->message);
 
 	tp_connection_call_when_ready (conn, conn_ready, NULL);
 
 	tp_cli_connection_connect_to_status_changed (conn, status_changed_cb,
 			NULL, NULL, NULL, &error);
-	handle_error (error, conn);
-
-	/*
-	tp_cli_connection_interface_requests_connect_to_new_channels (conn,
-			new_channels_cb, NULL, NULL, NULL, &error);
-	handle_error (error, conn);
-	 */
+	handle_error (error);
 
 	/* initiate the connection */
 	tp_cli_connection_call_connect (conn, -1, NULL, NULL, NULL, NULL);
@@ -130,6 +162,14 @@ cm_ready (TpConnectionManager	*cm,
 	g_hash_table_destroy (parameters);
 }
 
+static void
+interrupt_cb (int signal)
+{
+	g_print ("Interrupt\n");
+	/* disconnect */
+	tp_cli_connection_call_disconnect (conn, -1, NULL, NULL, NULL, NULL);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -153,6 +193,11 @@ main (int argc, char **argv)
 	if (error) g_error ("%s", error->message);
 
 	tp_connection_manager_call_when_ready (cm, cm_ready, NULL, NULL, NULL);
+
+	/* set up a signal handler */
+	struct sigaction sa = { 0 };
+	sa.sa_handler = interrupt_cb;
+	sigaction (SIGINT, &sa, NULL);
 
 	g_main_loop_run (loop);
 
