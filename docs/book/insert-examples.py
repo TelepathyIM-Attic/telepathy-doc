@@ -65,7 +65,18 @@ for example in examples:
 				begin = True
 				continue
 
-		if lines != []: contents = '\n'.join (lines)
+		if lines != []:
+			# trip the common indent off the front of the example
+			def leading_space (s):
+				n = 0
+				for c in s:
+					if not c.isspace (): break
+					n += 1
+				return n
+			lines = map (lambda s: s.expandtabs(), lines)
+			trim = min ([ leading_space(s) for s in lines if s != "" ])
+
+			contents = '\n'.join (map (lambda s: s[trim:], lines))
 
 	else:
 		print >> sys.stderr, "Including file `%s'..." % filename
