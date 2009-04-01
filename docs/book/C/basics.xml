@@ -1045,11 +1045,93 @@ get_channels_cb (TpProxy        *proxy,
        </para>
 
        <para>
-        To check that a given <classname>GValue</classname> is off the
-        suspected type use the macro <function>G_VALUE_HOLDS</function>.
-        You can also print its type for debugging with the macro
-        <function>G_VALUE_TYPE_NAME</function>.
+        To check that a given <classname>GValue</classname> is of the
+        correct type, use the macro <function>G_VALUE_HOLDS</function>. To
+        retrieve the type of a <classname>GValue</classname> use the macro
+        <function>G_VALUE_TYPE</function>.
        </para>
+
+       <para>
+        Decoding the contents of the GValue can be done either from the
+        <ulink url="&url_telepathy_glib_base;telepathy-glib-gtypes.html">manual</ulink>
+        or from the D-Bus type signature. For example the property
+        <property>Requests.Channels</property> is of the type
+        <type>Channel_Details_List</type> (<literal>a(oa{sv})</literal>). From
+        the manual, this is a <classname>GPtrArray</classname> of
+        <type>TP_STRUCT_TYPE_CHANNEL_DETAILS</type>, which in turn is a
+        <classname>GValueArray</classname> containing a object path and an
+        <link linkend="sect.basics.language-bindings.telepathy-glib.maps">a{sv}
+        map</link> (hashtable). The complete unpacking is shown in
+        <xref linkend="ex.basics.language-bindings.telepathy-glib.types"/>.
+       </para>
+
+       <para>
+        More generally, the structure of the type can be determined from its
+        D-Bus type signature by following several rules:
+       </para>
+       <itemizedlist>
+        <listitem><para>
+         Arrays (e.g. <literal>as</literal>) are stored as a
+         <classname>GPtrArray</classname>;
+        </para></listitem>
+        <listitem><para>
+         Structures (e.g. <literal>(oa{sv})</literal>) are stored as a
+         <classname>GValueArray</classname> where each member of the
+         structure is a GValue in the array in the respective order.
+        </para></listitem>
+        <listitem><para>
+         Maps (e.g. <literal>a{sv}</literal>) are stored as a
+         <classname>GHashTable</classname>.
+        </para></listitem>
+        <listitem><para>
+         Object paths (<literal>o</literal>) are stored as a boxed
+         <classname>GValue</classname>s of type
+         <type>DBUS_TYPE_G_OBJECT_PATH</type>.
+        </para></listitem>
+        <listitem><para>
+         Variant types (<literal>v</literal>) are stored as
+         <classname>GValue</classname>s of type specified by the spec.
+        </para></listitem>
+       </itemizedlist>
+
+       <para>
+        For example, the D-Bus type <literal>a{sa(usuu)}</literal> is a
+        <classname>GHashTable</classname> of string keys (<type>char *</type>)
+        to <classname>GPtrArray</classname>s containing
+        <classname>GValueArray</classname>s. This is shown graphically in
+        <xref linkend="fig.basics.language-bindings.telepathy-glib.types.unpacked"/>.
+       </para>
+    
+       <figure id="fig.basics.language-bindings.telepathy-glib.types.unpacked">
+        <title>Expanded Type for a{sa(usuu)}</title>
+        <mediaobject><imageobject>
+         <imagedata fileref="figures/telepathy-glib-type-unpacked.png"
+                    format="PNG" />
+        </imageobject></mediaobject>
+       </figure>
+
+       <example id="ex.basics.language-bindings.telepathy-glib.types">
+        <title>Decoding a GValue containing a Channel_Details_List</title>
+        <programlisting>
+<![CDATA[g_return_if_fail (G_VALUE_HOLDS (value, TP_ARRAY_TYPE_CHANNEL_DETAILS_LIST));
+
+GPtrArray *channels = g_value_get_boxed (value);
+
+int i;
+for (i = 0; i < channels->len; i++)
+{
+        GValueArray *channel = g_ptr_array_index (channels, i);
+
+        char *object_path = g_value_get_boxed (g_value_array_get_nth (channel, 0));
+        GHashTable *map = g_value_get_boxed (g_value_array_get_nth (channel, 1));
+
+        const char *type = tp_asv_get_string (map, TP_IFACE_CHANNEL ".ChannelType");
+
+        g_print ("Path: %s\n", object_path);
+        g_print ("Type: %s\n", type);
+}]]></programlisting>
+       </example>
+
       </sect3>
 
       <sect3 id="sect.basics.language-bindings.telepathy-glib.maps">

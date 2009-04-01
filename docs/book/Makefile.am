@@ -30,7 +30,8 @@ DOC_FIGURES_SRC = \
 	telepathy-architecture-overview.svg \
 	bus-conceptual.svg \
 	bus-hierarchy-conceptual.svg \
-	contactlist-flowchart.svg
+	contactlist-flowchart.svg \
+	telepathy-glib-type-unpacked.svg
 
 # The names of any pictures:
 DOC_FIGURES = 
