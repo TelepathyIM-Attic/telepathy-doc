@@ -127,6 +127,29 @@ conn_ready (TpConnection	*conn,
 				conn, new_channels_cb,
 				NULL, NULL, NULL, &error);
 		handle_error (error);
+
+		/* explicitly ask for the publish and subscribe contact lists
+		 * these will be announced by NewChannels, so we don't need
+		 * to handle their callbacks (this does mean we also can't
+		 * handle their errors) */
+		GHashTable *request = tp_asv_new (
+			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_CONTACT_LIST,
+			TP_IFACE_CHANNEL ".TargetHandleType", TP_TYPE_HANDLE, TP_HANDLE_TYPE_LIST,
+			NULL);
+
+		/* the 'publish' list */
+		tp_asv_set_string (request,
+			TP_IFACE_CHANNEL ".TargetID", "publish");
+		tp_cli_connection_interface_requests_call_ensure_channel (
+				conn, -1, request, NULL, NULL, NULL, NULL);
+
+		/* the 'subscribe' list */
+		tp_asv_set_string (request,
+			TP_IFACE_CHANNEL ".TargetID", "subscribe");
+		tp_cli_connection_interface_requests_call_ensure_channel (
+				conn, -1, request, NULL, NULL, NULL, NULL);
+
+		g_hash_table_destroy (request);
 	}
 }
 
