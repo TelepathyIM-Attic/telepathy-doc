@@ -992,7 +992,7 @@ request_connection_cb (TpConnectionManager      *cm,		/* TpProxy */
         <xref linkend="sect.basics.language-bindings.telepathy-glib.types"/>).
         For <function>tp_cli_dbus_properties_call_get_all</function> the return
         value is an
-        <link linkend="sect.basica.language-bindings.telepathy-glib.maps">a{sv}
+        <link linkend="sect.basics.language-bindings.telepathy-glib.maps">a{sv}
         map</link>.
         <xref linkend="ex.basics.language-bindings.telepathy-glib.dbus-properties"/>
         demonstates how to access a D-Bus property.
@@ -1027,9 +1027,32 @@ get_channels_cb (TpProxy        *proxy,
 
       <sect3 id="sect.basics.language-bindings.telepathy-glib.types">
        <title>Types</title>
+
+       <para>
+        The handling of variant types in
+        <application>telepathy-glib</application> is done using GLib's built-in
+        <ulink url="http://library.gnome.org/devel/gobject/stable/gobject-Generic-values.html"><classname>GValue</classname></ulink>
+        type system.
+       </para>
+
+       <para>
+        Telepathy's complex types are all mapped to generated boxed GTypes
+        (see
+        <ulink url="&url_telepathy_glib_base;telepathy-glib-gtypes.html">the
+        telepathy-glib manual</ulink>). For example
+        <type>Channel_Details</type> maps to the GType
+        <type>TP_STRUCT_TYPE_CHANNEL_DETAILS</type>.
+       </para>
+
+       <para>
+        To check that a given <classname>GValue</classname> is off the
+        suspected type use the macro <function>G_VALUE_HOLDS</function>.
+        You can also print its type for debugging with the macro
+        <function>G_VALUE_TYPE_NAME</function>.
+       </para>
       </sect3>
 
-      <sect3 id="sect.basica.language-bindings.telepathy-glib.maps">
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.maps">
        <title>a{sv} Maps</title>
 
        <para>
