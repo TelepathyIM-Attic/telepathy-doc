@@ -299,11 +299,41 @@
     <title>telepathy-glib</title>
     
     <para>
-     Telepathy-glib provides the
+     <application>telepathy-glib</application> maps
+     <methodname>CreateChannel</methodname> and
+     <methodname>EnsureChannel</methodname> to the functions
      <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-create-channel"><function>tp_cli_connection_interface_requests_call_create_channel()</function></ulink>
      and <ulink url="&url_telepathy_glib_base;connection-requests.html#tp-cli-connection-interface-requests-call-ensure-channel"><function>tp_cli_connection_interface_requests_call_ensure_channel()</function></ulink>
-     functions for this purpose.
+     respectively. <xref linkend="ex.channel.requesting.glib.ensure"/>
+     shows how this is done.
     </para>
+
+    <example id="ex.channel.requesting.glib.ensure"
+             file="glib_get_roster/example.c">
+     <title>Ensuring a Channel With telepathy-glib</title>
+    </example>
+
+    <para>
+     The <classname>TpChannel</classname> is used to work with channels in
+     <application>telepathy-glib</application>. It also provides API to help
+     use the <link linkend="sect.channel.groups">Groups interface</link>,
+     that is present on many channels.
+    </para>
+
+    <para>
+     A <classname>TpChannel</classname> can either be created using
+     <function>tp_channel_new</function> or
+     <function>tp_channel_new_from_properties</function>. The latter is more
+     useful when you've created a channel using the
+     <interfacename>Requests</interfacename> interface,
+     as you can just pass in the returned property map, as shown in
+     <xref linkend="ex.channel.requesting.glib.tpchannel"/>.
+    </para>
+
+    <example id="ex.channel.requesting.glib.tpchannel"
+             file="glib_get_roster/example.c">
+     <title>Using tp_channel_new_from_properties</title>
+    </example>
 
    </sect2>
 

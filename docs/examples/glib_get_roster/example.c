@@ -57,6 +57,7 @@ new_channels_cb (TpConnection		*conn,
 		GHashTable *map = g_value_get_boxed (
 				g_value_array_get_nth (channel, 1));
 
+		/* begin ex.channel.requesting.glib.tpchannel */
 		const char *type = tp_asv_get_string (map,
 				TP_IFACE_CHANNEL ".ChannelType");
 
@@ -72,6 +73,7 @@ new_channels_cb (TpConnection		*conn,
 			tp_channel_call_when_ready (channel,
 					channel_ready, NULL);
 		}
+		/* end ex.channel.requesting.glib.tpchannel */
 	}
 }
 
@@ -128,6 +130,7 @@ conn_ready (TpConnection	*conn,
 				NULL, NULL, NULL, &error);
 		handle_error (error);
 
+		/* begin ex.channel.requesting.glib.ensure */
 		/* explicitly ask for the publish and subscribe contact lists
 		 * these will be announced by NewChannels, so we don't need
 		 * to handle their callbacks (this does mean we also can't
@@ -150,6 +153,7 @@ conn_ready (TpConnection	*conn,
 				conn, -1, request, NULL, NULL, NULL, NULL);
 
 		g_hash_table_destroy (request);
+		/* end ex.channel.requesting.glib.ensure */
 	}
 }
 

@@ -1132,6 +1132,19 @@ for (i = 0; i < channels->len; i++)
 }]]></programlisting>
        </example>
 
+       <tip>
+        <title>G_VALUE_TYPE_NAME()</title>
+        <para>
+         The macro <function>G_VALUE_TYPE_NAME</function> can also be useful
+         for unpacking Telepathy types.
+        </para>
+        <para>
+         For example the listed type name of
+         <type>TP_STRUCT_TYPE_CHANNEL_DETAILS_LIST</type> is given as
+         <literal>GPtrArray_GValueArray_DBusGObjectPath+GHashTable_gchararray+GValue___</literal>.
+        </para>
+       </tip>
+
       </sect3>
 
       <sect3 id="sect.basics.language-bindings.telepathy-glib.maps">
