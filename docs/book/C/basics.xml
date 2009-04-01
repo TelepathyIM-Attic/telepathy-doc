@@ -780,6 +780,59 @@
       <para>The reference documentation only makes sense in terms of the Telepathy D-Bus Specification.</para>
       -->
 
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.tpproxy">
+       <title>TpProxy Objects</title>
+
+       <para>
+        <application>telepathy-glib</application> uses what it calls
+	<classname>TpProxy</classname> objects to make D-Bus method calls.
+	<classname>TpProxy</classname> objects are
+	<classname>GObject</classname>s that expose common Telepathy features
+	(like the interfaces they implement) as GObject properties and struct
+	members.
+       </para>
+
+       <para>
+        There are several <classname>TpProxy</classname> subclasses that you
+	will use when programming with
+	<application>telepathy-glib</application>:
+	<classname>TpConnectionManager</classname>,
+	<classname>TpConnection</classname> and
+	<classname>TpChannel</classname>.
+       </para>
+
+       <!-- FIXME: mention tp_proxy_has_interface_by_id() somewhere -->
+        
+        <para>
+	 Some proxy objects, such as
+	 <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> and
+	 <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpChannel</classname></ulink>,
+	 make additional D-Bus method calls to acquire additional information
+	 (e.g. available interfaces) to populate the properties and structures
+	 of the object. When they have received this information
+	 they are considered &quot;ready&quot;.
+	 Each proxy object provides a method to register a callback for when
+	 the object is ready, e.g.
+	 <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready"><methodname>tp_connection_call_when_ready</methodname></ulink>
+	 for a <classname>TpConnection</classname>, or
+	 <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready"><methodname>tp_channel_call_when_ready</methodname></ulink>
+	 for a <classname>TpChannel</classname>.
+	</para>
+
+	<tip>
+	 <title>TpConnection Readiness</title>
+	 <para>
+	  A <classname>TpConnection</classname> is not considered
+	  &quot;ready&quot; until it has been connected (you cannot retrieve
+	  all of the available interfaces until connection is complete).
+	 </para>
+	 <para>
+	  See <xref linkend="sect.connection.obtaining"/> for more details
+	  on setting up a Connection.
+	 </para>
+	</tip>
+      </sect3>
+
       <sect3 id="sect.basics.language-bindings.telepathy-glib.generated">
         <title>Method Calls</title>
         <para>
@@ -991,26 +1044,6 @@ request_connection_cb (TpConnectionManager      *cm,		/* TpProxy */
 	 a string representation of the map out to the debugging console.
 	</para>
        </tip>
-
-      </sect3>
-
-      <sect3 id="sect.basics.language-bindings.telepathy-glib.readiness">
-        <title>Instantiation and Readiness</title>
-        <!-- TODO: Keep any eye on http://bugs.freedesktop.org/show_bug.cgi?id=13422 -->
-        <para>
-	 Some of the hand-coded objects, such as
-	 <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> and
-	 <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpChannel</classname></ulink>,
-	 call additional D-Bus methods to acquire necessary information. When they have received this information they are then &quot;ready&quot;,
-	 meaning that other hand-written functions can then be called.
-	 This concept of &quot;readiness&quot; does not exist in the raw
-	 D-Bus API because it describes the status of the hand-written
-	 behaviour. For instance, you should call
-	 <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready"><methodname>tp_connection_call_when_ready</methodname></ulink>
-	 after instantiating a <classname>TpConnection</classname>, or
-	 <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready"><methodname>tp_channel_call_when_ready</methodname></ulink>
-	 after instantiating a <classname>TpChannel</classname>.
-	</para>
 
       </sect3>
 
