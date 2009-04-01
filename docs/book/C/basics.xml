@@ -972,6 +972,57 @@ request_connection_cb (TpConnectionManager      *cm,		/* TpProxy */
 
       <sect3 id="sect.basics.language-bindings.telepathy-glib.dbus-properties">
        <title>D-Bus Properties</title>
+
+       <para>
+        <application>telepathy-glib</application> provides a convenience API
+        for accessing the D-Bus properties of any
+        <classname>TpProxy</classname> proxy:
+        <function>tp_cli_dbus_properties_call_get</function>,
+        <function>tp_cli_dbus_properties_call_get_all</function> and
+        <function>tp_cli_dbus_properties_call_set</function>.
+        These functions work similar to all other
+        <classname>TpProxy</classname>
+        <link linkend="sect.basics.language-bindings.telepathy-glib.generated">method calls</link>.
+       </para>
+
+       <para>
+        For <function>tp_cli_dbus_properties_call_get</function>, the return
+        argument is a <classname>GValue</classname> of the type specified by
+        the property (see
+        <xref linkend="sect.basics.language-bindings.telepathy-glib.types"/>).
+        For <function>tp_cli_dbus_properties_call_get_all</function> the return
+        value is an
+        <link linkend="sect.basica.language-bindings.telepathy-glib.maps">a{sv}
+        map</link>.
+        <xref linkend="ex.basics.language-bindings.telepathy-glib.dbus-properties"/>
+        demonstates how to access a D-Bus property.
+       </para>
+
+       <example id="ex.basics.language-bindings.telepathy-glib.dbus-properties">
+        <title>Getting a D-Bus Property with telepathy-glib</title>
+        <programlisting>
+<![CDATA[tp_cli_dbus_properties_call_get (conn, -1,
+        TP_IFACE_CONNECTION_INTERFACE_REQUESTS,
+        "Channels",
+        get_channels_cb,
+        NULL, NULL, NULL);
+
+
+static void
+get_channels_cb (TpProxy        *proxy,
+                 const GValue   *value,
+                 const GError   *in_error,
+                 gpointer        user_data,
+                 GObject        *weak_obj)
+{
+        /* handle error */
+
+        GPtrArray *channels = g_value_get_boxed (value);
+
+        /* ... */
+}]]></programlisting>
+       </example>
+
       </sect3>
 
       <sect3 id="sect.basics.language-bindings.telepathy-glib.types">
