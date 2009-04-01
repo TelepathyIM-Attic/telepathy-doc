@@ -567,6 +567,16 @@
                 file="basics_dbus_glib_methods/main.c">
         <title>Calling a Method: Reply Callback</title>
        </example>
+
+       <important>
+        <para>
+	 Telepathy's <application>telepathy-glib</application> generated
+	 bindings use a different calling convention to raw dbus-glib, that
+	 is considerably simpler as the types are already known. This
+	 is covered in
+	 <xref linkend="sect.basics.language-bindings.telepathy-glib.generated"/>.
+	</para>
+       </important>
       </sect3>
 
       <sect3 id="sect.basics.dbus.glib.properties">
@@ -591,6 +601,15 @@
                 file="basics_dbus_glib_properties/main.c">
         <title>Accessing D-Bus Properties Using Methods</title>
        </example>
+       
+       <important>
+        <para>
+	 Telepathy's <application>telepathy-glib</application> provides a
+	 convenience API for accessing D-Bus properties that you can make on
+	 any <classname>TpProxy</classname> proxy. See
+	 <xref linkend="sect.basics.language-bindings.telepathy-glib.dbus-properties"/>.
+	</para>
+       </important>
       </sect3>
 
       <sect3 id="sect.basics.dbus.glib.signals">
@@ -761,35 +780,12 @@
       <para>The reference documentation only makes sense in terms of the Telepathy D-Bus Specification.</para>
       -->
 
-      <sect3 id="sect.basics.language-bindings.telepathy-glib.async">
-        <title>Asynchronous Calls</title>
-        <para>
-	 For each Telepathy D-Bus method, telepathy-glib generally provides
-	 both a &quot;run&quot; and a &quot;call&quot; function.
-	 For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect"><methodname>tp_cli_connection_run_connect</methodname></ulink>
-	 and <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-call-connect"><methodname>tp_cli_connection_call_connect</methodname></ulink>.
-	 The &quot;run&quot; functions are synchronous, and blocks until the
-	 D-Bus service has returned the value. They have been deprecated and
-	 should never be used in Telepathy programs (see
-	 <xref linkend="warning.dbus.sync"/>). Instead use the &quot;call&quot;
-	 functions, which are asynchronous; immediately returning and later
-	 providing the result to a callback function.
-	</para>
-
-        <para>
-	 However, the use of the &quot;run&quot; functions is strongly
-	 discouraged (see <xref linkend="warning.dbus.sync"/>), so all
-	 examples in this book will use the asynchronous &quot;call&quot;
-	 functions. While this might seem to complicate the examples,
-	 it is more robust and means the applications will be more responsive.
-	</para>
-      </sect3>
-
       <sect3 id="sect.basics.language-bindings.telepathy-glib.generated">
-        <title>Generated Functions</title>
+        <title>Method Calls</title>
         <para>
-	 telepathy-glib provides both hand-coded and generated API. The
-	 generated functions have these prefixes:
+	 <application>telepathy-glib</application> provides the Telepathy
+	 D-Bus API method calls as generated functions. The generated
+	 functions have the following prefixes:
 	</para>
 
         <variablelist>
@@ -813,35 +809,114 @@
 
         </variablelist>
 
-	<!-- FIXME: huh? -->
-        <para>
-	 The generated functions make direct calls to the D-Bus methods,
-	 without any additional logic and without using more appropriate
-	 types. For instance, they use unsigned integers for parameters
-	 because D-Bus does not have a concept of enumerations.
-	 However, the Telepathy D-Bus Specification does describe enumerations
-	 of possible values for these parameters, so the hand-written
-	 functions do use enums. Likewise, raw D-Bus methods can only
-	 identify object instances in terms of a <literal>bus name</literal>
-	 and <literal>object path</literal> combination, but telepathy-glib
-	 can directly provide a GObject instance that is a proxy for a
-	 D-Bus object without exposing those intermediate details.
+	<important>
+         <title>Asynchronous Calls</title>
+         <para>
+	  For each Telepathy D-Bus method, telepathy-glib generally provides
+	  both a &quot;run&quot; and a &quot;call&quot; function.
+	  For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect"><methodname>tp_cli_connection_run_connect</methodname></ulink>
+	  and <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-call-connect"><methodname>tp_cli_connection_call_connect</methodname></ulink>.
+	 </para>
+	 <para>
+	  The &quot;run&quot; functions are synchronous, and blocks until the
+	  D-Bus service has returned the value. They have been deprecated and
+	  should <emphasis>never</emphasis> be used in Telepathy programs (see
+	  <xref linkend="warning.dbus.sync"/>). Instead use the &quot;call&quot;
+	  functions, which are asynchronous; immediately returning and later
+	  providing the result to a callback function.
+	 </para>
+        </important>
+	
+	<para>
+	 The generated client functions have the following general signature:
 	</para>
+	<itemizedlist>
+	 <listitem><para>
+	  <classname>TpProxy</classname> object;
+	 </para></listitem>
+	 <listitem><para>
+	  Timeout in milliseconds (<literal>-1</literal> sets the default);
+	 </para></listitem>
+	 <listitem><para>
+	  Method arguments (see
+	  <xref linkend="sect.basics.language-bindings.telepathy-glib.types"/>);
+	 </para></listitem>
+	 <listitem><para>
+	  Callback function;
+	 </para></listitem>
+	 <listitem><para>
+	  Optional user data for the callback;
+	 </para></listitem>
+	 <listitem><para>
+	  Optional destroy function for the user data;
+	 </para></listitem>
+	 <listitem><para>
+	  An optional object to weakly reference, if this object is destroyed
+	  the call will be cancelled.
+	 </para></listitem>
+        </itemizedlist>	
         
 	<para>
-	 Hand-coded functions have a simple <literal>tp_</literal> prefix and
-	 should be preferred whenever they exist. The generated functions
-	 exist only because hand-written functions have not yet been
-	 implemented for all Telepathy D-Bus methods.
+	 Each method call has its own unique callback. The general type
+	 signature for a method callback is:
 	</para>
-        
+	<itemizedlist>
+	 <listitem><para>
+	  <classname>TpProxy</classname> object;
+	 </para></listitem>
+	 <listitem><para>
+	  Return arguments (see
+	  <xref linkend="sect.basics.language-bindings.telepathy-glib.types"/>);
+	 </para></listitem>
+	 <listitem><para>
+	  A possible error condition;
+	 </para></listitem>
+	 <listitem><para>
+	  The supplied user data;
+	 </para></listitem>
+	 <listitem><para>
+	  The supplied weakly-referenced object.
+	 </para></listitem>
+        </itemizedlist>
+
 	<para>
-	 In addition to more pleasant syntax, some hand-written objects
-	 contain a large amount of useful logic which can simplify
-	 application code. For instance,
-	 <ulink url="&url_telepathy_glib_base;contact.html"><classname>TpContact</classname></ulink>
-	 uses GObject signals. <!-- TODO: Finish this sentence. -->
+	 <xref linkend="ex.basics.language-bindings.telepathy-glib.method-call"/>
+	 shows a the construction of a <application>telepathy-glib</application>
+	 method call, in this case to <function>RequestConnection</function>.
 	</para>
+
+	<example id="ex.basics.language-bindings.telepathy-glib.method-call">
+	 <title>Example Method Call and Associated Callback</title>
+	 <programlisting>
+<![CDATA[/* method call for ConnectionManager.RequestConnection */
+tp_cli_connection_manager_call_request_connection (
+	cm,			/* TpProxy */
+	-1,			/* timeout */
+	"jabber",		/* method arguments */
+	parameters,
+	request_connection_cb,	/* callback */
+	NULL,			/* user data */
+	NULL,			/* destroy notify */
+	NULL);			/* weak object */
+
+/* callback for ConnectionManager.RequestConnection */
+static void
+request_connection_cb (TpConnectionManager      *cm,		/* TpProxy */
+                       const char               *bus_name,	/* return args */
+		       const char               *object_path,
+		       const GError             *in_error,	/* error condition */
+		       gpointer                  user_data,	/* user data */
+		       GObject                  *weak_object)	/* weak object */]]></programlisting>
+        </example>
+
+      </sect3>
+
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.dbus-properties">
+       <title>D-Bus Properties</title>
+      </sect3>
+
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.types">
+       <title>Types</title>
       </sect3>
 
       <sect3 id="sect.basica.language-bindings.telepathy-glib.maps">
