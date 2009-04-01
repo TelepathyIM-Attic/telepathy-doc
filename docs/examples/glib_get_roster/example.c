@@ -211,12 +211,14 @@ main (int argc, char **argv)
 		g_error ("%s", error->message);
 	}
 
+	/* begin ex.basics.language-bindings.telepathy-glib.ready */
 	/* we want to request the gabble CM */
 	TpConnectionManager *cm = tp_connection_manager_new (bus_daemon,
 			"gabble", NULL, &error);
 	if (error) g_error ("%s", error->message);
 
 	tp_connection_manager_call_when_ready (cm, cm_ready, NULL, NULL, NULL);
+	/* end ex.basics.language-bindings.telepathy-glib.ready */
 
 	/* set up a signal handler */
 	struct sigaction sa = { 0 };

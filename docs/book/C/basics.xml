@@ -816,8 +816,14 @@
 	 <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready"><methodname>tp_connection_call_when_ready</methodname></ulink>
 	 for a <classname>TpConnection</classname>, or
 	 <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready"><methodname>tp_channel_call_when_ready</methodname></ulink>
-	 for a <classname>TpChannel</classname>.
+	 for a <classname>TpChannel</classname>. See
+         <xref linkend="ex.basics.language-bindings.telepathy-glib.ready"/>.
 	</para>
+
+        <example id="ex.basics.language-bindings.telepathy-glib.ready"
+                 file="glib_get_roster/example.c">
+         <title>Readiness Callback</title>
+        </example>
 
 	<tip>
 	 <title>TpConnection Readiness</title>
