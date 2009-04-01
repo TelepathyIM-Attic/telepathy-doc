@@ -2,8 +2,11 @@
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
+#include <telepathy-glib/channel.h>
 #include <telepathy-glib/interfaces.h>
+#include <telepathy-glib/gtypes.h>
 #include <telepathy-glib/util.h>
+#include <telepathy-glib/enums.h>
 #include <telepathy-glib/debug.h>
 
 static GMainLoop *loop = NULL;
@@ -22,11 +25,22 @@ handle_error (const GError *error)
 }
 
 static void
+channel_ready (TpChannel	*channel,
+	       const GError	*in_error,
+	       gpointer		 user_data)
+{
+	g_print (" > channel_ready (%s)\n",
+			tp_channel_get_identifier (channel));
+}
+
+static void
 new_channels_cb (TpConnection		*conn,
                  const GPtrArray	*channels,
 		 gpointer		 user_data,
 		 GObject		*weak_obj)
 {
+	GError *error = NULL;
+
 	/* channels has the D-Bus type a(oa{sv}), which decomposes to:
 	 *  - a GPtrArray containing a GValueArray for each channel
 	 *  - each GValueArray contains
@@ -43,12 +57,21 @@ new_channels_cb (TpConnection		*conn,
 		GHashTable *map = g_value_get_boxed (
 				g_value_array_get_nth (channel, 1));
 
-		char *type = tp_asv_get_string (map,
+		const char *type = tp_asv_get_string (map,
 				TP_IFACE_CHANNEL ".ChannelType");
 
-		g_print (" - New Channel -\n");
-		g_print ("Path: %s\n", object_path);
-		g_print ("Type: %s\n", type);
+		/* if this channel is a contact list, we want to know
+		 * about it */
+		if (!strcmp (type, TP_IFACE_CHANNEL_TYPE_CONTACT_LIST))
+		{
+			TpChannel *channel = tp_channel_new_from_properties (
+					conn, object_path, map,
+					&error);
+			handle_error (error);
+
+			tp_channel_call_when_ready (channel,
+					channel_ready, NULL);
+		}
 	}
 }
 
@@ -60,6 +83,9 @@ get_channels_cb (TpProxy	*proxy,
 		 GObject	*weak_obj)
 {
 	handle_error (in_error);
+
+	g_return_if_fail (G_VALUE_HOLDS (value,
+				TP_ARRAY_TYPE_CHANNEL_DETAILS_LIST));
 
 	GPtrArray *channels = g_value_get_boxed (value);
 
