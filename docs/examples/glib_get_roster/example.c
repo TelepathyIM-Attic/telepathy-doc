@@ -5,6 +5,7 @@
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
 #include <telepathy-glib/channel.h>
+#include <telepathy-glib/contact.h>
 #include <telepathy-glib/interfaces.h>
 #include <telepathy-glib/gtypes.h>
 #include <telepathy-glib/util.h>
@@ -27,12 +28,59 @@ handle_error (const GError *error)
 }
 
 static void
+contacts_ready (TpConnection		*conn,
+		guint			 n_contacts,
+		TpContact * const	*contacts,
+		guint			 n_failed,
+		const TpHandle		*failed,
+		const GError		*in_error,
+		gpointer		 user_data,
+		GObject			*weak_obj)
+{
+	TpChannel *channel = TP_CHANNEL (user_data);
+
+	handle_error (in_error);
+
+	g_print (" > contacts_ready for %s (%i contacts - %i failed)\n",
+			tp_channel_get_identifier (channel),
+			n_contacts, n_failed);
+
+	int i;
+	for (i = 0; i < n_contacts; i++)
+	{
+		TpContact *contact = contacts[i];
+
+		g_print ("  - %s (%s)\t\t%s - %s\n",
+				tp_contact_get_alias (contact),
+				tp_contact_get_identifier (contact),
+				tp_contact_get_presence_status (contact),
+				tp_contact_get_presence_message (contact));
+	}
+}
+
+static void
 channel_ready (TpChannel	*channel,
 	       const GError	*in_error,
 	       gpointer		 user_data)
 {
 	g_print (" > channel_ready (%s)\n",
 			tp_channel_get_identifier (channel));
+
+	const TpIntSet *members = tp_channel_group_get_members (channel);
+	GArray *handles = tp_intset_to_array (members);
+	g_print ("   channel contains %i members\n", handles->len);
+
+	/* we want to create a TpContact for each member of this channel */
+	static const TpHandle features[] = { TP_CONTACT_FEATURE_ALIAS,
+					     TP_CONTACT_FEATURE_PRESENCE };
+
+	tp_connection_get_contacts_by_handle (conn,
+			handles->len, (const TpHandle *) handles->data,
+			G_N_ELEMENTS (features), features,
+			contacts_ready,
+			channel, NULL, NULL);
+
+	g_array_free (handles, TRUE);
 }
 
 static void
