@@ -541,8 +541,14 @@
       <interfacename>Channel.Type.ContactList</interfacename> and
       <property>Channel.TargetHandleType</property> equals
       <type>Handle_Type_Group</type> will yield the user-defined contact
-      groups.
+      groups (demonstrated in
+      <xref linkend="ex.channel.contactlist.user-defined.glib"/>).
      </para>
+
+     <example id="ex.channel.contactlist.user-defined.glib"
+              file="glib_get_user_defined_groups/example.c">
+      <title>Filtering NewChannels</title>
+     </example>
     </sect2>
   
   </sect1>

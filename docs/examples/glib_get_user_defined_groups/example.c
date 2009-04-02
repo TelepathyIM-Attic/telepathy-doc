@@ -25,6 +25,7 @@ handle_error (const GError *error)
 	}
 }
 
+/* begin ex.channel.contactlist.user-defined.glib */
 static void
 new_channels_cb (TpConnection		*conn,
                  const GPtrArray	*channels,
@@ -63,6 +64,7 @@ new_channels_cb (TpConnection		*conn,
 		}
 	}
 }
+/* end ex.channel.contactlist.user-defined.glib */
 
 static void
 get_channels_cb (TpProxy	*proxy,
