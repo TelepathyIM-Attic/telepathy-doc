@@ -2,6 +2,7 @@ include $(top_srcdir)/docs/rsync-properties.make
 
 example_dirs = \
 	glib_list_protocols \
+	glib_get_user_defined_groups \
 	glib_get_roster
 
 SUBDIRS = $(example_dirs)
