@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include <glib.h>
 
 #include <telepathy-glib/connection-manager.h>
@@ -208,6 +210,8 @@ cm_ready (TpConnectionManager	*cm,
 	  gpointer		 user_data,
 	  GObject		*weak_obj)
 {
+	char *username = (char *) user_data;
+
 	g_print (" > cm_ready\n");
 
 	if (in_error) g_error ("%s", in_error->message);
@@ -215,19 +219,12 @@ cm_ready (TpConnectionManager	*cm,
 	const TpConnectionManagerProtocol *prot = tp_connection_manager_get_protocol (cm, "jabber");
 	if (!prot) g_error ("Protocol is not supported");
 
+	char *password = getpass ("Password: ");
+
 	/* request a new connection */
-#if 0
-	GHashTable *parameters = g_hash_table_new_full (
-			g_str_hash, g_str_equal,
-			NULL, (GDestroyNotify) tp_g_value_slice_free);
-	g_hash_table_insert (parameters, "account",
-			tp_g_value_slice_new_string ("davyd"));
-	g_hash_table_insert (parameters, "password",
-			tp_g_value_slice_new_string ("sup"));
-#endif
 	GHashTable *parameters = tp_asv_new (
-			"account", G_TYPE_STRING, "",
-			"password", G_TYPE_STRING, "",
+			"account", G_TYPE_STRING, username,
+			"password", G_TYPE_STRING, password,
 			NULL);
 
 	tp_cli_connection_manager_call_request_connection (cm, -1,
@@ -254,6 +251,12 @@ main (int argc, char **argv)
 
 	g_type_init ();
 
+	if (argc != 2)
+	{
+		g_error ("Must provide username!");
+	}
+	char *username = argv[1];
+
 	/* create a main loop */
 	loop = g_main_loop_new (NULL, FALSE);
 
@@ -270,7 +273,8 @@ main (int argc, char **argv)
 			"gabble", NULL, &error);
 	if (error) g_error ("%s", error->message);
 
-	tp_connection_manager_call_when_ready (cm, cm_ready, NULL, NULL, NULL);
+	tp_connection_manager_call_when_ready (cm, cm_ready,
+			username, NULL, NULL);
 	/* end ex.basics.language-bindings.telepathy-glib.ready */
 
 	/* set up a signal handler */
