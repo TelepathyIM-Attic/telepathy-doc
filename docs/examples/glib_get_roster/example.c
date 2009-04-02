@@ -145,6 +145,36 @@ get_channels_cb (TpProxy	*proxy,
 }
 
 static void
+presences_changed_cb (TpConnection	*conn,
+                      GHashTable	*presence,
+		      gpointer		 user_data,
+		      GObject		*weak_obj)
+{
+	g_print (" :: presences_changed_cb\n");
+
+	/* presence has a D-Bus type of a{u(uss)} which is represented by
+	 * a GHashTable (uint -> GValueArray[uint, string, string]) */
+
+	GHashTableIter iter;
+	gpointer key, value;
+
+	g_hash_table_iter_init (&iter, presence);
+	while (g_hash_table_iter_next (&iter, &key, &value))
+	{
+		int contact = GPOINTER_TO_UINT (key);
+		GValueArray *spresence = (GValueArray *) value;
+
+		const char *status = g_value_get_string (
+				g_value_array_get_nth (spresence, 1));
+		const char *status_message = g_value_get_string (
+				g_value_array_get_nth (spresence, 2));
+
+		g_print ("Contact handle %i -> %s - %s\n",
+				contact, status, status_message);
+	}
+}
+
+static void
 conn_ready (TpConnection	*conn,
             const GError	*in_error,
 	    gpointer		 user_data)
@@ -166,7 +196,7 @@ conn_ready (TpConnection	*conn,
 
 	/* check if the Requests interface is available */
 	if (tp_proxy_has_interface_by_id (conn,
-				TP_IFACE_QUARK_CONNECTION_INTERFACE_REQUESTS))
+		TP_IFACE_QUARK_CONNECTION_INTERFACE_REQUESTS))
 	{
 		/* request the current channels */
 		tp_cli_dbus_properties_call_get (conn, -1,
@@ -204,6 +234,16 @@ conn_ready (TpConnection	*conn,
 
 		g_hash_table_destroy (request);
 		/* end ex.channel.requesting.glib.ensure */
+	}
+
+	/* check if the SimplePresence interface is available */
+	if (tp_proxy_has_interface_by_id (conn,
+		TP_IFACE_QUARK_CONNECTION_INTERFACE_SIMPLE_PRESENCE))
+	{
+		tp_cli_connection_interface_simple_presence_connect_to_presences_changed (
+				conn, presences_changed_cb,
+				NULL, NULL, NULL, &error);
+		handle_error (error);
 	}
 }
 
