@@ -140,10 +140,10 @@ for nicename in included_files:
 
 	for id in included_files[nicename]:
 		sre = re.compile ('(\\s)begin (%s)(\\s|$)' % re.escape (id), re.IGNORECASE)
-		contents = sre.sub(r'\1Begin <xref linkend="\2"/>\3', contents)
+		contents = sre.sub(r'\1Begin <embeddb><xref linkend="\2"/></embeddb>\3', contents)
 
 		sre = re.compile ('(\\s)end (%s)(\\s|$)' % re.escape (id), re.IGNORECASE)
-		contents = sre.sub(r'\1End <xref linkend="\2"/>\3', contents)
+		contents = sre.sub(r'\1End <embeddb><xref linkend="\2"/></embeddb>\3', contents)
 
 	pl = etree.SubElement (s, 'programlisting')
 	pl.append (etree.XML (contents))
