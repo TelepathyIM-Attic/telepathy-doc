@@ -23,7 +23,9 @@
        This allows us to embed XHTML directly into the output, e.g. from
        a syntax highlighter -->
   <xsl:template match="embedhtml">
-   <xsl:copy-of select="./*"/>
+   <xsl:copy-of select="./*">
+    <xsl:call-template name="db2html.xref"/>
+   </xsl:copy-of>
   </xsl:template>
 
   <!-- the header to put at the top of every page -->

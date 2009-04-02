@@ -119,6 +119,14 @@ for nicename in included_files:
 	except IOError, e:
 		print >> sys.stderr, e
 		continue
+
+	# syntax highlight the contents
+	if pygments:
+		# syntax highlighting
+		lexer = pygments.lexers.get_lexer_for_filename (filename)
+		contents = pygments.highlight (contents, lexer,
+					pygments.formatters.HtmlFormatter(noclasses=True))
+	contents = "<embedhtml>%s</embedhtml>" % contents
 	
 	# find the starting offsets for each id in the file
 	def get_tuple (prefix, id):
@@ -128,37 +136,16 @@ for nicename in included_files:
 		else:
 			idx = m.span()[0]
 		return (idx, prefix, id, len (str))
-	offsets = map (lambda id: get_tuple ('begin', id),
-			included_files[nicename]) + \
-		  map (lambda id: get_tuple ('end', id),
-		  	included_files[nicename])
-	offsets.sort () # sort into ascending order
 	
+
+	for id in included_files[nicename]:
+		sre = re.compile ('(\\s)begin (%s)(\\s|$)' % re.escape (id), re.IGNORECASE)
+		contents = sre.sub(r'\1Begin <xref linkend="\2"/>\3', contents)
+
+		sre = re.compile ('(\\s)end (%s)(\\s|$)' % re.escape (id), re.IGNORECASE)
+		contents = sre.sub(r'\1End <xref linkend="\2"/>\3', contents)
+
 	pl = etree.SubElement (s, 'programlisting')
-	cumoff = 0
-	elem = None
-
-	for (offset, prefix, id, l) in offsets:
-		if offset is None: continue
-
-		# append the CDATA to elem
-		cdata = contents[cumoff:offset]
-		if elem is not None: elem.tail = cdata
-		else: pl.text = cdata
-
-		cumoff = offset + l
-
-		# FIXME - I'd like something better than emphasis
-		em = etree.Element ('emphasis')
-		em.text = prefix.title () + " "
-		etree.SubElement (em, 'xref', linkend=id)
-		pl.append (em)
-
-		elem = em
-
-	if elem is None:
-		pl.text = contents[cumoff:]
-	else:
-		elem.tail = contents[cumoff:]
+	pl.append (etree.XML (contents))
 
 sys.stdout.write (etree.tostring (doc))
