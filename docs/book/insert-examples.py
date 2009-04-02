@@ -61,6 +61,8 @@ for example in examples:
 	if id is not None:
 		included_files[nicename].append (id)
 
+	xmlname = re.sub (r'/', '.', nicename)
+
 	if id:
 		print >> sys.stderr, "Including `%s' from `%s'..." % (id, filename)
 
@@ -90,8 +92,15 @@ for example in examples:
 			trim = min ([ leading_space(s) for s in lines if s != "" ])
 
 			contents = '\n'.join (map (lambda s: s[trim:], lines))
+
+			linkid = 'anchor.%s.%s' % (xmlname, id)
+		else:
+			linkid = 'appendix.source-code.%s' % xmlname
+
 	else:
 		print >> sys.stderr, "Including file `%s'..." % filename
+
+		linkid = 'appendix.source-code.%s' % xmlname
 
 	if pygments:
 		# syntax highlighting
@@ -104,8 +113,7 @@ for example in examples:
 
 	etree.SubElement (example, 'programlisting').append (etree.XML (contents))
 	p = etree.SubElement (example, 'para')
-	xmlname = re.sub (r'/', '.', nicename)
-	etree.SubElement (p, 'link', linkend='anchor.%s.%s' % (xmlname, id)).text = "Complete Source Code"
+	etree.SubElement (p, 'link', linkend=linkid).text = "Complete Source Code"
 
 	f.close ()
 
