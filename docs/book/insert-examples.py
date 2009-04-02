@@ -18,6 +18,13 @@ import os.path
 import re
 from lxml import etree
 
+try:
+	import pygments
+	import pygments.lexers
+	import pygments.formatters
+except ImportError:
+	print >> sys.stderr, "WARNING: install python-pygments for syntax highlighting"
+
 doc = etree.parse (sys.stdin)
 examplesdir = sys.argv[1]
 
@@ -77,11 +84,19 @@ for example in examples:
 			trim = min ([ leading_space(s) for s in lines if s != "" ])
 
 			contents = '\n'.join (map (lambda s: s[trim:], lines))
-
 	else:
 		print >> sys.stderr, "Including file `%s'..." % filename
 
-	etree.SubElement (example, 'programlisting').text = etree.CDATA (contents)
+	if pygments:
+		# syntax highlighting
+		lexer = pygments.lexers.get_lexer_for_filename (filename)
+		contents = pygments.highlight (contents, lexer,
+					pygments.formatters.HtmlFormatter(noclasses=True))
+	contents = "<embedhtml>%s</embedhtml>" % contents
+	# print >> sys.stderr, contents
+	# sys.exit(-1)
+
+	etree.SubElement (example, 'programlisting').append (etree.XML (contents))
 	p = etree.SubElement (example, 'para')
 	xmlname = re.sub (r'/', '.', nicename)
 	etree.SubElement (p, 'link', linkend='appendix.source-code.%s' % xmlname).text = "Complete Source Code"
