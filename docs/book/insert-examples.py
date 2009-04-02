@@ -25,6 +25,12 @@ try:
 except ImportError:
 	print >> sys.stderr, "WARNING: install python-pygments for syntax highlighting"
 
+if pygments:
+	class HtmlFormatter(pygments.formatters.HtmlFormatter):
+		"We don't want our highlighted source wrapped in <pre>"
+		def wrap (self, source, outfile):
+			return source
+
 doc = etree.parse (sys.stdin)
 examplesdir = sys.argv[1]
 
@@ -91,7 +97,7 @@ for example in examples:
 		# syntax highlighting
 		lexer = pygments.lexers.get_lexer_for_filename (filename)
 		contents = pygments.highlight (contents, lexer,
-					pygments.formatters.HtmlFormatter(noclasses=True))
+					HtmlFormatter(noclasses=True))
 	contents = "<embedhtml>%s</embedhtml>" % contents
 	# print >> sys.stderr, contents
 	# sys.exit(-1)
@@ -125,7 +131,7 @@ for nicename in included_files:
 		# syntax highlighting
 		lexer = pygments.lexers.get_lexer_for_filename (filename)
 		contents = pygments.highlight (contents, lexer,
-					pygments.formatters.HtmlFormatter(noclasses=True))
+					HtmlFormatter(noclasses=True))
 	contents = "<embedhtml>%s</embedhtml>" % contents
 	
 	# find the starting offsets for each id in the file
