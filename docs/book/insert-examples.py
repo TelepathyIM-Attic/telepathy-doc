@@ -64,8 +64,8 @@ for example in examples:
 	if id:
 		print >> sys.stderr, "Including `%s' from `%s'..." % (id, filename)
 
-		begin_re = re.compile ('begin %s(\\s|$)' % id)
-		end_re = re.compile ('end %s(\\s|$)' % id)
+		begin_re = re.compile ('begin %s(\\s|$)' % re.escape (id), re.I)
+		end_re = re.compile ('end %s(\\s|$)' % re.escape (id), re.I)
 
 		begin = False
 		lines = []
@@ -145,10 +145,10 @@ for nicename in included_files:
 	
 
 	for id in included_files[nicename]:
-		sre = re.compile ('(\\s)begin (%s)(\\s|$)' % re.escape (id), re.IGNORECASE)
+		sre = re.compile ('(\\W)begin (%s)(\\W)' % re.escape (id), re.I | re.M)
 		contents = sre.sub(r'\1Begin <embeddb><xref linkend="\2"/></embeddb>\3', contents)
 
-		sre = re.compile ('(\\s)end (%s)(\\s|$)' % re.escape (id), re.IGNORECASE)
+		sre = re.compile ('(\\W)end (%s)(\\W)' % re.escape (id), re.I | re.M)
 		contents = sre.sub(r'\1End <embeddb><xref linkend="\2"/></embeddb>\3', contents)
 
 	pl = etree.SubElement (s, 'programlisting')
