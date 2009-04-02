@@ -105,7 +105,7 @@ for example in examples:
 	etree.SubElement (example, 'programlisting').append (etree.XML (contents))
 	p = etree.SubElement (example, 'para')
 	xmlname = re.sub (r'/', '.', nicename)
-	etree.SubElement (p, 'link', linkend='appendix.source-code.%s' % xmlname).text = "Complete Source Code"
+	etree.SubElement (p, 'link', linkend='anchor.%s.%s' % (xmlname, id)).text = "Complete Source Code"
 
 	f.close ()
 
@@ -145,10 +145,10 @@ for nicename in included_files:
 	
 
 	for id in included_files[nicename]:
-		sre = re.compile ('(\\W)begin (%s)(\\W)' % re.escape (id), re.I | re.M)
-		contents = sre.sub(r'\1Begin <embeddb><xref linkend="\2"/></embeddb>\3', contents)
+		sre = re.compile ('(\\W)begin (%s)([^a-zA-Z0-9_\\-])' % re.escape (id), re.I | re.M)
+		contents = sre.sub(r'\1Begin <embeddb><anchor id="anchor.%s.%s"/><xref linkend="\2"/></embeddb>\3' % (xmlname, id), contents)
 
-		sre = re.compile ('(\\W)end (%s)(\\W)' % re.escape (id), re.I | re.M)
+		sre = re.compile ('(\\W)end (%s)([^a-zA-Z0-9_\\-])' % re.escape (id), re.I | re.M)
 		contents = sre.sub(r'\1End <embeddb><xref linkend="\2"/></embeddb>\3', contents)
 
 	pl = etree.SubElement (s, 'programlisting')
