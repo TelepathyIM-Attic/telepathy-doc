@@ -142,16 +142,6 @@ for nicename in included_files:
 					HtmlFormatter(noclasses=True))
 	contents = "<embedhtml>%s</embedhtml>" % contents
 	
-	# find the starting offsets for each id in the file
-	def get_tuple (prefix, id):
-		str = '%s %s' % (prefix, id)
-		m = re.search (str + '(\\s|$)', contents)
-		if m is None: idx = None
-		else:
-			idx = m.span()[0]
-		return (idx, prefix, id, len (str))
-	
-
 	for id in included_files[nicename]:
 		sre = re.compile ('(\\W)begin (%s)([^a-zA-Z0-9_\\-])' % re.escape (id), re.I | re.M)
 		contents = sre.sub(r'\1Begin <embeddb><anchor id="anchor.%s.%s"/><xref linkend="\2"/></embeddb>\3' % (xmlname, id), contents)
