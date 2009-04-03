@@ -115,6 +115,12 @@ MAPPINGS = Mapper(
         '/usr/share/gtk-doc/html/telepathy-glib/telepathy-glib.devhelp2.gz'),
     DevhelpMapper('http://dbus.freedesktop.org/doc/dbus-glib/',
         '/usr/share/gtk-doc/html/dbus-glib/dbus-glib.devhelp2'),
+    DevhelpMapper('http://library.gnome.org/devel/glib/stable/',
+        '/usr/share/gtk-doc/html/glib/glib.devhelp2'),
+    DevhelpMapper('http://library.gnome.org/devel/gobject/stable/',
+        '/usr/share/gtk-doc/html/gobject/gobject.devhelp2'),
+    DevhelpMapper('http://library.gnome.org/devel/gtk/stable/',
+        '/usr/share/gtk-doc/html/gtk/gtk.devhelp2'),
     SpecMapper('http://telepathy.freedesktop.org/spec',
         '/usr/share/gtk-doc/html/telepathy-spec/telepathy-spec.devhelp2'),
 ).get_maps()
