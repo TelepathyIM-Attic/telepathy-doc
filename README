@@ -1,2 +1,26 @@
-Documentation for the Telepathy API.
-Using DocBook.
+This module contains the developer documentation for Telepathy.
+
+For more information about Telepathy, see http://telepathy.freedesktop.org/
+
+This documentation is maintained using the Git revision control system, the
+master repository is git://git.collabora.co.uk/git/telepathy-doc.git (or via
+the web interface http://git.collabora.co.uk/?p=telepathy-doc.git;a=summary).
+
+Please submit patches, corrections, suggestions and feedback to the Telepathy
+mailing list: telepathy@lists.freedesktop.org.
+
+ --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+This documentation is written in Docbook, but is designed to be output as
+HTML with `make html`.
+
+The Docbook sources are stored in docs/book/C/, but are extensively
+preprocessed by the Makefile to add things like <ulink> tags to
+function/methodnames etc. and to insert syntax highlighted examples.
+
+Crossreferencing function names is done using Devhelp indexes. To add another
+cross referencing source, edit insert-links.py.
+
+Other custom modifications, such as automatically including source code
+from examples are self explanatory when you look at how it's done in the
+Docbook source.
