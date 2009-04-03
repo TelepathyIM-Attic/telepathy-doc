@@ -113,6 +113,8 @@ class SpecMapper(DevhelpMapper):
 MAPPINGS = Mapper(
     DevhelpMapper('http://telepathy.freedesktop.org/doc/telepathy-glib/',
         '/usr/share/gtk-doc/html/telepathy-glib/telepathy-glib.devhelp2.gz'),
+    DevhelpMapper('http://dbus.freedesktop.org/doc/dbus-glib/',
+        '/usr/share/gtk-doc/html/dbus-glib/dbus-glib.devhelp2'),
     SpecMapper('http://telepathy.freedesktop.org/spec',
         '/usr/share/gtk-doc/html/telepathy-spec/telepathy-spec.devhelp2'),
 ).get_maps()
