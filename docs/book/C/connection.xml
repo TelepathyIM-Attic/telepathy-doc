@@ -133,7 +133,7 @@
     </para>
     
     <para>
-     There is no central &app; D-Bus service in Telepathy. Instead there are
+     There is no central Telepathy D-Bus service in Telepathy. Instead there are
      several connection manager services, activated on demand. Each
      connection manager implements the Telepathy specification, allowing a
      Telepathy client to utilise any messaging protocol.
