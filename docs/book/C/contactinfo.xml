@@ -25,7 +25,7 @@
   the <link linkend="sect.contactinfo.contacts">Contacts</link> interface to
   bulk request the intial state.
  </para>
-  
+
  <sect1 id="sect.contactinfo.contacts">
   <title>Contacts</title>
   <para>
@@ -130,13 +130,37 @@
   <sect2 id="sect.contactinfo.contacts.receiving-updates">
    <title>Receiving Updates</title>
    <para>
-    While <interfacename>Contacts</interfacename>/
-    <methodname>GetContactAttributes</methodname> allows us to
+    While <interfacename>Contacts</interfacename>/<methodname>GetContactAttributes</methodname>
+    allows us to
     bulk-request lots of information about a contact. It does not provide a
     mechanism to receive signals to notify the client of changes to a contact
     (e.g., their alias, avatar, location, status, etc.).
     Instead the client should connect to the various signals provided by
     the interfaces its interested in.
+   </para>
+  </sect2>
+
+  <sect2 id="sect.contactinfo.contacts.glib">
+   <title>telepathy-glib &mdash; TpContact</title>
+
+   <para>
+    <application>telepathy-glib</application> provides an class specifically
+    for managing information relating to a contact,
+    <classname>TpContact</classname>.
+   </para>
+
+   <para>
+    A collection of <classname>TpContact</classname> instances can be
+    created by calling
+    <function>tp_connection_get_contacts_by_handle</function> (or
+    <function>tp_connection_get_contacts_by_id</function>).
+    <application>telepathy-glib</application> takes care of tracking
+    <classname>TpContact</classname> objects, so requesting the same contact
+    multiple times is safe (and results in the same object being returned).
+    To hold on to a <classname>TpContact</classname> you must reference it
+    (i.e. using <function>g_object_ref</function> or using it in a way that
+    implicitly references &mdash; e.g. adding it to a
+    <classname>GtkListStore</classname>).
    </para>
   </sect2>
 

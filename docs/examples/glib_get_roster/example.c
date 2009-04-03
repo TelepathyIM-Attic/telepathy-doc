@@ -28,6 +28,23 @@ handle_error (const GError *error)
 }
 
 static void
+contact_notify_cb (TpContact	*contact,
+		   GParamSpec	*pspec,
+		   gpointer	 user_data)
+{
+	if (pspec)
+	{
+		g_print (" %% parameter updated %s\n", pspec->name);
+	}
+
+	g_print ("  - %s (%s)\t\t%s - %s\n",
+			tp_contact_get_alias (contact),
+			tp_contact_get_identifier (contact),
+			tp_contact_get_presence_status (contact),
+			tp_contact_get_presence_message (contact));
+}
+
+static void
 contacts_ready (TpConnection		*conn,
 		guint			 n_contacts,
 		TpContact * const	*contacts,
@@ -50,11 +67,11 @@ contacts_ready (TpConnection		*conn,
 	{
 		TpContact *contact = contacts[i];
 
-		g_print ("  - %s (%s)\t\t%s - %s\n",
-				tp_contact_get_alias (contact),
-				tp_contact_get_identifier (contact),
-				tp_contact_get_presence_status (contact),
-				tp_contact_get_presence_message (contact));
+		g_object_ref (contact);
+		g_signal_connect (contact, "notify",
+				G_CALLBACK (contact_notify_cb), NULL);
+
+		contact_notify_cb (contact, NULL, NULL);
 	}
 }
 
@@ -234,16 +251,6 @@ conn_ready (TpConnection	*conn,
 
 		g_hash_table_destroy (request);
 		/* end ex.channel.requesting.glib.ensure */
-	}
-
-	/* check if the SimplePresence interface is available */
-	if (tp_proxy_has_interface_by_id (conn,
-		TP_IFACE_QUARK_CONNECTION_INTERFACE_SIMPLE_PRESENCE))
-	{
-		tp_cli_connection_interface_simple_presence_connect_to_presences_changed (
-				conn, presences_changed_cb,
-				NULL, NULL, NULL, &error);
-		handle_error (error);
 	}
 }
 
