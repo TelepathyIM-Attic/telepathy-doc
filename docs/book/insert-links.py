@@ -10,8 +10,6 @@
 #
 # Authors: Davyd Madeley <davyd.madeley@collabora.co.uk>
 
-URL_PREFIX = 'http://telepathy.freedesktop.org/spec.html#org.freedesktop.Telepathy.'
-
 import sys
 import os.path
 from lxml import etree
@@ -48,7 +46,9 @@ class DevhelpMapper(object):
         self.urlprefix = urlprefix
 
         dom = etree.parse(filename)
+        self.build_maps(dom)
 
+    def build_maps(self, dom):
         self._build_function_list(dom)
         self._build_class_list(dom)
 
@@ -58,29 +58,55 @@ class DevhelpMapper(object):
             'classname': self.classes,
         }
 
+    def build_map(self, items, name_func = lambda n: n):
+        return dict((name_func(i.get("name")), self._build_url(i.get("link")))
+                    for i in items)
+
+
+    def xpath_query(self, dom, query = None, **kwargs):
+        if query is None: query = self.query
+        return dom.xpath(query, namespaces = self.namespaces, **kwargs)
+
     def _build_url(self, link):
         return os.path.join(self.urlprefix, link)
 
     def _build_function_list(self, dom):
-        functions = dom.xpath(
-            'dh:functions/dh:keyword[@type = "function" or @type = "macro"]',
-                                namespaces = self.namespaces)
-
-        self.functions = dict((f.get("name")[:-3],
-                               self._build_url(f.get("link")))
-                          for f in functions)
+        functions = self.xpath_query(dom,
+            'dh:functions/dh:keyword[@type = "function" or @type = "macro"]')
+        self.functions = self.build_map(functions, lambda n: n[:-3])
 
     def _build_class_list(self, dom):
-        classes = dom.xpath(self.query, type = 'struct',
-                                namespaces = self.namespaces)
+        classes = self.xpath_query(dom, type = 'struct')
+        self.classes = self.build_map(classes)
 
-        self.classes = dict((f.get("name"),
-                               self._build_url(f.get("link")))
-                          for f in classes)
+class SpecMapper(DevhelpMapper):
+    query = 'dh:functions/dh:keyword[starts-with(string(@name), $type)]'
+
+    def build_maps(self, dom):
+        self._build_interface_list(dom)
+        self._build_method_list(dom)
+
+    def get_maps(self):
+        return {
+            'interfacename': self.interfaces,
+            'methodname': self.methods,
+        }
+
+    def _build_interface_list(self, dom):
+        interfaces = self.xpath_query(dom, type = 'Interface ')
+        self.interfaces = self.build_map(interfaces,
+            lambda n: n.rsplit('.', 1)[-1])
+
+    def _build_method_list(self, dom):
+        methods = self.xpath_query(dom, type = 'Method ')
+        self.methods = self.build_map(methods,
+            lambda n: n.rsplit('.', 1)[-1])
 
 MAPPINGS = Mapper(
     DevhelpMapper('http://telepathy.freedesktop.org/doc/telepathy-glib/',
         '/usr/share/gtk-doc/html/telepathy-glib/telepathy-glib.devhelp2.gz'),
+    SpecMapper('http://telepathy.freedesktop.org/spec',
+        '/usr/share/gtk-doc/html/telepathy-spec/telepathy-spec.devhelp2'),
 ).get_maps()
 
 try:
