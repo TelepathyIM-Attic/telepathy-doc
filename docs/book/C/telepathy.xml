@@ -13,49 +13,25 @@
        Use the app entity to specify the name of the application. -->
   <!ENTITY legal SYSTEM "legal.xml">
   <!ENTITY mdash "&#8212;">
-  <!ENTITY appversion "0.7">
-  <!ENTITY manrevision "0.2">
-  <!ENTITY date "12 August 2008">
-  <!ENTITY app_no_markup "Telepathy">
-  <!ENTITY app "<application>&app_no_markup;</application>">
-  <!ENTITY url_examples_base "./examples/">
-  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
-  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
-  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
-  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
-  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
-  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
 <book id="index">
   <bookinfo>
-    <title>&app; manual</title>
+    <title>Telepathy Developer's Manual</title>
 
-    <!-- If we were using the FDL license then we would need full revision 
-         tags instead of just this one date.
-         Actually, it seems that DocBook allows just a single date tag without 
-         these revhistory tags, but maybe gnome-doc-utils cannot cope with 
-         that. -->
     <revhistory>
       <revision> 
-        <revnumber>&app_no_markup; &appversion;</revnumber> 
-          <date>&date;</date> 
+        <revnumber>0.1</revnumber> 
+          <date>UNRELEASED</date> 
           <revdescription> 
+            <para role="author">Davyd Madeley</para> 
             <para role="author">Murray Cumming</para> 
-            <para role="publisher">&app;</para> 
+            <para role="publisher">Collabora, Ltd.</para> 
 	  </revdescription> 
       </revision>
     </revhistory> 
 
     <authorgroup>
-      <author> 
-        <firstname>Murray</firstname> 
-        <surname>Cumming</surname> 
-        <affiliation> 
-          <orgname>&app_no_markup; Documentation Team</orgname> 
-          <address> <email>murrayc@openismus.com</email> </address> 
-        </affiliation> 
-      </author> 
       <author role="maintainer">
         <firstname>Davyd</firstname>
         <surname>Madeley</surname>
@@ -64,18 +40,24 @@
           <address> <email>davyd.madeley@collabora.co.uk</email> </address>
         </affiliation>
       </author>
+      <author> 
+        <firstname>Murray</firstname> 
+        <surname>Cumming</surname> 
+        <affiliation> 
+          <orgname>Openismus GmbH</orgname> 
+          <address> <email>murrayc@openismus.com</email> </address> 
+        </affiliation> 
+      </author> 
     </authorgroup>
       
-
     <copyright>
       <year>2008-9</year>
       <holder>Collabora Ltd</holder>
     </copyright>
 
     <abstract role="description">
-      <para>Software development manual for &app;.</para>
+      <para>Software development manual for Telepathy.</para>
     </abstract>
-
 
   <xi:include href="legal.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 

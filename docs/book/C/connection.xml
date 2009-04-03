@@ -2,18 +2,6 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY mdash "&#8212;">
-  <!ENTITY appversion "0.7">
-  <!ENTITY manrevision "0.2">
-  <!ENTITY date "12 August 2008">
-  <!ENTITY app_no_markup "Telepathy">
-  <!ENTITY app "<application>&app_no_markup;</application>">
-  <!ENTITY url_examples_base "./examples/">
-  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
-  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
-  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
-  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
-  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
-  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
 <chapter id="chapter.connection">
@@ -179,14 +167,14 @@
      <title>telepathy-glib</title>
      <para>
       telepathy-glib provides the
-      <ulink url="&url_telepathy_glib_base;connection-manager.html#tp-list-connection-managers"><function>tp_list_connection_managers</function></ulink> function
+      <function>tp_list_connection_managers</function> function
       to list the available connection managers. This is demonstrated in
       <xref linkend="ex.connection.connection-manager.glib"/>.
      </para>
  
      <para>
       telepathy-glib's
-      <ulink url="&url_telepathy_glib_base;connection-manager.html"><classname>TpConnectionManager</classname></ulink>
+      <classname>TpConnectionManager</classname>
       object automatically calls <methodname>ListProtocols</methodname> upon
       creation and emits the <literal>got-info</literal>
       signal when it has returned. You can examine the

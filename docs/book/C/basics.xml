@@ -2,17 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY mdash "&#8212;">
-  <!ENTITY appversion "0.7">
-  <!ENTITY manrevision "0.2">
-  <!ENTITY date "12 August 2008">
-  <!ENTITY app_no_markup "Telepathy">
-  <!ENTITY app "<application>&app_no_markup;</application>">
-  <!ENTITY url_examples_base "./examples/">
-  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
-  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
-  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
   <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
-  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
   <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
@@ -534,7 +524,7 @@
        </para>
        <para>
 	In <literal>dbus-glib</literal>, method calls are made with the function
-        <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-begin-call"><function>dbus_g_proxy_begin_call</function></ulink>,
+        <function>dbus_g_proxy_begin_call</function>,
         which takes as its arguments the name of a D-Bus method to call,
         a callback function to handle the reply, optional user data and the
         parameters (and types) for the D-Bus method.
@@ -552,7 +542,7 @@
 
        <para>
         In your reply callback, use the function
-        <ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-end-call"><function>dbus_g_proxy_end_call</function></ulink>
+        <function>dbus_g_proxy_end_call</function>
         to collect the return values from the method call. This function can
         be called outside of the reply callback, but if it is called before
         the reply has been received, it will block; causing the same problems
@@ -616,10 +606,10 @@
        <title>Handling Signals</title>
        <para>
         Handlers for D-Bus signals may be connected with the function
-	<ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-connect-signal"><function>dbus_g_proxy_connect_signal</function></ulink>.
+	<function>dbus_g_proxy_connect_signal</function>.
 	As when calling D-Bus methods, you must specify the expected
 	types, but for signals you must do this in a previous call to
-	<ulink url="&url_dbus_glib_base;dbus-glib-DBusGProxy.html#dbus-g-proxy-add-signal"><function>dbus_g_proxy_add_signal</function></ulink>.
+	<function>dbus_g_proxy_add_signal</function>.
 	The specified callback function will then be called when the signal is
 	emitted.
        </para>
@@ -805,17 +795,17 @@
         
         <para>
 	 Some proxy objects, such as
-	 <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpConnection</classname></ulink> and
-	 <ulink url="&url_telepathy_glib_base;connection.html"><classname>TpChannel</classname></ulink>,
+	 <classname>TpConnection</classname> and
+	 <classname>TpChannel</classname>,
 	 make additional D-Bus method calls to acquire additional information
 	 (e.g. available interfaces) to populate the properties and structures
 	 of the object. When they have received this information
 	 they are considered &quot;ready&quot;.
 	 Each proxy object provides a method to register a callback for when
 	 the object is ready, e.g.
-	 <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-call-when-ready"><methodname>tp_connection_call_when_ready</methodname></ulink>
+	 <function>tp_connection_call_when_ready</function>
 	 for a <classname>TpConnection</classname>, or
-	 <ulink url="&url_telepathy_glib_base;channel.html#tp-channel-call-when-ready"><methodname>tp_channel_call_when_ready</methodname></ulink>
+	 <function>tp_channel_call_when_ready</function>
 	 for a <classname>TpChannel</classname>. See
          <xref linkend="ex.basics.language-bindings.telepathy-glib.ready"/>.
 	</para>
@@ -853,7 +843,7 @@
             <term>tp_cli_</term> 
             <listitem><para>
 	      These functions are used for client applications. For instance,
-	      <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect"><methodname>tp_cli_connection_call_connect</methodname></ulink>.
+	      <function>tp_cli_connection_call_connect</function>.
 	    </para></listitem>
           </varlistentry>
 
@@ -862,7 +852,7 @@
             <listitem><para>
 	      These functions are used for service implementations, such as
 	      connection managers. For instance,
-	      <ulink url="&url_telepathy_glib_base;svc-connection.html#tp-svc-connection-implement-connect"><methodname>tp_svc_connection_implement_connect</methodname></ulink>.
+	      <function>tp_svc_connection_implement_connect</function>.
 	    </para></listitem>
           </varlistentry>
 
@@ -873,8 +863,8 @@
          <para>
 	  For each Telepathy D-Bus method, telepathy-glib generally provides
 	  both a &quot;run&quot; and a &quot;call&quot; function.
-	  For instance, <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-run-connect"><methodname>tp_cli_connection_run_connect</methodname></ulink>
-	  and <ulink url="&url_telepathy_glib_base;connection.html#tp-cli-connection-call-connect"><methodname>tp_cli_connection_call_connect</methodname></ulink>.
+	  For instance, <function>tp_cli_connection_run_connect</function>
+	  and <function>tp_cli_connection_call_connect</function>.
 	 </para>
 	 <para>
 	  The &quot;run&quot; functions are synchronous, and blocks until the
@@ -1031,8 +1021,7 @@ get_channels_cb (TpProxy        *proxy,
        <para>
         The handling of variant types in
         <application>telepathy-glib</application> is done using GLib's built-in
-        <ulink url="http://library.gnome.org/devel/gobject/stable/gobject-Generic-values.html"><classname>GValue</classname></ulink>
-        type system.
+        <classname>GValue</classname> type system.
        </para>
 
        <para>
@@ -1316,7 +1305,7 @@ AC_SUBST(EXAMPLE_LIBS)</programlisting>
 
     <para>
      When using telepathy-glib, you can simply call the
-     <ulink url="&url_telepathy_glib_base;proxy.html#tp-proxy-has-interface"><function>tp_proxy_has_interface</function></ulink> function for
+     <function>tp_proxy_has_interface</function> function for
      <classname>TpConnectionManager</classname>,
      <classname>TpConnection</classname>, or
      <classname>TpChannel</classname> objects.
@@ -1466,8 +1455,8 @@ AC_SUBST(EXAMPLE_LIBS)</programlisting>
       Additionally, telepathy-glib wraps the
       <methodname>HoldHandles</methodname> and
       <methodname>ReleaseHandles</methodname> D-Bus methods with the
-      <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-hold-handles"><function>tp_connection_hold_handles</function></ulink>
-      and <ulink url="&url_telepathy_glib_base;connection.html#tp-connection-unref-handles"><function>tp_connection_unref_handles</function></ulink>
+      <function>tp_connection_hold_handles</function>
+      and <function>tp_connection_unref_handles</function>
       functions which reference-count the client-side handle
       &quot;hold&quot;.
       This requires you to match each call of

@@ -12,18 +12,7 @@
        Use the date entity to specify the release date of this manual.
        Use the app entity to specify the name of the application. -->
   <!ENTITY mdash "&#8212;">
-  <!ENTITY appversion "0.7">
-  <!ENTITY manrevision "0.2">
-  <!ENTITY date "12 August 2008">
-  <!ENTITY app_no_markup "Telepathy">
-  <!ENTITY app "<application>&app_no_markup;</application>">
-  <!ENTITY url_examples_base "./examples/">
-  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
-  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
-  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
-  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
-  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
-  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec/">
 ]>
 
 <chapter id="chapter.introduction">
@@ -94,7 +83,7 @@
    </para>
    <para>
     There is one
-    <ulink url="http://telepathy.freedesktop.org/spec.html">specification</ulink>
+    <ulink url="&url_spec;">specification</ulink>
     which defines the D-Bus API for how one Telepathy component talks to
     another. Additionally there are many implementations of this
     specification in the form of libraries that wrap the D-Bus API in a
