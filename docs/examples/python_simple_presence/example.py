@@ -3,8 +3,10 @@
 import sys
 
 import gobject
+# begin ex.basics.dbus.language-bindings.python.mainloop
 import dbus.mainloop.glib
 dbus.mainloop.glib.DBusGMainLoop(set_as_default = True)
+# end ex.basics.dbus.language-bindings.python.mainloop
 
 import telepathy
 import telepathy.client
@@ -37,6 +39,7 @@ class Example (object):
         self.cm = cm = reg.GetManager('gabble')
 
         # get the parameters required to make a Jabber connection
+        # begin ex.basics.dbus.language-bindings.python.methods.call
         cm[CONNECTION_MANAGER].RequestConnection('jabber',
             {
                 'account':  account,
@@ -44,6 +47,7 @@ class Example (object):
             },
             reply_handler = self.request_connection_cb,
             error_handler = self.error_cb)
+        # end ex.basics.dbus.language-bindings.python.methods.call
 
         self.loop = gobject.MainLoop()
         try:
@@ -64,8 +68,10 @@ class Example (object):
         self.conn[CONNECTION].Disconnect(reply_handler = self.generic_reply,
                                          error_handler = self.error_cb)
 
+    # begin ex.basics.dbus.language-bindings.python.methods.cb
     def request_connection_cb (self, bus_name, object_path):
         print bus_name, object_path
+        # end ex.basics.dbus.language-bindings.python.methods.cb
         self.conn = conn = telepathy.client.Connection(bus_name, object_path)
 
         conn[CONNECTION].connect_to_signal('StatusChanged',
@@ -171,14 +177,18 @@ class Example (object):
                                       'deny',
                                       'known')
 
-            # get the open channels
+            # get the open channelsA
+            # begin ex.basics.dbus.language-bindings.python.signals
             conn[CONNECTION_INTERFACE_REQUESTS].connect_to_signal(
                                     'NewChannels',
                                     self.get_channels_cb)
+            # end ex.basics.dbus.language-bindings.python.signals
+            # begin ex.basics.dbus.language-bindings.python.props
             conn[DBUS_PROPERTIES].Get(CONNECTION_INTERFACE_REQUESTS,
                                     'Channels',
                                     reply_handler = self.get_channels_cb,
                                     error_handler = self.error_cb)
+            # end ex.basics.dbus.language-bindings.python.props
 
         if CONNECTION_INTERFACE_SIMPLE_PRESENCE in interfaces:
             # begin ex.connection.presence.set-presence
