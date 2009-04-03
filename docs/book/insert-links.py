@@ -85,11 +85,13 @@ class SpecMapper(DevhelpMapper):
     def build_maps(self, dom):
         self._build_interface_list(dom)
         self._build_method_list(dom)
+        self._build_error_list(dom)
 
     def get_maps(self):
         return {
             'interfacename': self.interfaces,
             'methodname': self.methods,
+            'errorname': self.errors,
         }
 
     def _build_interface_list(self, dom):
@@ -98,8 +100,14 @@ class SpecMapper(DevhelpMapper):
             lambda n: n.rsplit('.', 1)[-1])
 
     def _build_method_list(self, dom):
-        methods = self.xpath_query(dom, type = 'Method ')
+        methods = self.xpath_query(dom, type = 'Method ') + \
+                  self.xpath_query(dom, type = 'Signal ')
         self.methods = self.build_map(methods,
+            lambda n: n.rsplit('.', 1)[-1])
+
+    def _build_error_list(self, dom):
+        errors = self.xpath_query(dom, type = 'Error ')
+        self.errors = self.build_map(errors,
             lambda n: n.rsplit('.', 1)[-1])
 
 MAPPINGS = Mapper(
