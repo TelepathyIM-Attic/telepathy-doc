@@ -330,49 +330,6 @@
      </imageobject></mediaobject>
     </figure>
 
-    <tip>
-     <title>Naming in D-Bus</title>
-     <para>
-      A D-Bus bus is shared with lots of other clients and services, some of
-      which will not have been thought of yet. It is important to ensure
-      that your well-known names, objects and interfaces all have unique
-      names.
-     </para>
-     <para>
-      When choosing a well-known bus name, object name or interface name
-      it is best practice to use a reversed domain name (as
-      is done for Java packages) to avoid possible conflicts.
-     </para>
-     <para>
-      For example for well-known bus names or interfaces:
-     </para>
-     <itemizedlist>
-      <listitem><para>org.freedesktop.Telepathy.ConnectionManager</para></listitem>
-      <listitem><para>org.gnome.Project</para></listitem>
-      <listitem><para>com.mycompany.MyProduct</para></listitem>
-     </itemizedlist>
-     <para>
-      For objects:
-     </para>
-     <itemizedlist>
-      <listitem><para>/org/freedesktop/Telepathy/ConnectionManager/gabble</para></listitem>
-      <listitem><para>/org/gnome/Project/adaptor</para></listitem>
-      <listitem><para>/com/mycompany/MyProduct/object0</para></listitem>
-     </itemizedlist>
-     <para>
-      For simple services, with just one object that provides just one
-      interface, these three names will often look very similar.
-     </para>
-    </tip>
-
-    <para>
-     In the following sections you will see how a D-Bus API can be used from
-     some common programming languages. Remember that these examples only
-     create <literal>proxies</literal> to the D-Bus objects, providing a way
-     to use their API. The actual objects are instantiated in the service's
-     process.
-    </para>
-
     <warning id="warning.dbus.sync">
       <title>Always Avoid Synchronous D-Bus Calls</title>
       <!-- this information came from
@@ -438,8 +395,43 @@
        </listitem>
       </itemizedlist>
     </warning>
+    
+    <sect2 id="sect.basics.dbus.naming">
+     <title>Naming in D-Bus</title>
+     <para>
+      A D-Bus bus is shared with lots of other clients and services, some of
+      which will not have been thought of yet. It is important to ensure
+      that your well-known names, objects and interfaces all have unique
+      names.
+     </para>
+     <para>
+      When choosing a well-known bus name, object name or interface name
+      it is best practice to use a reversed domain name (as
+      is done for Java packages) to avoid possible conflicts.
+     </para>
+     <para>
+      For example for well-known bus names or interfaces:
+     </para>
+     <itemizedlist>
+      <listitem><para>org.freedesktop.Telepathy.ConnectionManager</para></listitem>
+      <listitem><para>org.gnome.Project</para></listitem>
+      <listitem><para>com.mycompany.MyProduct</para></listitem>
+     </itemizedlist>
+     <para>
+      For objects:
+     </para>
+     <itemizedlist>
+      <listitem><para>/org/freedesktop/Telepathy/ConnectionManager/gabble</para></listitem>
+      <listitem><para>/org/gnome/Project/adaptor</para></listitem>
+      <listitem><para>/com/mycompany/MyProduct/object0</para></listitem>
+     </itemizedlist>
+     <para>
+      For simple services, with just one object that provides just one
+      interface, these three names will often look very similar.
+     </para>
+    </sect2>
 
-    <tip>
+    <sect2 id="sect.basics.dbus.introspecting">
      <title>Introspecting a Bus</title>
      <para>
       Many services on a D-Bus bus provide a mechanism to introspect their
@@ -461,7 +453,7 @@
       interfaces, methods and signals available for that service.
       It allows (synchronous) method calls to be made.
      </para>
-    </tip>
+    </sect2>
 
     <sect2 id="sect.basics.dbus.types">
      <title>D-Bus Type Signatures</title>
