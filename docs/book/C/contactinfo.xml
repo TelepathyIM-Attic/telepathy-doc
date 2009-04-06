@@ -156,12 +156,90 @@
     <function>tp_connection_get_contacts_by_id</function>).
     <application>telepathy-glib</application> takes care of tracking
     <classname>TpContact</classname> objects, so requesting the same contact
-    multiple times is safe (and results in the same object being returned).
-    To hold on to a <classname>TpContact</classname> you must reference it
+    multiple times is safe and results in the same object being returned
+    while the object exists.
+   </para>
+
+   <para>
+    A <classname>TpChannel</classname> that implements
+    <interfacename>Group</interfacename> provides API for requesting the list
+    of handles associated with the channel:
+    <function>tp_channel_group_get_members</function>,
+    <function>tp_channel_group_get_local_pending</function> and
+    <function>tp_channel_group_get_remote_pending</function>. These
+    functions all return a set of handles as a <classname>TpIntSet</classname>
+    that can be turned into <classname>TpContact</classname> objects.
+    <xref linkend="ex.sect.contactinfo.contacts.glib.members"/> shows how to
+    request a set of <classname>TpContact</classname> objects from a
+    channel.
+   </para>
+
+   <para>
+    Unlike in the D-Bus API, the provided list of features does not need
+    to be checked against available features for the connection.
+    <application>telepathy-glib</application> handles this for us. Thus, the
+    list of features should only be the list of features that the client
+    supports.
+   </para>
+
+   <example id="ex.sect.contactinfo.contacts.glib.members"
+            file="glib_get_roster/example.c">
+    <title>Requesting TpContact objects from tp_channel_group_get_members()</title>
+   </example>
+
+   <para>
+    <classname>TpContact</classname> objects will be unreferenced when the
+    callback is finished, thus
+    to hold on to a <classname>TpContact</classname> you must reference it
     (i.e. using <function>g_object_ref</function> or using it in a way that
     implicitly references &mdash; e.g. adding it to a
     <classname>GtkListStore</classname>).
+    <xref linkend="ex.sect.contactinfo.contacts.glib.tpcontact"/> shows
+    the callback from creating a set of <classname>TpContact</classname>s.
    </para>
+
+   <para>
+    The contact's parameters (alias, presence, avatar, etc.) are exposed on
+    <classname>TpContact</classname> as GObject properties. Thus for a
+    referenced object, we can connect the <methodname>notify</methodname>
+    signal to track updates to these properties.
+    <application>telepathy-glib</application> takes care of all of the
+    underlying work in Telepathy, so your application doesn't need to
+    connect any of the Telepathy signals.
+   </para>
+   
+   <example id="ex.sect.contactinfo.contacts.glib.tpcontact"
+            file="glib_get_roster/example.c">
+    <title>Handling a Set of Newly Created Contacts</title>
+   </example>
+
+   <tip>
+    <title>Handling Your Contact Roster</title>
+    <para>
+     To handle the contact roster for your application, keep the list of
+     <classname>TpContact</classname> objects in a data structure
+     appropriate for displaying in your user interface (e.g.
+     <classname>GtkListStore</classname>). Connect the
+     <methodname>notify</methodname> signal to track updates to contact
+     information (e.g. presence, alias, avatar).
+    </para>
+    <para>
+     If possible, provide a sort function for your view using
+     <function>tp_connection_presence_type_cmp_availability</function> to
+     sort contacts by their availability.
+    </para>
+    <para>
+     In GTK+, useful functions are
+     <function>gtk_tree_view_column_set_cell_data_func</function> or
+     <function>gtk_cell_layout_set_cell_data_func</function> to pull data
+     from the model for display in the view; and
+     <function>gtk_tree_sortable_set_default_sort_func</function> to sort
+     the view by availability (don't forget
+     <code><function>gtk_tree_sortable_set_sort_column_id</function> (model,
+     GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);</code>).
+    </para>
+   </tip>
+
   </sect2>
 
  </sect1>

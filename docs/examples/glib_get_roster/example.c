@@ -27,6 +27,7 @@ handle_error (const GError *error)
 	}
 }
 
+/* begin ex.sect.contactinfo.contacts.glib.tpcontact */
 static void
 contact_notify_cb (TpContact	*contact,
 		   GParamSpec	*pspec,
@@ -74,6 +75,7 @@ contacts_ready (TpConnection		*conn,
 		contact_notify_cb (contact, NULL, NULL);
 	}
 }
+/* end ex.sect.contactinfo.contacts.glib.tpcontact */
 
 static void
 channel_ready (TpChannel	*channel,
@@ -83,13 +85,16 @@ channel_ready (TpChannel	*channel,
 	g_print (" > channel_ready (%s)\n",
 			tp_channel_get_identifier (channel));
 
+	/* begin ex.sect.contactinfo.contacts.glib.members */
 	const TpIntSet *members = tp_channel_group_get_members (channel);
 	GArray *handles = tp_intset_to_array (members);
 	g_print ("   channel contains %i members\n", handles->len);
 
 	/* we want to create a TpContact for each member of this channel */
-	static const TpHandle features[] = { TP_CONTACT_FEATURE_ALIAS,
-					     TP_CONTACT_FEATURE_PRESENCE };
+	static const TpContactFeature features[] = {
+		TP_CONTACT_FEATURE_ALIAS,
+		TP_CONTACT_FEATURE_PRESENCE
+	};
 
 	tp_connection_get_contacts_by_handle (conn,
 			handles->len, (const TpHandle *) handles->data,
@@ -98,6 +103,7 @@ channel_ready (TpChannel	*channel,
 			channel, NULL, NULL);
 
 	g_array_free (handles, TRUE);
+	/* end ex.sect.contactinfo.contacts.glib.members */
 }
 
 static void
