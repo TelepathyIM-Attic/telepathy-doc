@@ -36,10 +36,23 @@ examplesdir = sys.argv[1]
 
 included_files = {}
 
-# find all example elements that have the 'file' attribute
-examples = doc.xpath ("//example[@file]")
+# find all programlisting elements that have the language attribute
+if pygments:
+    for pl in doc.xpath('//programlisting[@language]'):
+		# syntax highlighting
+		try:
+			lexer = pygments.lexers.get_lexer_by_name (pl.get('language'))
+		except pygments.util.ClassNotFound, e:
+			print >> sys.stderr, "ERROR: %s" % e
+			continue
+		contents = pygments.highlight (pl.text, lexer,
+					HtmlFormatter(noclasses=True))
 
-for example in examples:
+		pl.text = None
+		pl.append (etree.XML ('<embedhtml>%s</embedhtml>' % contents))
+
+# find all example elements that have the 'file' attribute
+for example in doc.xpath ('//example[@file]'):
 
 	id = example.get ('id')
 

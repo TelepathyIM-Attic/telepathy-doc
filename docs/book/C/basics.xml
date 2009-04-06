@@ -793,7 +793,7 @@
 
 	<example id="ex.basics.language-bindings.telepathy-glib.method-call">
 	 <title>Example Method Call and Associated Callback</title>
-	 <programlisting>
+	 <programlisting language="c">
 <![CDATA[/* method call for ConnectionManager.RequestConnection */
 tp_cli_connection_manager_call_request_connection (
 	cm,			/* TpProxy */
@@ -847,7 +847,7 @@ request_connection_cb (TpConnectionManager      *cm,		/* TpProxy */
 
        <example id="ex.basics.language-bindings.telepathy-glib.dbus-properties">
         <title>Getting a D-Bus Property with telepathy-glib</title>
-        <programlisting>
+        <programlisting language="c">
 <![CDATA[tp_cli_dbus_properties_call_get (conn, -1,
         TP_IFACE_CONNECTION_INTERFACE_REQUESTS,
         "Channels",
@@ -958,7 +958,7 @@ get_channels_cb (TpProxy        *proxy,
 
        <example id="ex.basics.language-bindings.telepathy-glib.types">
         <title>Decoding a GValue containing a Channel_Details_List</title>
-        <programlisting>
+        <programlisting language="c">
 <![CDATA[g_return_if_fail (G_VALUE_HOLDS (value, TP_ARRAY_TYPE_CHANNEL_DETAILS_LIST));
 
 GPtrArray *channels = g_value_get_boxed (value);
@@ -1032,7 +1032,7 @@ for (i = 0; i < channels->len; i++)
        <example id="ex.basics.language-bindings.telepathy-glib.tp_asv_new">
         <title>Creating an a{sv} map with tp_asv_new()</title>
 	<!-- FIXME: pull from source example? -->
-	<programlisting>
+	<programlisting language="c">
 <![CDATA[GHashTable *parameters = tp_asv_new (
 	"account", G_TYPE_STRING, "bob@mcbadgers.com"
 	"password", G_TYPE_STRING, password,
@@ -1077,7 +1077,7 @@ for (i = 0; i < channels->len; i++)
 	 <application>pkg-config</application> utiltity like so:
 	</para>
 
-        <informalexample><programlisting>
+        <informalexample><programlisting language="sh">
 pkg-config telepathy-glib --cflags
 pkg-config telepathy-glib --libs</programlisting>
         </informalexample>
