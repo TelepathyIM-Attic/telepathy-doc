@@ -166,7 +166,8 @@
     of handles associated with the channel:
     <function>tp_channel_group_get_members</function>,
     <function>tp_channel_group_get_local_pending</function> and
-    <function>tp_channel_group_get_remote_pending</function>. These
+    <function>tp_channel_group_get_remote_pending</function>
+    (see <xref linkend="sect.channel.groups.glib"/>). These
     functions all return a set of handles as a <classname>TpIntSet</classname>
     that can be turned into <classname>TpContact</classname> objects.
     <xref linkend="ex.sect.contactinfo.contacts.glib.members"/> shows how to

@@ -542,18 +542,8 @@
   </sect1>
 
   <sect1 id="sect.channel.groups">
-     <title>Contact Groups</title>
-     <!--
-     TODO:
-     (used in lots of different channels)
-     - This is partitioned into:
-       - Current members
-       - Local pending members, awaiting approval (by doing Add or Remove) by the 
-         local user.
-       - Remote pending members, awaiting approval remotely by the other user)
-     - Unusually, one-to-one calls use the <ulink url="&url_spec_base;Channel.Interface.Group">Group</ulink> interface to indicate call 
-       progression (explain in call section?).
-    -->
+    <title>Contact Groups</title>
+
     <para>
      The <interfacename>Group</interfacename> interface is implemented by
      several channel types including contact list channels and multi-user
@@ -620,6 +610,57 @@
      <title>Retrieving the Members of a Group</title>
     </example>
   
+   <sect2 id="sect.channel.groups.glib">
+    <title>telepathy-glib</title>
+
+    <para>
+     <application>telepathy-glib</application>'s
+     <classname>TpChannel</classname> proxy provides a number of functions
+     to access the group's members (if available). These can be made once
+     the channel proxy has entered the ready state
+     (see <xref linkend="sect.channel.requesting.glib"/>).
+    </para>
+
+    <para>
+     The function <function>tp_channel_group_get_members</function> returns
+     the set of contact handles stored in the <property>Members</property>
+     property as a set of integer handles (<classname>TpIntSet</classname>).
+     Similarly, the
+     <function>tp_channel_group_get_local_pending</function> and
+     <function>tp_channel_group_get_remote_pending</function> functions
+     return the contact handles for <property>LocalPendingMembers</property>
+     and <property>RemotePendingMembers</property> respectively. If the
+     channel is not a <interfacename>Group</interfacename> these functions
+     return <literal>NULL</literal>.
+    </para>
+
+    <tip>
+     <para>
+      See <xref linkend="sect.contactinfo.contacts.glib"/> for how to
+      set up <classname>TpContact</classname> objects for each handle in
+      a <interfacename>Group</interfacename>.
+     </para>
+    </tip>
+
+    <para>
+     The function
+     <function>tp_channel_group_get_local_pending_info</function> is used to
+     retrieve the additional information about a specific local pending
+     contact: the actor handle, the reason and the message (the other
+     entries of <type>Local_Pending_Info</type>).
+    <!-- FIXME: example -->
+    </para>
+
+    <para>
+     Rather than having to connect to the D-Bus signal,
+     changes to the membership of the channel are signalled with the
+     <methodname>group-members-changed</methodname> signal. This provides
+     lists of members that have been added and removed along with a reason
+     and an actor.
+    </para>
+
+   </sect2>
+
   </sect1>
   
   <sect1 id="sect.channel.text">
