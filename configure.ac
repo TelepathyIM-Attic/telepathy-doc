@@ -14,8 +14,8 @@ PKG_CHECK_MODULES(TELEPATHY_GLIB, telepathy-glib >= 0.7.3 gtk+-2.0 >= 2.12.0)
 AC_SUBST(TELEPATHY_GLIB_CFLAGS)
 AC_SUBST(TELEPATHY_GLIB_LIBS)
 
-# Use C:
 AC_PROG_CC()
+AM_PATH_PYTHON()
 
 AC_OUTPUT([
   Makefile
@@ -26,6 +26,11 @@ AC_OUTPUT([
       docs/examples/glib_list_protocols/Makefile
       docs/examples/glib_get_user_defined_groups/Makefile
       docs/examples/glib_get_roster/Makefile
+      docs/examples/pygtk_chat_client/Makefile
+      docs/examples/python_get_parameters/Makefile
+      docs/examples/python_iface_messaging/Makefile
+      docs/examples/python_irc_roomlist/Makefile
+      docs/examples/python_simple_presence/Makefile
 
     docs/book/Makefile
 ])

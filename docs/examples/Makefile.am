@@ -3,7 +3,12 @@ include $(top_srcdir)/docs/rsync-properties.make
 example_dirs = \
 	glib_list_protocols \
 	glib_get_user_defined_groups \
-	glib_get_roster
+	glib_get_roster \
+	pygtk_chat_client \
+	python_get_parameters \
+	python_iface_messaging \
+	python_irc_roomlist \
+	python_simple_presence
 
 SUBDIRS = $(example_dirs)
 
