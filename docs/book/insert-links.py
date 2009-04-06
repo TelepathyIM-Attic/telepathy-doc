@@ -71,9 +71,13 @@ class DevhelpMapper(object):
         return os.path.join(self.urlprefix, link)
 
     def _build_function_list(self, dom):
-        functions = self.xpath_query(dom,
-            'dh:functions/dh:keyword[@type = "function" or @type = "macro"]')
-        self.functions = self.build_map(functions, lambda n: n[:-3])
+        self.functions = self.build_map(
+            self.xpath_query(dom, type = 'function'),
+            lambda n: n[:-3])
+
+        self.functions.update (self.build_map(
+            self.xpath_query(dom, type = 'macro'),
+            lambda n: n[:-2]))
 
     def _build_class_list(self, dom):
         classes = self.xpath_query(dom, type = 'struct')
