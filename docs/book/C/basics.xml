@@ -534,7 +534,34 @@
         In order to interact with a D-Bus object (i.e. call methods or
         connect signals) we need to create a proxy object for it. A proxy
         object is a Python object that we call methods on
-        in our application.
+        in our application. In <application>telepathy-python</application>
+	they are provided in the <literal>telepathy.client</literal> module.
+       </para>
+
+       <para>
+        The proxy objects you will use are <classname>Connection</classname>
+	and <classname>Channel</classname>.
+       </para>
+
+       <example id="ex.basics.dbus.language-bindings.python.proxies">
+        <title>Connection and Channel Proxy Objects</title>
+	<programlisting language="python">
+<![CDATA[connection = telepathy.client.Connection(bus_name, object_path)
+
+channel = telepathy.client.Channel(connection.service_name, object_path)]]></programlisting>
+       </example>
+
+       <!-- FIXME: ready_handler -->
+
+       <para>
+        <application>telepathy-python</application> proxies differ from
+	regular Python <literal>dbus</literal> proxies in that they aren't
+	created with a given D-Bus interface. Instead the interface is
+	specified when calling a method or connecting a signal similar to
+	how you might look up a key in a dictionary (see
+	<xref linkend="ex.basics.dbus.language-bindings.python.methods.call"/>
+	below). Interface names are available from the module
+	<literal>telepathy.interfaces</literal>.
        </para>
       </sect3>
 
