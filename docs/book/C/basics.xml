@@ -369,7 +369,7 @@
        </listitem>
        <listitem><para>
         The client is completely unresponsive until the service replies
-	(include the user interface). If the service you're calling into has
+	(including the user interface). If the service you're calling into has
 	locked up (this can happen, even in services that are designed to be
 	purely non-blocking and asynchronous), the client will be
 	unresponsive for 25 seconds until the call times out.
