@@ -4,6 +4,7 @@ example_dirs = \
 	glib_list_protocols \
 	glib_get_user_defined_groups \
 	glib_get_roster \
+	glib_salut_ft \
 	pygtk_chat_client \
 	python_get_parameters \
 	python_iface_messaging \
