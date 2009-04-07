@@ -12,3 +12,4 @@ configure
 depcomp
 *.sw?
 *.pyc
+/py-compile

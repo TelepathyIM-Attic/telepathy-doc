@@ -5,3 +5,5 @@ noinst_PROGRAMS = example
 
 example_SOURCES = \
 	example.c
+
+include $(top_srcdir)/docs/rsync-dist.make

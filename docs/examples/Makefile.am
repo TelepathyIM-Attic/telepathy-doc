@@ -1,5 +1,3 @@
-include $(top_srcdir)/docs/rsync-properties.make
-
 example_dirs = \
 	glib_list_protocols \
 	glib_get_user_defined_groups \
@@ -13,21 +11,11 @@ example_dirs = \
 
 SUBDIRS = $(example_dirs)
 
-exclude_args = \
-	--delete-excluded \
-	--exclude *.o \
-	--exclude .libs \
-	--exclude .deps \
-	--exclude core \
-	--exclude .cvsignore \
-	--exclude a.out \
-	--exclude Makefile \
-	--exclude Makefile.in \
-	--exclude example \
-	--exclude .svn \
-	--exclude .git
+prep-rsync:
+	rm -rf $(builddir)/dist/
+	mkdir -p $(builddir)/dist/
+	for subdir in $(example_dirs); do \
+		$(MAKE) -C $$subdir $@ DIR=$(builddir)/dist/$$subdir; \
+	done
 
-post-html:
-	rsync $(rsync_args) -a $(exclude_args) $(example_dirs) $(rsync_target_html)/examples/
-
-
+.PHONY: prep-rsync

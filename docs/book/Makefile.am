@@ -68,7 +68,8 @@ xslt/db2html.xsl: xslt/db2html.xsl.in
 html/index.html: $(MAIN) Makefile.am $(DOCBOOK_STYLESHEET) $(DOC_FIGURES) figures-png
 	rm -rf html
 	$(mkinstalldirs) html
-	cp -r ../examples/ html/
+	$(MAKE) -C ../examples prep-rsync
+	mv ../examples/dist html/examples
 	cp -r C/figures html/
 	$(mkinstalldirs) html/icons
 	cp $(ICONS_DIR)/* html/icons/
@@ -125,3 +126,5 @@ post-pdf: pdf
 
 CLEANFILES = C/telepathy-with-examples.xml
 EXTRA_DIST = 
+
+.PHONY: html pdf validate raw-validate post-online post-html post-pdf
