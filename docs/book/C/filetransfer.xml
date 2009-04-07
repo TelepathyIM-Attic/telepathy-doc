@@ -183,7 +183,7 @@
     file offset (for continuations, if a partial transfer was deemed to
     occur) &mdash; or use <literal>0</literal> for the whole file. Note that
     this is a <emphasis>requested</emphasis> offset, and depending on the
-    protocol and sending client may not be honoured. Clients must check
+    protocol and sending client, may not be honoured. Clients must check
     <property>InitialOffset</property> property once the channel is open.
    </para>
 
