@@ -11,11 +11,147 @@
   <interfacename>Channel.Type.FileTransfer</interfacename> channel.
  </para>
 
+ <para>
+  The connection manager carries out file transfer via the most appropriate
+  mechanism, depending on the protocol. Connection Managers do not know
+  about accessing files or URLs, and it is not possible to pass file
+  descriptors across D-Bus, so transfer between the client and the
+  connection manager is done using a local socket (e.g. a UNIX socket or
+  local IPv4 socket).
+ </para>
+
+ <para>
+  The lifetime of a file transfer channel goes through several states:
+  Pending, Accepted, Open and Completed (or Cancelled). This is shown in
+  <xref linkend="fig.filetransfer.actors"/>.
+ </para>
+    
+ <figure id="fig.filetransfer.actors">
+  <title>Basic Structure of a File Transfer</title>
+  <mediaobject><imageobject>
+   <imagedata fileref="figures/file-transfer-actors.png"
+              format="PNG" />
+  </imageobject></mediaobject>
+ </figure>
+
  <sect1 id="sect.filetransfer.sending">
   <title>Sending Files</title>
  </sect1>
 
  <sect1 id="sect.filetransfer.receiving">
   <title>Receiving Files</title>
+
+  <!-- FIXME: something about Capabilities -->
+
+  <sect2 id="sect.filetransfer.receiving.channel">
+   <title>Handling The New Channel</title>
+
+   <para>
+    An incoming file transfer channel will be heralded by the
+    <methodname>NewChannels</methodname> signal (as with other incoming
+    channels, e.g. <link linkend="sect.messaging.messages.receiving">text
+    channels</link>). The channel type of the new channel will be
+    <interfacename>org.freedesktop.Telepathy.Channel.Type.FileTransfer</interfacename>.
+   </para>
+
+   <para>
+    As well as common channel properties (e.g.
+    <property>InitiatorHandle</property>, <property>InitiatorID</property>,
+    <property>TargetHandle</property>, <property>TargetID</property>, etc.),
+    there will be properties specific to file transfers that contain the
+    metadata for the file, summarised in
+    <xref linkend="table.filetransfer.receiving.props"/>. The client should
+    display this information to the user when asking whether or not to
+    accept the file.
+   </para>
+
+   <table id="table.filetransfer.receiving.props">
+    <tgroup cols="4">
+     <thead>
+      <row>
+       <entry>Property</entry>
+       <entry>Type</entry>
+       <entry>Description</entry>
+       <entry>Notes</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>Filename</entry>
+       <entry>String</entry>
+       <entry>
+        The name of the file on the sender's side, the suggested
+        filename for the receiver.
+       </entry>
+       <entry>Required</entry>
+      </row>
+
+      <row>
+       <entry>ContentType</entry>
+       <entry>String</entry>
+       <entry>
+        The MIME type of the file.
+       </entry>
+       <entry>Required</entry>
+      </row>
+
+      <row>
+       <entry>Size</entry>
+       <entry>uint64</entry>
+       <entry>
+        The size of the file in bytes.
+       </entry>
+       <entry>
+        Required. Although it must be set accurately, receivers should not
+	trust this value.
+       </entry>
+      </row>
+
+      <row>
+       <entry>ContentHashType</entry>
+       <entry><type>File_Hash_Type</type></entry>
+       <entry>
+        Specifies the hashing function used for the
+	<property>ContentHash</property> property.
+       </entry>
+       <entry></entry>
+      </row>
+
+      <row>
+       <entry>ContentHash</entry>
+       <entry>String</entry>
+       <entry>
+        Hash of the file transfer contents.
+       </entry>
+       <entry>
+        <property>ContentHashType</property> must be set to the appropriate
+	hashing algorithm.
+       </entry>
+      </row>
+
+      <row>
+       <entry>Description</entry>
+       <entry>String</entry>
+       <entry>
+        A string description of the file transfer.
+       </entry>
+       <entry></entry>
+      </row>
+
+      <row>
+       <entry>Date</entry>
+       <entry>int64 (<type>Unix_Timestamp64</type>)</entry>
+       <entry>
+        The last modification time (mtime) of the file.
+       </entry>
+       <entry></entry>
+      </row>
+
+     </tbody>
+    </tgroup>
+   </table>
+
+  </sect2>
+
  </sect1>
 </chapter>
