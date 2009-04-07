@@ -386,7 +386,7 @@ main (int argc, char **argv)
 		g_error ("%s", error->message);
 	}
 
-	/* we want to request the gabble CM */
+	/* we want to request the salut CM */
 	TpConnectionManager *cm = tp_connection_manager_new (bus_daemon,
 			"salut", NULL, &error);
 	if (error) g_error ("%s", error->message);
