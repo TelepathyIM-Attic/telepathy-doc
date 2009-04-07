@@ -71,6 +71,7 @@
 <xi:include href="channel.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="contactinfo.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="messaging.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="filetransfer.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 <xi:include href="tubes.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 <!--
@@ -93,12 +94,6 @@ added in future.
   <para>TODO: 
   (Streaming Audio/Video)
   - Will require some gstreamer knowledge for recording and playback.
-  </para>
-</chapter>
-
-<chapter id="chapter.transferring-files">
-  <title>Transferring Files</title>
-  <para>TODO
   </para>
 </chapter>
 

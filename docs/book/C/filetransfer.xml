@@ -1,0 +1,21 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY mdash "&#8212;">
+]>
+
+<chapter id="chapter.filetransfer">
+ <title>Transferring Files</title>
+ <para>
+  File transfer in Telepathy is handled using a
+  <interfacename>Channel.Type.FileTransfer</interfacename> channel.
+ </para>
+
+ <sect1 id="sect.filetransfer.sending">
+  <title>Sending Files</title>
+ </sect1>
+
+ <sect1 id="sect.filetransfer.receiving">
+  <title>Receiving Files</title>
+ </sect1>
+</chapter>
