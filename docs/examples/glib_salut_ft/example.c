@@ -23,6 +23,14 @@ static GMainLoop *loop = NULL;
 static TpDBusDaemon *bus_daemon = NULL;
 static TpConnection *conn = NULL;
 
+struct ft_state
+{
+	GIOChannel *channel;
+	guint64 offset;
+
+	struct sockaddr_un sa;
+};
+
 static void
 handle_error (const GError *error)
 {
@@ -41,14 +49,36 @@ file_transfer_unix_cb (TpChannel	*channel,
 		       gpointer		 user_data,
 		       GObject		*weak_obj)
 {
-	struct sockaddr_un *sa = (struct sockaddr_un *) user_data;
+	struct ft_state *state = (struct ft_state *) user_data;
 
 	handle_error (in_error);
 
 	const char *address = g_value_get_string (addressv);
-	strncpy (sa->sun_path, address, UNIX_PATH_MAX);
+	strncpy (state->sa.sun_path, address, UNIX_PATH_MAX);
 
 	g_print (" > file_transfer_unix_cb (%s)\n", address);
+}
+
+static gboolean
+file_transfer_data_received (GIOChannel 	*channel,
+                             GIOCondition	 condition,
+			     gpointer		 data)
+{
+	char buf[1024];
+	gsize bytes_read;
+	GError *error = NULL;
+
+	if (condition & G_IO_HUP) return FALSE; /* this channel is done */
+
+	g_io_channel_read_chars (channel, buf, sizeof (buf), &bytes_read,
+			&error);
+	handle_error (error);
+
+	buf[bytes_read] = '\0';
+
+	g_print ("%s", buf);
+
+	return TRUE;
 }
 
 static void
@@ -58,45 +88,45 @@ file_transfer_unix_state_changed_cb (TpChannel	*channel,
 				     gpointer	 user_data,
 				     GObject	*weak_obj)
 {
-	struct sockaddr_un *sa = (struct sockaddr_un *) user_data;
+	struct ft_state *ftstate = (struct ft_state *) user_data;
+	GError *error = NULL;
 
 	g_print (" :: file_transfer_state_changed_cb (%i)\n", state);
 
 	if (state == TP_FILE_TRANSFER_STATE_OPEN)
 	{
-		int sock = socket (sa->sun_family, SOCK_STREAM, 0);
+		int sock = socket (ftstate->sa.sun_family, SOCK_STREAM, 0);
 		if (sock == -1)
 		{
 			int e = errno;
 			g_error ("UNABLE TO GET SOCKET: %s", strerror (e));
 		}
 
-		if (connect (sock, (struct sockaddr *) sa, sizeof (struct sockaddr_un)))
+		if (connect (sock, (struct sockaddr *) &ftstate->sa,
+				   sizeof (struct sockaddr_un)))
 		{
 			int e = errno;
 			g_error ("UNABLE TO CONNECT: %s", strerror (e));
 		}
 
-		/* The Telepathy spec states that as the receiver, we should
-		 * not trust the number of bytes in the file */
-		ssize_t count;
-		char buf[1024];
-		while ((count = read (sock, buf, sizeof (buf))))
-		{
-			if (count == -1) continue;
-
-			buf[count + 1] = '\0';
-			g_print ("%s", buf);
-		}
-
-		g_print ("\n-------- EOF ----------\n");
-		close (sock);
+		/* turn the socket into an IOChannel, so that we can work
+		 * with our main loop */
+		ftstate->channel = g_io_channel_unix_new (sock);
+		g_io_add_watch (ftstate->channel, G_IO_IN | G_IO_HUP,
+				file_transfer_data_received,
+				ftstate);
 	}
 	else if (state == TP_FILE_TRANSFER_STATE_COMPLETED ||
 		 state == TP_FILE_TRANSFER_STATE_CANCELLED)
 	{
-		/* free the sockaddr struct */
-		g_slice_free (struct sockaddr_un, sa);
+		g_print ("\n--------------EOF--------------\n");
+		/* close the socket */
+		g_io_channel_shutdown (ftstate->channel, TRUE, &error);
+		handle_error (error);
+		/* release our resources */
+		g_io_channel_unref (ftstate->channel);
+		g_slice_free (struct ft_state, ftstate);
+		tp_cli_channel_call_close (channel, -1, NULL, NULL, NULL, NULL);
 	}
 }
 
@@ -108,12 +138,6 @@ file_transfer_channel_ready (TpChannel		*channel,
 	GError *error = NULL;
 
 	handle_error (in_error);
-
-
-#if 0
-	/* close the channel - we don't want it */
-	tp_cli_channel_call_close (channel, -1, NULL, NULL, NULL, NULL);
-#endif
 
 	GHashTable *map = tp_channel_borrow_immutable_properties (channel);
 	tp_asv_dump (map);
@@ -143,12 +167,12 @@ file_transfer_channel_ready (TpChannel		*channel,
 	else if (g_hash_table_lookup (sockets,
 				GINT_TO_POINTER (TP_SOCKET_ADDRESS_TYPE_UNIX)))
 	{
-		struct sockaddr_un *sa = g_slice_new (struct sockaddr_un);
-		sa->sun_family = AF_UNIX;
+		struct ft_state *state = g_slice_new (struct ft_state);
+		state->sa.sun_family = AF_UNIX;
 
 		tp_cli_channel_type_file_transfer_connect_to_file_transfer_state_changed (
 				channel, file_transfer_unix_state_changed_cb,
-				sa, NULL, NULL, &error);
+				state, NULL, NULL, &error);
 		handle_error (error);
 
 		GValue *value = tp_g_value_slice_new_static_string ("");
@@ -159,7 +183,7 @@ file_transfer_channel_ready (TpChannel		*channel,
 				TP_SOCKET_ACCESS_CONTROL_LOCALHOST,
 				value, 0,
 				file_transfer_unix_cb,
-				sa, NULL, NULL);
+				state, NULL, NULL);
 
 		tp_g_value_slice_free (value);
 	}
