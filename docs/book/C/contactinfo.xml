@@ -241,6 +241,15 @@
     </para>
    </tip>
 
+   <para>
+    A <classname>TpChannel</classname>'s
+    <methodname>group-members-changed</methodname> signal can be used to
+    monitor the lifetime of a group. Members that have been
+    <parameter>added</parameter> can have their
+    <classname>TpContact</classname> requested.
+    <!-- FIXME: what happens to a TpContact when a member is removed -->
+   </para>
+
   </sect2>
 
  </sect1>

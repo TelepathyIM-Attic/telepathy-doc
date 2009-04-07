@@ -151,6 +151,65 @@
     </tgroup>
    </table>
 
+   <para>
+    If the user declines to receive the file, simply closing the channel
+    will cancel the transfer.
+   </para>
+
+  </sect2>
+
+  <sect2 id="table.filetransfer.receiving.accepting">
+   <title>Accepting The File</title>
+
+   <para>
+    Before calling <methodname>AcceptFile</methodname>, the client should
+    first connect the <methodname>FileTransferStateChanged</methodname>
+    signal.
+   </para>
+
+   <para>
+    <methodname>AcceptFile</methodname> takes as its arguments the type of
+    socket we wish to use to transfer the file from the Connection Manager
+    to the client. Different Connection Managers and different OS platforms
+    might support different socket options. The property
+    <property>AvailableSocketTypes</property> lists the supported socket
+    types and their access modes. This property would have been passed in
+    as one of the channel properties to
+    <methodname>NewChannels</methodname>.
+   </para>
+
+   <para>
+    <methodname>AcceptFile</methodname> also takes a requested initial
+    file offset (for continuations, if a partial transfer was deemed to
+    occur), or <literal>0</literal> for the whole file. Note that
+    this is a <emphasis>requested</emphasis> offset, and depending on the
+    protocol and sending client may not be honoured. Clients must check
+    <property>InitialOffset</property> property once the channel is open.
+   </para>
+
+   <para>
+    Calling <methodname>AcceptFile</methodname> will return the address of
+    a socket opened by the Connection Manager and put the channel into the
+    <emphasis>Pending</emphasis> state
+    (<type>File_Transfer_State_Pending</type>). However, you should not
+    attempt to open the socket yourself until the channel enters the
+    <emphasis>Open</emphasis> state (<type>File_Transfer_State_Open</type>).
+   </para>
+
+   <note>
+    <para>
+     The socket address returned by <methodname>AcceptFile</methodname> and
+     <methodname>ProvideFile</methodname> is a socket shared between the
+     client and the Connection Manager. It is not the address of the socket
+     between you and the remote client.
+    </para>
+    <para>
+     The file itself is transferred by the Connection Manager using the most
+     appropriate mechanism to reach the remote host, be it a peer-to-peer
+     socket, SOCKS5 proxy, using ICE or in-band via the server. A Telepathy
+     client doesn't have to be concerned with the mechanism.
+    </para>
+   </note>
   </sect2>
 
  </sect1>
