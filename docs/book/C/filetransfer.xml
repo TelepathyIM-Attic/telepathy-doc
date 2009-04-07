@@ -181,7 +181,7 @@
    <para>
     <methodname>AcceptFile</methodname> also takes a requested initial
     file offset (for continuations, if a partial transfer was deemed to
-    occur), or <literal>0</literal> for the whole file. Note that
+    occur) &mdash; or use <literal>0</literal> for the whole file. Note that
     this is a <emphasis>requested</emphasis> offset, and depending on the
     protocol and sending client may not be honoured. Clients must check
     <property>InitialOffset</property> property once the channel is open.
@@ -190,8 +190,8 @@
    <para>
     Calling <methodname>AcceptFile</methodname> will return the address of
     a socket opened by the Connection Manager and put the channel into the
-    <emphasis>Pending</emphasis> state
-    (<type>File_Transfer_State_Pending</type>). However, you should not
+    <emphasis>Accepted</emphasis> state
+    (<type>File_Transfer_State_Accepted</type>). However, you should not
     attempt to open the socket yourself until the channel enters the
     <emphasis>Open</emphasis> state (<type>File_Transfer_State_Open</type>).
    </para>
@@ -210,6 +210,57 @@
      client doesn't have to be concerned with the mechanism.
     </para>
    </note>
+  </sect2>
+
+  <sect2 id="table.filetransfer.receiving.open">
+   <title>Transferring the File</title>
+
+   <para>
+    When <methodname>FileTransferStateChanged</methodname> reports the state
+    of <emphasis>Open</emphasis> (<type>File_Transfer_State_Open</type>),
+    you should connect to the socket returned by
+    <methodname>AcceptFile</methodname>.
+   </para>
+
+   <para>
+    You must check the value of the property
+    <property>InitialOffset</property> to determine what offset to seek to
+    in the target file. You <emphasis>cannot</emphasis> assume that the
+    requested offset will be honoured.
+   </para>
+
+   <para>
+    Transferring the file may take some time, so you should not
+    spin in a read loop from the Connection Manager's socket. Instead
+    register the socket's file descriptor with your mainloop implementation
+    to copy data into the target when it arrives.
+   </para>
+
+   <tip>
+    <title>Sockets, File Descriptors and Mainloops</title>
+    <para>
+     Most mainloop implementations provide a way to register your own file
+     descriptors into the mainloop's <function>select()</function> call.
+     This allows your program to reenter the mainloop and receive a callback
+     when there is new data to be read from the socket.
+    </para>
+    <para>
+     With <application>GLib</application>, you can use
+     <classname>GIOChannel</classname>
+     (<function>g_io_channel_unix_new</function>).
+    </para>
+   </tip>
+
+   <para>
+    The end of the file transfer will be indicated by the
+    <methodname>FileTransferStateChanged</methodname> signal reporting the
+    state <emphasis>Completed</emphasis>
+    (<type>File_Transfer_State_Completed</type>). When this state is
+    reached, the socket, channel and destination file can all be closed.
+    Equally the <emphasis>Cancelled</emphasis> state
+    (<type>File_Transfer_State_Cancelled</type>) state will be emitted when
+    the remote end cancels the transfer.
+   </para>
   </sect2>
 
  </sect1>
