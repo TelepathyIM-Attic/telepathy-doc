@@ -194,6 +194,83 @@
     </example>
    </tip>
 
+   <para>
+    The remote user is prompted whether they wish to accept your transfer
+    when the channel is created (not when you call
+    <methodname>ProvideFile</methodname>. You should connect the signal
+    <methodname>FileTransferStateChanged</methodname> as soon as the channel
+    is available to listen for status changes. If the channel's state
+    switches to <emphasis>Cancelled</emphasis>
+    (<type>File_Transfer_State_Cancelled</type>), that means the user
+    declined to accept the file. If this happens you should close the
+    channel.
+   </para>
+  </sect2>
+
+  <sect2 id="table.filetransfer.sending.providing">
+   <title>Providing the File</title>
+
+   <para>
+    Once the channel has been set up and is ready, you should connect to the
+    <methodname>InitialOffsetDefined</methodname> signal. This will be
+    emitted before the channel enters the <emphasis>Open</emphasis> state
+    (<type>File_Transfer_State_Open</type>), and represents the file offset
+    that the receiver wants you to continue from. This value should be
+    stored for when we start transferring the file.
+   </para>
+   
+   <para>
+    <methodname>ProvideFile</methodname> takes as its arguments the type of
+    socket we wish to use to transfer the file from the Connection Manager
+    to the client. Different Connection Managers and different OS platforms
+    might support different socket options. The property
+    <property>AvailableSocketTypes</property> lists the supported socket
+    types and their access modes. This property would have been passed in
+    as one of the channel properties returned when the channel was created.
+   </para>
+   
+   <note>
+    <para>
+     The socket address returned by <methodname>AcceptFile</methodname> and
+     <methodname>ProvideFile</methodname> is a socket shared between the
+     client and the Connection Manager. It is not the address of the socket
+     between you and the remote client.
+    </para>
+    <para>
+     The file itself is transferred by the Connection Manager using the most
+     appropriate mechanism to reach the remote host, be it a peer-to-peer
+     socket, SOCKS5 proxy, using ICE or in-band via the server. A Telepathy
+     client doesn't have to be concerned with the mechanism.
+    </para>
+   </note>
+
+   <para>
+    The transfer begins once both the sender and the receiver have called
+    <methodname>ProvideFile</methodname> and
+    <methodname>AcceptFile</methodname> respectively and the channel enters
+    the <emphasis>Open</emphasis> state
+    (<type>File_Transfer_State_Open</type>).
+   </para>
+  </sect2>
+
+  <sect2 id="sect.filetransfer.sending.open">
+   <title>Transferring the File</title>
+
+   <para>
+    When <methodname>FileTransferStateChanged</methodname> reports the state
+    of <emphasis>Open</emphasis> (<type>File_Transfer_State_Open</type>),
+    you should connect to the socket address returned by
+    <methodname>ProvideFile</methodname>. You should also open the source
+    file and seek to the offset provided by
+    <methodname>InitialOffsetDefined</methodname>.
+   </para>
+
+   <para>
+    Copy the file from the source file to the socket. Files can be large, so
+    you should do this in a way that doesn't block your mainloop. When you
+    reach the end of the file, close the socket to the Connection Manager.
+    This will indicate that you have completed the transfer.
+   </para>
   </sect2>
  </sect1>
 
