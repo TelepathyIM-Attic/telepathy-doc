@@ -1,9 +1,14 @@
 INCLUDES = $(TELEPATHY_GLIB_CFLAGS)
 LDADD = $(TELEPATHY_GLIB_LIBS)
 
-noinst_PROGRAMS = example
+noinst_PROGRAMS = \
+	receiver \
+	sender
 
-example_SOURCES = \
-	example.c
+receiver_SOURCES = \
+	receiver.c
+
+sender_SOURCES = \
+	sender.c
 
 include $(top_srcdir)/docs/rsync-dist.make
