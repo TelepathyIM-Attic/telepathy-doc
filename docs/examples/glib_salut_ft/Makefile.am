@@ -13,7 +13,8 @@ sender_SOURCES = \
 
 if HAVE_GNIO
 noinst_PROGRAMS += \
-	gnio-receiver
+	gnio-receiver \
+	gnio-sender
 
 gnio_receiver_CFLAGS = \
 	$(GNIO_CFLAGS) \
@@ -25,6 +26,12 @@ gnio_receiver_LDADD = \
 
 gnio_receiver_SOURCES = \
 	gnio-receiver.c
+
+gnio_sender_CFLAGS = $(gnio_receiver_CFLAGS)
+gnio_sender_LDADD = $(gnio_receiver_LDADD)
+
+gnio_sender_SOURCES = \
+	gnio-sender.c
 endif
 
 include $(top_srcdir)/docs/rsync-dist.make
