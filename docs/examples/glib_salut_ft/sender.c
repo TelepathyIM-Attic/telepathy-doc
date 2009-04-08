@@ -120,12 +120,15 @@ file_transfer_unix_state_changed_cb (TpChannel	*channel,
 	else if (state == TP_FILE_TRANSFER_STATE_COMPLETED ||
 		 state == TP_FILE_TRANSFER_STATE_CANCELLED)
 	{
-		g_print ("\n--------------EOF--------------\n");
-		/* close the socket */
-		g_io_channel_shutdown (ftstate->channel, TRUE, &error);
-		handle_error (error);
-		/* release our resources */
-		g_io_channel_unref (ftstate->channel);
+		if (ftstate->channel)
+		{
+			/* close the socket */
+			g_io_channel_shutdown (ftstate->channel, TRUE, &error);
+			handle_error (error);
+			/* release our resources */
+			g_io_channel_unref (ftstate->channel);
+		}
+
 		g_slice_free (struct ft_state, ftstate);
 		tp_cli_channel_call_close (channel, -1, NULL, NULL, NULL, NULL);
 	}
@@ -167,7 +170,7 @@ file_transfer_channel_ready (TpChannel		*channel,
 	else if (g_hash_table_lookup (sockets,
 				GINT_TO_POINTER (TP_SOCKET_ADDRESS_TYPE_UNIX)))
 	{
-		struct ft_state *state = g_slice_new (struct ft_state);
+		struct ft_state *state = g_slice_new0 (struct ft_state);
 		state->sa.sun_family = AF_UNIX;
 
 		tp_cli_channel_type_file_transfer_connect_to_file_transfer_state_changed (
@@ -177,6 +180,12 @@ file_transfer_channel_ready (TpChannel		*channel,
 
 		GValue *value = tp_g_value_slice_new_static_string ("");
 
+		/* set up the socket for providing the file */
+		tp_cli_channel_type_file_transfer_call_provide_file (
+				channel, -1, TP_SOCKET_ADDRESS_TYPE_UNIX,
+				TP_SOCKET_ACCESS_CONTROL_LOCALHOST,
+				value, file_transfer_unix_cb,
+				state, NULL, NULL);
 
 		tp_g_value_slice_free (value);
 	}
@@ -201,6 +210,108 @@ create_ft_channel_cb (TpConnection	*conn,
 }
 
 static void
+iterate_contacts (TpChannel	 *channel,
+		  GArray	 *handles,
+		  char		**argv)
+{
+	GError *error = NULL;
+
+	int i;
+	for (i = 0; i < handles->len; i++)
+	{
+		int handle = g_array_index (handles, int, i);
+		/* FIXME: we should check that our client has the
+		 * FT capability */
+
+		GFile *file = g_file_new_for_commandline_arg (argv[3]);
+		GFileInfo *info = g_file_query_info (file,
+				"standard::*",
+				G_FILE_QUERY_INFO_NONE,
+				NULL, &error);
+		handle_error (error);
+
+		GHashTable *props = tp_asv_new (
+			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER,
+			TP_IFACE_CHANNEL ".TargetHandleType", G_TYPE_UINT, TP_HANDLE_TYPE_CONTACT,
+			TP_IFACE_CHANNEL ".TargetHandle", G_TYPE_UINT, handle,
+			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Filename", G_TYPE_STRING, g_file_info_get_display_name (info),
+			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".ContentType", G_TYPE_STRING, g_file_info_get_content_type (info),
+			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Size", G_TYPE_UINT64, g_file_info_get_size (info),
+			NULL);
+
+		tp_cli_connection_interface_requests_call_create_channel (
+				conn, -1, props,
+				create_ft_channel_cb,
+				NULL, NULL, NULL);
+
+		g_hash_table_destroy (props);
+		g_object_unref (info);
+		g_object_unref (file);
+	}
+}
+
+static void
+group_members_changed_cb (TpChannel	 *channel,
+			  char		 *message,
+			  GArray	 *added,
+			  GArray	 *removed,
+			  GArray	 *local_pending,
+			  GArray	 *remote_pending,
+			  guint		  actor,
+			  guint		  reason,
+			  char		**argv)
+{
+	g_print (" :: group_members_changed_cb\n");
+	g_print ("   channel contains %i new members\n", added->len);
+
+	iterate_contacts (channel, added, argv);
+}
+
+static void
+contact_list_channel_ready (TpChannel		*channel,
+                            const GError	*in_error,
+                            gpointer		 user_data)
+{
+	char **argv = (char **) user_data;
+	GError *error = NULL;
+
+	handle_error (in_error);
+
+	g_print (" > contact_list_channel_ready\n");
+
+	g_signal_connect (channel, "group-members-changed",
+			G_CALLBACK (group_members_changed_cb), argv);
+
+	const TpIntSet *members = tp_channel_group_get_members (channel);
+	GArray *handles = tp_intset_to_array (members);
+	g_print ("   channel contains %i members\n", handles->len);
+
+	iterate_contacts (channel, handles, argv);
+	g_array_free (handles, TRUE);
+}
+
+static void
+create_contact_list_channel_cb (TpConnection	*conn,
+                                gboolean	 yours,
+                                const char	*object_path,
+				GHashTable	*properties,
+				const GError	*in_error,
+				gpointer	 user_data,
+				GObject		*weak_obj)
+{
+	char **argv = (char **) user_data;
+	GError *error = NULL;
+
+	handle_error (in_error);
+
+	TpChannel *channel = tp_channel_new_from_properties (conn, object_path,
+			properties, &error);
+	handle_error (error);
+
+	tp_channel_call_when_ready (channel, contact_list_channel_ready, argv);
+}
+
+static void
 conn_ready (TpConnection	*conn,
             const GError	*in_error,
 	    gpointer		 user_data)
@@ -216,33 +327,18 @@ conn_ready (TpConnection	*conn,
 	if (tp_proxy_has_interface_by_id (conn,
 		TP_IFACE_QUARK_CONNECTION_INTERFACE_REQUESTS))
 	{
-		/* FIXME: we should check that our client has the
-		 * FT capability */
-
-		GFile *file = g_file_new_for_commandline_arg (argv[3]);
-		GFileInfo *info = g_file_query_info (file,
-				"standard::*",
-				G_FILE_QUERY_INFO_NONE,
-				NULL, &error);
-		handle_error (error);
-
+		/* we need to ensure a contact list */
 		GHashTable *props = tp_asv_new (
-			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER,
-			TP_IFACE_CHANNEL ".TargetHandleType", G_TYPE_UINT, TP_HANDLE_TYPE_CONTACT,
-			TP_IFACE_CHANNEL ".TargetID", G_TYPE_STRING, argv[4],
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Filename", G_TYPE_STRING, g_file_info_get_display_name (info),
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".ContentType", G_TYPE_STRING, g_file_info_get_content_type (info),
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Size", G_TYPE_UINT64, g_file_info_get_size (info),
+			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_CONTACT_LIST,
+			TP_IFACE_CHANNEL ".TargetHandleType", G_TYPE_UINT, TP_HANDLE_TYPE_LIST,
+			TP_IFACE_CHANNEL ".TargetID", G_TYPE_STRING, "subscribe",
 			NULL);
 
-		tp_cli_connection_interface_requests_call_create_channel (
+		tp_cli_connection_interface_requests_call_ensure_channel (
 				conn, -1, props,
-				create_ft_channel_cb,
-				NULL, NULL, NULL);
-
+				create_contact_list_channel_cb,
+				argv, NULL, NULL);
 		g_hash_table_destroy (props);
-		g_object_unref (info);
-		g_object_unref (file);
 	}
 }
 
@@ -335,9 +431,9 @@ main (int argc, char **argv)
 
 	g_type_init ();
 
-	if (argc != 5)
+	if (argc != 4)
 	{
-		g_error ("Must provide first name, last name, filename and targetID!");
+		g_error ("Must provide first name, last name and filename");
 	}
 
 	/* create a main loop */
