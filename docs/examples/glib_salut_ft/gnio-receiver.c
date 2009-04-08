@@ -1,12 +1,10 @@
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <errno.h>
-#include <string.h>
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gio/gio.h>
+#include <gio/gunixoutputstream.h>
+#include <gio/gnio.h>
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
@@ -25,10 +23,12 @@ static TpConnection *conn = NULL;
 
 struct ft_state
 {
-	GIOChannel *channel;
-	guint64 offset;
+	GSocketClient *client;
+	GSocketConnection *connection;
+	GSocketAddress *address;
 
-	struct sockaddr_un sa;
+	GOutputStream *output;
+	guint64 offset;
 };
 
 static void
@@ -43,50 +43,49 @@ handle_error (const GError *error)
 }
 
 static void
-file_transfer_unix_cb (TpChannel	*channel,
-                       const GValue	*addressv,
-		       const GError	*in_error,
-		       gpointer		 user_data,
-		       GObject		*weak_obj)
+accept_file_cb (TpChannel	*channel,
+                const GValue	*addressv,
+		const GError	*in_error,
+		gpointer	 user_data,
+		GObject		*weak_obj)
 {
-	struct ft_state *state = (struct ft_state *) user_data;
+	struct ft_state *ftstate = (struct ft_state *) user_data;
+	GError *error = NULL;
 
 	handle_error (in_error);
 
-	const char *address = g_value_get_string (addressv);
-	strncpy (state->sa.sun_path, address, UNIX_PATH_MAX);
 
-	g_print (" > file_transfer_unix_cb (%s)\n", address);
-}
+	if (G_IS_UNIX_CLIENT (ftstate->client))
+	{
+		const char *address = g_value_get_string (addressv);
+		g_print (" > file_transfer_cb (unix:%s)\n", address);
 
-static gboolean
-file_transfer_data_received (GIOChannel 	*channel,
-                             GIOCondition	 condition,
-			     gpointer		 data)
-{
-	char buf[1024];
-	gsize bytes_read;
-	GError *error = NULL;
+		ftstate->address = G_SOCKET_ADDRESS (
+			g_unix_socket_address_new (address));
+	}
+	else if (G_IS_TCP_CLIENT (ftstate->client))
+	{
+		GValueArray *address = g_value_get_boxed (addressv);
+		const char *host = g_value_get_string (
+			g_value_array_get_nth (address, 0));
+		guint port = g_value_get_uint (
+			g_value_array_get_nth (address, 1));
+		g_print (" > file_transfer_cb (tcp:%s:%i)\n", host, port);
 
-	if (condition & G_IO_HUP) return FALSE; /* this channel is done */
-
-	g_io_channel_read_chars (channel, buf, sizeof (buf), &bytes_read,
-			&error);
-	handle_error (error);
-
-	buf[bytes_read] = '\0';
-
-	g_print ("%s", buf);
-
-	return TRUE;
+		/* RYAN!
+		ftstate->address = G_SOCKET_ADDRESS (
+			g_tcp_client_get_connectable (host, port, &error));
+		handle_error (error);
+		 */
+	}
 }
 
 static void
-file_transfer_unix_state_changed_cb (TpChannel	*channel,
-                                     guint	 state,
-				     guint	 reason,
-				     gpointer	 user_data,
-				     GObject	*weak_obj)
+file_transfer_state_changed_cb (TpChannel	*channel,
+                                guint		 state,
+				guint		 reason,
+				gpointer	 user_data,
+				GObject		*weak_obj)
 {
 	struct ft_state *ftstate = (struct ft_state *) user_data;
 	GError *error = NULL;
@@ -95,36 +94,48 @@ file_transfer_unix_state_changed_cb (TpChannel	*channel,
 
 	if (state == TP_FILE_TRANSFER_STATE_OPEN)
 	{
-		int sock = socket (ftstate->sa.sun_family, SOCK_STREAM, 0);
-		if (sock == -1)
+		if (G_IS_UNIX_CLIENT (ftstate->client))
 		{
-			int e = errno;
-			g_error ("UNABLE TO GET SOCKET: %s", strerror (e));
+			ftstate->connection = G_SOCKET_CONNECTION (
+				g_unix_client_connect (
+					G_UNIX_CLIENT (ftstate->client),
+					G_SOCKET_CONNECTABLE (ftstate->address),
+					NULL, &error));
 		}
-
-		if (connect (sock, (struct sockaddr *) &ftstate->sa,
-				   sizeof (struct sockaddr_un)))
+		else if (G_IS_TCP_CLIENT (ftstate->client))
 		{
-			int e = errno;
-			g_error ("UNABLE TO CONNECT: %s", strerror (e));
+			ftstate->connection = G_SOCKET_CONNECTION (
+				g_tcp_client_connect (
+					G_TCP_CLIENT (ftstate->client),
+					G_SOCKET_CONNECTABLE (ftstate->address),
+					NULL, &error));
 		}
+		handle_error (error);
 
-		/* turn the socket into an IOChannel, so that we can work
-		 * with our main loop */
-		ftstate->channel = g_io_channel_unix_new (sock);
-		g_io_add_watch (ftstate->channel, G_IO_IN | G_IO_HUP,
-				file_transfer_data_received,
-				ftstate);
+		/* we can now use the stream like any other GIO stream.
+		 * Open an output stream for writing to */
+		GInputStream *input = g_io_stream_get_input_stream (
+				G_IO_STREAM (ftstate->connection));
+		ftstate->output = g_unix_output_stream_new (STDOUT_FILENO,
+				FALSE);
+		/* splice the input stream into the output stream and GIO
+		 * takes care of the rest */
+		g_output_stream_splice (ftstate->output, input,
+				G_OUTPUT_STREAM_SPLICE_NONE,
+				NULL, &error);
+		handle_error (error);
 	}
 	else if (state == TP_FILE_TRANSFER_STATE_COMPLETED ||
 		 state == TP_FILE_TRANSFER_STATE_CANCELLED)
 	{
-		g_print ("\n--------------EOF--------------\n");
 		/* close the socket */
-		g_io_channel_shutdown (ftstate->channel, TRUE, &error);
-		handle_error (error);
-		/* release our resources */
-		g_io_channel_unref (ftstate->channel);
+		g_socket_connection_close (ftstate->connection);
+
+		/* free the resources */
+		g_object_unref (ftstate->output);
+		g_object_unref (ftstate->connection);
+		g_object_unref (ftstate->address);
+		g_object_unref (ftstate->client);
 		g_slice_free (struct ft_state, ftstate);
 		tp_cli_channel_call_close (channel, -1, NULL, NULL, NULL, NULL);
 	}
@@ -140,7 +151,6 @@ file_transfer_channel_ready (TpChannel		*channel,
 	handle_error (in_error);
 
 	GHashTable *map = tp_channel_borrow_immutable_properties (channel);
-	tp_asv_dump (map);
 
 	const char *filename = tp_asv_get_string (map,
 			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Filename");
@@ -158,35 +168,39 @@ file_transfer_channel_ready (TpChannel		*channel,
 		TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".AvailableSocketTypes",
 		TP_HASH_TYPE_SUPPORTED_SOCKET_MAP);
 
+	struct ft_state *ftstate = g_slice_new (struct ft_state);
+	guint socket_type, access_control;
+
 	/* let's try for IPv4 */
 	if (g_hash_table_lookup (sockets,
 				GINT_TO_POINTER (TP_SOCKET_ADDRESS_TYPE_IPV4)))
 	{
-		g_print ("ipv4 supported\n");
+		socket_type = TP_SOCKET_ADDRESS_TYPE_IPV4;
+		access_control = TP_SOCKET_ACCESS_CONTROL_LOCALHOST;
+		ftstate->client = G_SOCKET_CLIENT (g_tcp_client_new ());
 	}
 	else if (g_hash_table_lookup (sockets,
 				GINT_TO_POINTER (TP_SOCKET_ADDRESS_TYPE_UNIX)))
 	{
-		struct ft_state *state = g_slice_new (struct ft_state);
-		state->sa.sun_family = AF_UNIX;
-
-		tp_cli_channel_type_file_transfer_connect_to_file_transfer_state_changed (
-				channel, file_transfer_unix_state_changed_cb,
-				state, NULL, NULL, &error);
-		handle_error (error);
-
-		GValue *value = tp_g_value_slice_new_static_string ("");
-
-		/* let us accept the file */
-		tp_cli_channel_type_file_transfer_call_accept_file (channel,
-				-1, TP_SOCKET_ADDRESS_TYPE_UNIX,
-				TP_SOCKET_ACCESS_CONTROL_LOCALHOST,
-				value, 0,
-				file_transfer_unix_cb,
-				state, NULL, NULL);
-
-		tp_g_value_slice_free (value);
+		socket_type = TP_SOCKET_ADDRESS_TYPE_UNIX;
+		access_control = TP_SOCKET_ACCESS_CONTROL_LOCALHOST;
+		ftstate->client = G_SOCKET_CLIENT (g_unix_client_new ());
 	}
+
+	tp_cli_channel_type_file_transfer_connect_to_file_transfer_state_changed (
+			channel, file_transfer_state_changed_cb,
+			ftstate, NULL, NULL, &error);
+	handle_error (error);
+
+	/* let us accept the file */
+	GValue *value = tp_g_value_slice_new_static_string ("");
+	tp_cli_channel_type_file_transfer_call_accept_file (channel,
+			-1, TP_SOCKET_ADDRESS_TYPE_UNIX,
+			TP_SOCKET_ACCESS_CONTROL_LOCALHOST,
+			value, 0,
+			accept_file_cb,
+			ftstate, NULL, NULL);
+	tp_g_value_slice_free (value);
 }
 
 static void

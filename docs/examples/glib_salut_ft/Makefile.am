@@ -15,13 +15,13 @@ if HAVE_GNIO
 noinst_PROGRAMS += \
 	gnio-receiver
 
-gnio_receiver_INCLUDES = \
-	$(TELEPATHY_GLIB_CFLAGS) \
-	$(GNIO_CFLAGS)
+gnio_receiver_CFLAGS = \
+	$(GNIO_CFLAGS) \
+	$(TELEPATHY_GLIB_CFLAGS)
 
 gnio_receiver_LDADD = \
-	$(TELEPATHY_GLIB_LIBS) \
-	$(GNIO_LIBS)
+	$(GNIO_LIBS) \
+	$(TELEPATHY_GLIB_LIBS)
 
 gnio_receiver_SOURCES = \
 	gnio-receiver.c
