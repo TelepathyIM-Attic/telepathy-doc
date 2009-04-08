@@ -133,6 +133,11 @@ file_transfer_state_changed_cb (TpChannel	*channel,
 				g_file_read (ftstate->file, NULL, &error));
 		handle_error (error);
 
+		g_seekable_seek (G_SEEKABLE (ftstate->input),
+				ftstate->offset, G_SEEK_SET, NULL,
+				&error);
+		handle_error (error);
+
 		/* splice the input stream into the output stream and GIO
 		 * takes care of the rest */
 		g_output_stream_splice_async (output, ftstate->input,
@@ -153,6 +158,18 @@ file_transfer_state_changed_cb (TpChannel	*channel,
 		tp_cli_channel_call_close (channel, -1, NULL, NULL, NULL, NULL);
 		g_print ("Done\n");
 	}
+}
+
+static void
+initial_offset_defined_cb (TpChannel	*channel,
+			   guint64	 offset,
+			   gpointer	 user_data,
+			   GObject	*weak_obj)
+{
+	struct ft_state *ftstate = (struct ft_state *) user_data;
+
+	g_print (" > initial_offset_defined_cb (%llu)\n", offset);
+	ftstate->offset = offset;
 }
 
 static void
@@ -202,6 +219,11 @@ file_transfer_channel_ready (TpChannel		*channel,
 		access_control = TP_SOCKET_ACCESS_CONTROL_LOCALHOST;
 		ftstate->client = G_SOCKET_CLIENT (g_unix_client_new ());
 	}
+
+	tp_cli_channel_type_file_transfer_connect_to_initial_offset_defined (
+			channel, initial_offset_defined_cb,
+			ftstate, NULL, NULL, &error);
+	handle_error (error);
 
 	tp_cli_channel_type_file_transfer_connect_to_file_transfer_state_changed (
 			channel, file_transfer_state_changed_cb,
