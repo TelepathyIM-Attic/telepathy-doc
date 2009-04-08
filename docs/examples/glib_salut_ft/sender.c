@@ -223,6 +223,7 @@ iterate_contacts (TpChannel	 *channel,
 		/* FIXME: we should check that our client has the
 		 * FT capability */
 
+		/* begin ex.filetransfer.sending.gfileinfo */
 		GFile *file = g_file_new_for_commandline_arg (argv[3]);
 		GFileInfo *info = g_file_query_info (file,
 				"standard::*",
@@ -247,6 +248,7 @@ iterate_contacts (TpChannel	 *channel,
 		g_hash_table_destroy (props);
 		g_object_unref (info);
 		g_object_unref (file);
+		/* end ex.filetransfer.sending.gfileinfo */
 	}
 }
 

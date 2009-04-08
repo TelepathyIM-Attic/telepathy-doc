@@ -36,36 +36,31 @@
 
  <sect1 id="sect.filetransfer.sending">
   <title>Sending Files</title>
- </sect1>
-
- <sect1 id="sect.filetransfer.receiving">
-  <title>Receiving Files</title>
 
   <!-- FIXME: something about Capabilities -->
 
-  <sect2 id="sect.filetransfer.receiving.channel">
-   <title>Handling The New Channel</title>
+  <sect2 id="sect.filetransfer.sending.channel">
+   <title>Creating the New Channel</title>
 
    <para>
-    An incoming file transfer channel will be heralded by the
-    <methodname>NewChannels</methodname> signal (as with other incoming
-    channels, e.g. <link linkend="sect.messaging.messages.receiving">text
-    channels</link>). The channel type of the new channel will be
-    <interfacename>org.freedesktop.Telepathy.Channel.Type.FileTransfer</interfacename>.
+    To set up a file transfer with a remote contact, we need to create a new
+    channel of type
+    <interfacename>org.freedesktop.Telepathy.Channel.Type.FileTransfer</interfacename>
+    using <methodname>CreateChannel</methodname> (see
+    <xref linkend="sect.channel.requesting"/>). Besides the standard
+    properties <property>ChannelType</property>,
+    <property>TargetHandleType</property> and
+    <property>TargetHandle</property>/<property>TargetID</property>,
+    metadata pertaining to the file transfer must be provided. At least
+    <property>Filename</property>, <property>Size</property> and
+    <property>ContentType</property> must be provided, but there are other
+    properties that may be provided, summarised in
+    <xref linkend="table.filetransfer.sending.props"/>.
+    <xref linkend="ex.filetransfer.sending.props"/> shows an example map
+    of properties that could be used to request this channel.
    </para>
-
-   <para>
-    As well as common channel properties (e.g.
-    <property>InitiatorHandle</property>, <property>InitiatorID</property>,
-    <property>TargetHandle</property>, <property>TargetID</property>, etc.),
-    there will be properties specific to file transfers that contain the
-    metadata for the file, summarised in
-    <xref linkend="table.filetransfer.receiving.props"/>. The client should
-    display this information to the user when asking whether or not to
-    accept the file.
-   </para>
-
-   <table id="table.filetransfer.receiving.props">
+   
+   <table id="table.filetransfer.sending.props">
     <tgroup cols="4">
      <thead>
       <row>
@@ -150,6 +145,84 @@
      </tbody>
     </tgroup>
    </table>
+
+   <example id="ex.filetransfer.sending.props">
+    <title>Example Properties for Creating a File Transfer Channel</title>
+    <informaltable>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+	<entry>org.freedesktop.Telepathy.Channel.Type.FileTransfer</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+	<entry>Handle_Type_Contact</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.TargetID</entry>
+	<entry>"bob@example.com"</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.Type.FileTransfer.Filename</entry>
+	<entry>"cat.jpg"</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.Type.FileTransfer.Size</entry>
+	<entry>32768</entry>
+       </row>
+       <row>
+        <entry>org.freedesktop.Telepathy.Channel.Type.FileTransfer.ContentType</entry>
+	<entry>image/jpeg</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </example>
+
+   <tip>
+    <title>Using GLib's GFileInfo</title>
+    <para>
+     If using <application>telepathy-glib</application>, all of the required
+     information to create this channel can be determined using
+     <function>g_file_query_info</function>.
+    </para>
+
+    <example id="ex.filetransfer.sending.gfileinfo"
+             file="glib_salut_ft/sender.c">
+     <title>g_file_query_info()</title>
+    </example>
+   </tip>
+
+  </sect2>
+ </sect1>
+
+ <sect1 id="sect.filetransfer.receiving">
+  <title>Receiving Files</title>
+
+  <!-- FIXME: something about Capabilities -->
+
+  <sect2 id="sect.filetransfer.receiving.channel">
+   <title>Handling The New Channel</title>
+
+   <para>
+    An incoming file transfer channel will be heralded by the
+    <methodname>NewChannels</methodname> signal (as with other incoming
+    channels, e.g. <link linkend="sect.messaging.messages.receiving">text
+    channels</link>). The channel type of the new channel will be
+    <interfacename>org.freedesktop.Telepathy.Channel.Type.FileTransfer</interfacename>.
+   </para>
+
+   <para>
+    As well as common channel properties (e.g.
+    <property>InitiatorHandle</property>, <property>InitiatorID</property>,
+    <property>TargetHandle</property>, <property>TargetID</property>, etc.),
+    there will be properties specific to file transfers that contain the
+    metadata for the file, summarised in
+    <xref linkend="table.filetransfer.sending.props"/>. The client should
+    display this information to the user when asking whether or not to
+    accept the file.
+   </para>
 
    <para>
     If the user declines to receive the file, simply closing the channel
