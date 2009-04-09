@@ -3,6 +3,7 @@ example_dirs = \
 	glib_get_user_defined_groups \
 	glib_get_roster \
 	glib_salut_ft \
+	glib_jabber_muc \
 	pygtk_chat_client \
 	python_get_parameters \
 	python_iface_messaging \
