@@ -367,8 +367,8 @@
      channels you did not (e.g. setting up a new text channel).
     </para>
     <para>
-     If required, use the <property>Requested</property> to determine if you
-     created the channel yourself.
+     If required, use the <property>Requested</property> property to determine
+     if you created the channel yourself.
     </para>
    </tip>
 
@@ -376,6 +376,116 @@
     Use the <property>ChannelType</property> property to decide how to
     handle a channel.
    </para>
+
+   <sect2 id="sect.channel.newchannels.newchannel">
+    <title>The NewChannel Signal</title>
+    <warning>
+     <title>Deprecated</title>
+     <para>
+      The <methodname>NewChannel</methodname> signal has been deprecated
+      and should only be used if compatibility is required with older
+      Connection Managers that do not implement the
+      <interfacename>Requests</interfacename> interface.
+     </para>
+    </warning>
+
+    <para>
+     <methodname>NewChannel</methodname>, like the method call
+     <methodname>RequestChannel</methodname>, is part of the old channel
+     requesting API and should not be used in new programs unless absolutely
+     required because a Connection Manager does not support
+     <interfacename>Requests</interfacename> (although this is a bug in the
+     Connection Manager).
+    </para>
+
+    <para>
+     <methodname>NewChannels</methodname> has several advantages over
+     the older <methodname>NewChannel</methodname>:
+    </para>
+    <itemizedlist>
+     <listitem>
+      <para>
+       Related channels (or channels created as a side-effect of another
+       creation) can be bundled together.
+      </para>
+      <para>
+       For example, creating a multi-user Tube in XMPP requires joining the
+       corresponding multi-user chatroom, so both channels can be announced
+       in the same signal.
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       The callback includes a map with all of the channel's immutable
+       properties, a useful optimisation.
+      </para>
+     </listitem>
+    </itemizedlist>
+
+    <note>
+     <para>
+      <methodname>NewChannels</methodname> is always emitted first, followed
+      by a <methodname>NewChannel</methodname> signal for each of the
+      channels.
+     </para>
+    </note>
+
+    <para>
+     The parameters to the <methodname>NewChannel</methodname> signal, and
+     their equivalents in <methodname>NewChannels</methodname> is presented
+     in <xref linkend="table.channel.newchannels.newchannel.mapping"/>.
+    </para>
+
+    <table id="table.channel.newchannels.newchannel.mapping">
+     <title>NewChannel Parameters to NewChannels Properties</title>
+     <tgroup cols="3">
+      <thead>
+       <row>
+        <entry>Parameter</entry>
+	<entry>Type</entry>
+	<entry><methodname>NewChannels</methodname> equivalent</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry><parameter>Object_Path</parameter></entry>
+	<entry>D-Bus Object Path (<literal>o</literal>)</entry>
+	<entry><parameter>Channel</parameter> parameter</entry>
+       </row>
+       <row>
+        <entry><parameter>Channel_Type</parameter></entry>
+	<entry>String</entry>
+	<entry>
+	 <property>org.freedesktop.Telepathy.Channel.ChannelType</property>
+	 property
+	</entry>
+       </row>
+       <row>
+        <entry><parameter>Handle_Type</parameter></entry>
+	<entry>uint32</entry>
+	<entry>
+	 <property>org.freedesktop.Telepathy.Channel.TargetHandleType</property>
+	 property
+	</entry>
+       </row>
+       <row>
+        <entry><parameter>Handle</parameter></entry>
+	<entry>uint32</entry>
+	<entry>
+	 <property>org.freedesktop.Telepathy.Channel.TargetHandle</property>
+	 property
+	</entry>
+       </row>
+       <row>
+        <entry><parameter>Suppress_Handler</parameter></entry>
+	<entry>Boolean</entry>
+	<entry>-</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+
+   </sect2>
   </sect1>
 
   <sect1 id="sect.channel.contactlist">
