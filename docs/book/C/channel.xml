@@ -213,9 +213,35 @@
       </tbody>
      </tgroup>
     </informaltable>
+    
+   <note>
+    <title>Anonymous Channels</title>
+    <para>
+     Anonymous channels are channels that do not connect to a remote
+     (single) contact, room, list or group. For example,
+     <interfacename>RoomList</interfacename> channels, or anonymous MUC
+     chats (e.g. in MSN).
+    </para>
+    <para>
+     They are requested by giving a <property>TargetHandleType</property>
+     of <type>Handle_Type_None</type> (you should <emphasis>not</emphasis>
+     specify a <property>TargetHandle</property> for an anonymous channel).
+    </para>
+   </note>
 
-   <warning>
-    <title>RequestChannel</title>
+   <sect2 id="sect.channel.requesting.requestchannel">
+    <title>The RequestChannel Method</title>
+
+    <warning>
+     <title>Deprecated</title>
+     <para>
+      The <methodname>RequestChannel</methodname> method has been deprecated
+      and should only be used if compatibility is required with older
+      Connection Managers that do not implement the
+      <interfacename>Requests</interfacename> interface. 
+     </para>
+    </warning>
+
     <para>
      Some Connection Managers might not yet implement the
      <interfacename>Requests</interfacename> interface on their
@@ -263,7 +289,15 @@
              file="python_irc_roomlist/example.py">
      <title>Requesting a channel using RequestChannel</title>
     </example>
-   </warning>
+
+    <para>
+     When requesting an anonymous channel with
+     <methodname>RequestChannel</methodname>, a channel with handle type
+     <type>Handle_Type_None</type> (as is the case in
+     <xref linkend="ex.channel.requestchannel"/>), pass the handle id
+     <literal>0</literal>.
+    </para>
+   </sect2>
 
    <sect2 id="sect.channel.requesting.python">
     <title>telepathy-python</title>
@@ -850,7 +884,7 @@
     <para>
      Some protocols (e.g. MSN) support transient, unnamed chatrooms that
      are just defined by their members. These chatrooms are represented by
-     an anonymous channel (<type>Handle_Type_None</type>, handle id 0) and
+     an anonymous channel (<type>Handle_Type_None</type>) and
      implement the <interfacename>Group</interfacename> interface. On some
      protocols, i.e. ones where all chats are simply transient chatrooms,
      setting up a channel for a one-to-one chat with a contact may result
@@ -1019,11 +1053,6 @@
 	<entry></entry>
        </row>
        <row>
-        <entry>org.freedesktop.Telepathy.Channel.TargetHandle</entry>
-        <entry>0</entry>
-	<entry></entry>
-       </row>
-       <row>
         <entry>org.freedesktop.Telepathy.Channel.Type.RoomList.Server</entry>
 	<entry>conference.xmpp.example.com</entry>
 	<entry>Optional</entry>
@@ -1032,6 +1061,15 @@
      </tgroup>
     </informaltable>
    </example>
+
+   <important>
+    <para>
+     <interfacename>RoomList</interfacename> channels are anonymous. You
+     must not provide a value for <property>TargetHandle</property> (unless
+     you are using the deprecated <methodname>RequestChannel</methodname>
+     method, in which case use the value <literal>0</literal>).
+    </para>
+   </important>
     
    <para>
     It can take some time for the information on the available rooms to be
