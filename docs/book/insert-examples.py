@@ -147,6 +147,8 @@ for nicename in included_files:
 		print >> sys.stderr, e
 		continue
 
+	s.append (etree.XML ('<para><ulink url="%s">Source File</ulink></para>' % os.path.join ('examples', nicename)))
+
 	# syntax highlight the contents
 	if pygments:
 		# syntax highlighting
