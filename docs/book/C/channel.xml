@@ -332,6 +332,52 @@
 
   </sect1>
 
+  <sect1 id="sect.channel.newchannels">
+   <title>Incoming Channels</title>
+
+   <para>
+    Besides channels that you request yourself, channels can be created by a
+    remote user (e.g. text, or file transfer channels) or by the server you
+    are connected to (e.g. contact group channels).
+   </para>
+
+   <para>
+    New channels are heralded by the <methodname>NewChannels</methodname>
+    signal, which is part of the <interfacename>Requests</interfacename>
+    interface.
+   </para>
+
+   <para>
+    When channels are created, the <methodname>NewChannels</methodname>
+    callback will pass you a list of newly created channels by their object
+    paths along with a map of immutable properties for the channel.
+    All channels are announced, including channels that you created. You
+    can check the <property>Requested</property> property to discover if
+    this channel is one you requested yourself (i.e. via
+    <methodname>CreateChannel</methodname>.
+   </para>
+
+   <tip>
+    <para>
+     It is possible to call <methodname>CreateChannel</methodname> in a
+     fire-and-forget way (if you don't care about error conditions), or only
+     handle the error condition in the method callback, and do
+     all of the channel setup in the <methodname>NewChannels</methodname>
+     callback, using a common codepath for channels you requested, and
+     channels you did not (e.g. setting up a new text channel).
+    </para>
+    <para>
+     If required, use the <property>Requested</property> to determine if you
+     created the channel yourself.
+    </para>
+   </tip>
+
+   <para>
+    Use the <property>ChannelType</property> property to decide how to
+    handle a channel.
+   </para>
+  </sect1>
+
   <sect1 id="sect.channel.contactlist">
     <title>Contact Lists</title>
     <indexterm><primary>ContactList</primary></indexterm>
@@ -518,7 +564,8 @@
       by the connection. Thus the currently configured groups can be
       discovered at any time by checking the <property>Channels</property>
       property or connecting to the <methodname>NewChannels</methodname>
-      signal on the <interfacename>Requests</interfacename> interface.
+      signal on the <interfacename>Requests</interfacename> interface
+      (see <xref linkend="sect.channel.newchannels"/>).
      </para>
 
      <para>

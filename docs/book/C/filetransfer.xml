@@ -384,7 +384,8 @@
     An incoming file transfer channel will be heralded by the
     <methodname>NewChannels</methodname> signal (as with other incoming
     channels, e.g. <link linkend="sect.messaging.messages.receiving">text
-    channels</link>). The channel type of the new channel will be
+    channels</link> &mdash; see <xref linkend="sect.channel.newchannels"/>).
+    The channel type of the new channel will be
     <interfacename>org.freedesktop.Telepathy.Channel.Type.FileTransfer</interfacename>.
    </para>
 

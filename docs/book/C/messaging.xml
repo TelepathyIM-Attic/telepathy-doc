@@ -278,7 +278,8 @@
    <para>
     When a remote user initiates a new text chat, Telepathy will
     automatically create a new channel for the chat, who's creation will
-    be heralded by the <methodname>NewChannels</methodname> signal.
+    be heralded by the <methodname>NewChannels</methodname> signal
+    (see <xref linkend="sect.channel.newchannels"/>).
     Filter on the channels given for channels of type
     <type>Channel_Type_Text</type>.
     <xref linkend="ex.channel.text.messages.receiving.newchannels"/> shows
@@ -382,7 +383,8 @@
 
    <para>
     The creation of a new text channel will be heralded by the
-    <methodname>NewChannels</methodname> signal. Filter on the new channels
+    <methodname>NewChannels</methodname> signal (see
+    <xref linkend="sect.channel.newchannels"/>). Filter on the new channels
     for channels of type <type>Channel_Type_Text</type>
     (see <xref linkend="ex.channel.text.messages.receiving.newchannels"/>).
    </para>
