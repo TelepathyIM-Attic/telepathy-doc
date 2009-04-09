@@ -70,11 +70,10 @@ accept_file_cb (TpChannel	*channel,
 			g_value_array_get_nth (address, 1));
 		g_print (" > file_transfer_cb (tcp:%s:%i)\n", host, port);
 
-		/* RYAN!
+		GInetAddress *addr = g_inet_address_new_from_string (host);
 		ftstate->address = G_SOCKET_ADDRESS (
-			g_tcp_client_get_connectable (host, port, &error));
-		handle_error (error);
-		 */
+			g_inet_socket_address_new (addr, port));
+		g_object_unref (addr);
 	}
 }
 
@@ -104,22 +103,10 @@ file_transfer_state_changed_cb (TpChannel	*channel,
 
 	if (state == TP_FILE_TRANSFER_STATE_OPEN)
 	{
-		if (G_IS_UNIX_CLIENT (ftstate->client))
-		{
-			ftstate->connection = G_SOCKET_CONNECTION (
-				g_unix_client_connect (
-					G_UNIX_CLIENT (ftstate->client),
-					G_SOCKET_CONNECTABLE (ftstate->address),
-					NULL, &error));
-		}
-		else if (G_IS_TCP_CLIENT (ftstate->client))
-		{
-			ftstate->connection = G_SOCKET_CONNECTION (
-				g_tcp_client_connect (
-					G_TCP_CLIENT (ftstate->client),
-					G_SOCKET_CONNECTABLE (ftstate->address),
-					NULL, &error));
-		}
+		ftstate->connection = g_socket_client_connect (
+				ftstate->client,
+				G_SOCKET_CONNECTABLE (ftstate->address),
+				NULL, &error);
 		handle_error (error);
 
 		/* we can now use the stream like any other GIO stream.
