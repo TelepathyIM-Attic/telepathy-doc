@@ -193,6 +193,7 @@ file_transfer_channel_ready (TpChannel		*channel,
 			tp_channel_get_identifier (channel),
 			filename, size);
 
+	/* begin ex.filetransfer.sending.providing */
 	/* File transfers in Telepathy work by opening a socket to the
 	 * Connection Manager and streaming the file over that socket.
 	 * Let's find out what manner of sockets are supported by this CM */
@@ -237,6 +238,7 @@ file_transfer_channel_ready (TpChannel		*channel,
 			value, provide_file_cb,
 			ftstate, NULL, NULL);
 	tp_g_value_slice_free (value);
+	/* end ex.filetransfer.sending.providing */
 }
 
 static void

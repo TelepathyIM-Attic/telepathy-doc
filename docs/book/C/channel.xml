@@ -68,11 +68,12 @@
        </term>
        <listitem>
          <para>
-	  This channel sends and receives plain text messages, such as instant
+	  This channel sends and receives text messages, such as instant
 	  messages.
 	 </para>
 	 <para>
-	  See <xref linkend="sect.channel.text"/>.
+	  See <xref linkend="sect.channel.text"/> and then
+	  <xref linkend="chapter.messaging"/>.
 	 </para>
        </listitem>
      </varlistentry>
@@ -109,6 +110,10 @@
        <listitem>
          <para>
 	  A channel type for transferring files.
+	 </para>
+	 <para>
+	  File transfers are covered in-depth in
+	  <xref linkend="chapter.filetransfer"/>.
 	 </para>
        </listitem>
      </varlistentry>

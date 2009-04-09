@@ -251,6 +251,94 @@
     the <emphasis>Open</emphasis> state
     (<type>File_Transfer_State_Open</type>).
    </para>
+
+   <para>
+    <xref linkend="ex.filetransfer.sending.providing"/> shows the setup
+    described in this section.
+   </para>
+
+   <example id="ex.filetransfer.sending.providing"
+            file="glib_salut_ft/gnio-sender.c">
+    <title>Setting Up The File Transfer Channel</title>
+   </example>
+
+   <tip id="tip.filetransfer.sending.decoding-address">
+    <title>Decoding The Address</title>
+    <para>
+     The address returned <methodname>ProvideFile</methodname> and
+     <methodname>AcceptFile</methodname> is a variant type, depending on the
+     type of socket that is being opened.
+    </para>
+    
+    <informaltable>
+     <tgroup cols="4">
+      <thead>
+       <row>
+        <entry>Socket Type</entry>
+	<entry>D-Bus Type</entry>
+	<entry>Structure</entry>
+	<entry>Example</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>Unix</entry>
+	<entry morerows="1" valign="middle"><literal>ay</literal></entry>
+	<entry morerows="1" valign="middle">Address as a character array</entry>
+	<entry morerows="1" valign="middle">/tmp/tp-ft-1612616106</entry>
+       </row>
+       <row rowsep="1">
+        <entry>Abstract Unix</entry>
+       </row>
+       <row>
+        <entry>IPv4</entry>
+	<entry morerows="1" valign="middle"><literal>(sq)</literal></entry>
+	<entry morerows="1" valign="middle">
+	 IP address (as a string in the canonical form) and a port number
+	 (as an integer)
+	</entry>
+	<entry>127.0.0.1, 12001</entry>
+       </row>
+       <row>
+        <entry>IPv6</entry>
+	<entry>::1, 22222</entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+
+    <para>
+     <xref linkend="ex.filetransfer.sending.decoding-address"/> shows how
+     the address might be decoded using
+     <application>telepathy-glib</application>.
+    </para>
+    
+    <example id="ex.filetransfer.sending.decoding-address">
+     <title>Decoding the Address Using telepathy-glib</title>
+     <programlisting language="c">
+<![CDATA[switch (socket_type)
+{
+	case TP_SOCKET_ADDRESS_TYPE_UNIX:
+	case TP_SOCKET_ADDRESS_TYPE_ABSTRACT_UNIX:
+		const char *address = g_value_get_string (addressv);
+		g_print (" > file_transfer_cb (unix:%s)\n", address);
+		break;
+
+	case TP_SOCKET_ADDRESS_TYPE_IPV4:
+	case TP_SOCKET_ADDRESS_TYPE_IPV6:
+		GValueArray *address = g_value_get_boxed (addressv);
+		const char *host = g_value_get_string (
+			g_value_array_get_nth (address, 0));
+		guint port = g_value_get_uint (
+			g_value_array_get_nth (address, 1));
+		g_print (" > file_transfer_cb (tcp:%s:%i)\n", host, port);
+		break;
+
+	default:
+		g_assert_not_reached ();
+}]]></programlisting>
+    </example>
+   </tip>
   </sect2>
 
   <sect2 id="sect.filetransfer.sending.open">
@@ -269,7 +357,17 @@
     Copy the file from the source file to the socket. Files can be large, so
     you should do this in a way that doesn't block your mainloop. When you
     reach the end of the file, close the socket to the Connection Manager.
-    This will indicate that you have completed the transfer.
+    This will indicate that you have completed the transfer. The channel
+    will move into the <emphasis>Completed</emphasis> state
+    (<type>File_Transfer_State_Completed</type>).
+   </para>
+
+   <para>
+    If the remote user cancels the channel, it will change into the
+    <emphasis>Cancelled</emphasis> state
+    (<type>File_Transfer_State_Cancelled</type>).
+    If you wish to cancel your own file transfer, simply
+    <methodname>Close</methodname> the channel.
    </para>
   </sect2>
  </sect1>
@@ -360,6 +458,12 @@
      client doesn't have to be concerned with the mechanism.
     </para>
    </note>
+
+   <para>
+    <methodname>AcceptFile</methodname> returns a variant type that depends
+    on the type of socket that is being set up. Decoding this type is
+    discussed in <xref linkend="tip.filetransfer.sending.decoding-address"/>.
+   </para>
   </sect2>
 
   <sect2 id="table.filetransfer.receiving.open">
