@@ -1022,11 +1022,22 @@
    </para>
 
    <para>
-    <interfacename>RoomList</interfacename>s channels are stateful, so
+    <interfacename>RoomList</interfacename> channels are stateful, so
     they should be <emphasis>created</emphasis> (see
     <xref linkend="sect.channel.requesting"/>). On protocols that support
     multiple conference servers (e.g. XMPP), the <property>Server</property>
     property can be included in the request.
+   </para>
+
+   <para>
+    <xref linkend="example.channel.roomlist.examplemap"/> shows an example
+    property map that might be used to request a room list. Omitting the
+    <property>Server</property> property will cause the server's default
+    conference server to be used. If the server does not provide a default,
+    the configured fallback for the connection will be used. If this is
+    unset an error will occur (<errorname>NotAvailable</errorname>).
+    <xref linkend="example.channel.roomlist.requestglib"/> shows a code
+    example.
    </para>
     
    <example id="example.channel.roomlist.examplemap">
@@ -1060,6 +1071,11 @@
       </tbody>
      </tgroup>
     </informaltable>
+   </example>
+
+   <example id="example.channel.roomlist.requestglib"
+            file="glib_jabber_muc/example.c">
+    <title>Creating a RoomList Channel</title>
    </example>
 
    <important>

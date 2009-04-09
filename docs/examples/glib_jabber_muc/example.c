@@ -118,6 +118,7 @@ conn_ready (TpConnection	*conn,
 				NULL, NULL, NULL, &error);
 		handle_error (error);
 
+		/* begin example.channel.roomlist.requestglib */
 		/* request a RoomList channel */
 		GHashTable *map = tp_asv_new (
 			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_ROOM_LIST,
@@ -131,6 +132,7 @@ conn_ready (TpConnection	*conn,
 				NULL, NULL, NULL);
 
 		g_hash_table_destroy (map);
+		/* end example.channel.roomlist.requestglib */
 	}
 }
 
