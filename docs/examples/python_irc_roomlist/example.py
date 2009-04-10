@@ -87,6 +87,7 @@ class Example(object):
                                                  reply_handler = self.got_roomlist,
                                                  error_handler = self.error)
 
+    # begin example.channel.roomlist.listrooms
     def got_roomlist(self, channel_path):
         print 'Got Roomlist Channel'
         channel = telepathy.client.Channel(self.conn.service_name, channel_path)
@@ -109,6 +110,7 @@ class Example(object):
             # close the room list channel
             channel[CHANNEL].Close(reply_handler = generic_handler,
                                    error_handler = self.error)
+    # end example.channel.roomlist.listrooms
 
     def error(self, error):
         print 'Error:', error

@@ -4,6 +4,7 @@
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
+#include <telepathy-glib/channel.h>
 #include <telepathy-glib/interfaces.h>
 #include <telepathy-glib/gtypes.h>
 #include <telepathy-glib/util.h>
@@ -78,6 +79,14 @@ get_channels_cb (TpProxy	*proxy,
 }
 
 static void
+roomlist_channel_ready (TpChannel	*channel,
+		        const GError	*in_error,
+			gpointer	 user_data)
+{
+	handle_error (in_error);
+}
+
+static void
 create_roomlist_cb (TpConnection	*conn,
 		    const char		*object_path,
 		    GHashTable		*props,
@@ -86,8 +95,16 @@ create_roomlist_cb (TpConnection	*conn,
 		    GObject		*weak_obj)
 {
 	handle_error (in_error);
+	GError *error = NULL;
 
 	g_print (" > create_roomlist_cb (%s)\n", object_path);
+
+	TpChannel *channel = tp_channel_new_from_properties (conn,
+			object_path, props, &error);
+	handle_error (error);
+
+	tp_channel_call_when_ready (channel, roomlist_channel_ready, NULL);
+	tp_asv_dump (props);
 }
 
 static void
@@ -209,6 +226,7 @@ cm_ready (TpConnectionManager	*cm,
 			"password", G_TYPE_STRING, password,
 			"require-encryption", G_TYPE_BOOLEAN, TRUE,
 			"ignore-ssl-errors", G_TYPE_BOOLEAN, TRUE,
+			"fallback-conference-server", G_TYPE_STRING, "conference.collabora.co.uk",
 			NULL);
 
 	tp_cli_connection_manager_call_request_connection (cm, -1,

@@ -1039,6 +1039,14 @@
     <xref linkend="example.channel.roomlist.requestglib"/> shows a code
     example.
    </para>
+
+   <note>
+    <para>
+     You can discover the default conferencing server by omitting the
+     <property>Server</property> property and then reading the value on
+     the newly created channel.
+    </para>
+   </note>
     
    <example id="example.channel.roomlist.examplemap">
     <title>Example Maps For Requesting a Room List</title>
@@ -1091,7 +1099,8 @@
     It can take some time for the information on the available rooms to be
     collected, thus the room list is returned via the
     <methodname>GotRooms</methodname> signal. Clients should connect this
-    signal before calling <methodname>ListRooms</methodname>.
+    signal before calling <methodname>ListRooms</methodname>. See
+    <xref linkend="example.channel.roomlist.listrooms"/>.
    </para>
 
    <para>
@@ -1164,6 +1173,11 @@
       </tbody>
      </tgroup>
     </informaltable>
+
+    <example id="example.channel.roomlist.listrooms"
+             file="python_irc_roomlist/example.py">
+     <title>ListRooms</title>
+    </example>
 
   </sect1>
 
