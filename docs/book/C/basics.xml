@@ -1417,4 +1417,39 @@ AC_SUBST(EXAMPLE_LIBS)</programlisting>
 
   </sect1>
 
+  <sect1 id="sect.basics.tpproperties">
+   <title>Telepathy Properties</title>
+
+   <para>
+    Telepathy Properties should not be mistaken for D-Bus' own built in
+    properties.
+   </para>
+    
+   <para>
+    Telepathy Properties differ from built-in D-Bus properties
+    in that their read/write status can change dynamically (unlike D-Bus
+    properties, whose permissions are fixed by the specification). This is
+    to reflect the dynamic nature of some properties based on the changing
+    permissions of a connection or channel.
+   </para>
+
+   <para>
+    For example, imagine an IRC room. Depending on the current access level
+    of the user (i.e. is she/he an operator or moderator) and the
+    permissions set on the channel, the user may or may not
+    be permitted to change the channel subject at any given time. The
+    permission flags of the property change to reflect this status.
+   </para>
+
+   <para>
+    Properties have fixed names in the Telepathy specification, but are
+    referred to by ID number in the API. These ID numbers are not assigned
+    to constant values, instead the method call
+    <methodname>ListProperties</methodname> should be used. This returns
+    back an array of structs containing the ID number, property name,
+    D-Bus type signature and access flags.
+   </para>
+
+  </sect1>
+
 </chapter>
