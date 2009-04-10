@@ -1009,6 +1009,40 @@
      </para>
 
     </sect2>
+
+    <sect2 id="sect.channel.text.muc">
+     <title>Multi-User Chat</title>
+
+     <para>
+      Named Multi-user Chat (MUC) channels are represented by the
+      <type>Handle_Type_Room</type> handle type. Like with contact
+      identifiers, a room identifier depends on the protocol being used.
+      <xref linkend="table.channel.text.muc.identifiers"/> presents some
+      example identifiers for various protocols.
+     </para>
+
+     <table id="table.channel.text.muc.identifiers">
+      <title>Example MUC Room Identifiers</title>
+      <tgroup cols="2">
+       <thead>
+        <row>
+	 <entry>Protocol</entry>
+	 <entry>Example Room Identifer</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+	 <entry>XMPP</entry>
+	 <entry>telepathy@conference.xmpp.example.com</entry>
+	</row>
+	<row>
+	 <entry>IRC</entry>
+	 <entry>#telepathy</entry>
+	</row>
+       </tbody>
+      </tgroup>
+     </table>
+    </sect2>
   
   </sect1>
 
