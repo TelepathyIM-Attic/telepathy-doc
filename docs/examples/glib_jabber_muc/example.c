@@ -79,14 +79,6 @@ get_channels_cb (TpProxy	*proxy,
 }
 
 static void
-roomlist_channel_ready (TpChannel	*channel,
-		        const GError	*in_error,
-			gpointer	 user_data)
-{
-	handle_error (in_error);
-}
-
-static void
 create_roomlist_cb (TpConnection	*conn,
 		    const char		*object_path,
 		    GHashTable		*props,
@@ -103,8 +95,84 @@ create_roomlist_cb (TpConnection	*conn,
 			object_path, props, &error);
 	handle_error (error);
 
-	tp_channel_call_when_ready (channel, roomlist_channel_ready, NULL);
 	tp_asv_dump (props);
+
+	/* we didn't really want this channel anyway */
+	tp_cli_channel_call_close (channel, -1, NULL, NULL, NULL, NULL);
+	g_object_unref (channel);
+}
+
+static void
+list_properties_cb (TpProxy		*channel,
+		    const GPtrArray	*available_properties,
+		    const GError	*in_error,
+		    gpointer		 user_data,
+		    GObject		*weak_obj)
+{
+	handle_error (in_error);
+
+	g_print (" > list_properties_cb\n");
+
+	GArray *req = g_array_sized_new (FALSE, FALSE, sizeof (guint),
+			available_properties->len);
+
+	/* @available_properties is a GPtrArray of GValueArray structs
+	 * of signature (ussu) */
+	int i;
+	for (i = 0; i < available_properties->len; i++)
+	{
+		GValueArray *prop = g_ptr_array_index (available_properties, i);
+
+		guint id = g_value_get_uint (g_value_array_get_nth (prop, 0));
+		const char *name = g_value_get_string (g_value_array_get_nth (prop, 1));
+		const char *sig = g_value_get_string (g_value_array_get_nth (prop, 2));
+		guint flags = g_value_get_uint (g_value_array_get_nth (prop, 3));
+
+		g_print ("%u %s (%s) %x\n", id, name, sig, flags);
+
+		/* pack the readable properties into a GArray */
+		if (flags & TP_PROPERTY_FLAG_READ)
+		{
+			req = g_array_append_val (req, id);
+		}
+	}
+}
+
+static void
+muc_channel_ready (TpChannel	*channel,
+		   const GError	*in_error,
+		   gpointer	 user_data)
+{
+	g_print ("MUC channel (%s) ready\n",
+			tp_channel_get_identifier (channel));
+
+	/* exciting things about MUC channels are stored as Telepathy
+	 * Properties (not D-Bus properties). This interface is a little
+	 * awkward.
+	 * First we need to get a list of available properties */
+	tp_cli_properties_interface_call_list_properties (channel, -1,
+			list_properties_cb, NULL, NULL, NULL);
+}
+
+static void
+create_muc_cb (TpConnection	*conn,
+	       gboolean		 yours,
+	       const char	*object_path,
+	       GHashTable	*props,
+	       const GError	*in_error,
+	       gpointer		 user_data,
+	       GObject		*weak_obj)
+{
+	handle_error (in_error);
+	GError *error = NULL;
+
+	g_print (" > create_muc_cb (%s)\n", object_path);
+
+	TpChannel *channel = tp_channel_new_from_properties (conn,
+			object_path, props, &error);
+	handle_error (error);
+
+	tp_channel_call_when_ready (channel, muc_channel_ready, NULL);
 }
 
 static void
@@ -150,6 +218,20 @@ conn_ready (TpConnection	*conn,
 
 		g_hash_table_destroy (map);
 		/* end example.channel.roomlist.requestglib */
+
+		/* make a connection to a MUC channel */
+		map = tp_asv_new (
+			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_TEXT,
+			TP_IFACE_CHANNEL ".TargetHandleType", G_TYPE_UINT, TP_HANDLE_TYPE_ROOM,
+			TP_IFACE_CHANNEL ".TargetID", G_TYPE_STRING, "test@conference.collabora.co.uk",
+			NULL);
+
+		tp_cli_connection_interface_requests_call_ensure_channel (
+				conn, -1, map,
+				create_muc_cb,
+				NULL, NULL, NULL);
+
+		g_hash_table_destroy (map);
 	}
 }
 
