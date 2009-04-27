@@ -53,10 +53,10 @@ file_transfer_unix_cb (TpChannel	*channel,
 
 	handle_error (in_error);
 
-	const char *address = g_value_get_string (addressv);
-	strncpy (state->sa.sun_path, address, UNIX_PATH_MAX);
+	GArray *address = g_value_get_boxed (addressv);
+	strncpy (state->sa.sun_path, address->data, address->len);
 
-	g_print (" > file_transfer_unix_cb (%s)\n", address);
+	g_print (" > file_transfer_unix_cb (%s)\n", state->sa.sun_path);
 }
 
 static gboolean
@@ -167,7 +167,7 @@ file_transfer_channel_ready (TpChannel		*channel,
 	else if (g_hash_table_lookup (sockets,
 				GINT_TO_POINTER (TP_SOCKET_ADDRESS_TYPE_UNIX)))
 	{
-		struct ft_state *state = g_slice_new (struct ft_state);
+		struct ft_state *state = g_slice_new0 (struct ft_state);
 		state->sa.sun_family = AF_UNIX;
 
 		tp_cli_channel_type_file_transfer_connect_to_file_transfer_state_changed (
