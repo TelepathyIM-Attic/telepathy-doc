@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <string.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -55,11 +56,19 @@ provide_file_cb (TpChannel	*channel,
 
 	if (G_IS_UNIX_CLIENT (ftstate->client))
 	{
-		const char *address = g_value_get_string (addressv);
-		g_print (" > file_transfer_cb (unix:%s)\n", address);
+		/* old versions of telepathy-salut stored this address as a
+		   string rather than an 'ay'. Those versions of Salut are
+		   broken */
+		GArray *address = g_value_get_boxed (addressv);
+		char path[address->len + 1];
+
+		strncpy (path, address->data, address->len);
+		path[address->len] = '\0';
+
+		g_print (" > file_transfer_cb (unix:%s)\n", path);
 
 		ftstate->address = G_SOCKET_ADDRESS (
-			g_unix_socket_address_new (address));
+			g_unix_socket_address_new (path));
 	}
 	else if (G_IS_TCP_CLIENT (ftstate->client))
 	{
