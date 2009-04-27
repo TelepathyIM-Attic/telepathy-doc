@@ -54,10 +54,10 @@ file_transfer_unix_cb (TpChannel	*channel,
 
 	handle_error (in_error);
 
-	const char *address = g_value_get_string (addressv);
-	strncpy (state->sa.sun_path, address, UNIX_PATH_MAX);
+	GArray *address = g_value_get_boxed (addressv);
+	strncpy (state->sa.sun_path, address->data, address->len);
 
-	g_print (" > file_transfer_unix_cb (%s)\n", address);
+	g_print (" > file_transfer_unix_cb (%s)\n", state->sa.sun_path);
 }
 
 static gboolean
