@@ -108,18 +108,22 @@ tp_properties_changed_cb (TpProxy	  *channel,
 {
 	g_print (" > tp_properties_changed_cb\n");
 
+	/* begin ex.basics.language-bindings.telepathy-glib.variant-unpack */
 	int i;
 	for (i = 0; i < properties->len; i++)
 	{
 		GValueArray *property = g_ptr_array_index (properties, i);
+		/* the id is a GValue<UINT>
+		 * the variant is a GValue<GValue<??> */
+		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
 		GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
 
+		/* get a string representation of value */
 		char *str = g_strdup_value_contents (value);
-		g_print ("Property %i: %s\n",
-			g_value_get_uint (g_value_array_get_nth (property, 0)),
-			str);
+		g_print ("Property %i: %s\n", id, str);
 		g_free (str);
 	}
+	/* end ex.basics.language-bindings.telepathy-glib.variant-unpack */
 }
 
 static void

@@ -1018,6 +1018,53 @@ for (i = 0; i < channels->len; i++)
         </para>
        </tip>
 
+       <note>
+        <title>Variant Types</title>
+	<para>
+         Variant types are stored as a <classname>GValue</classname> of type
+         given by the specification. For example,
+         <xref linkend="ex.basics.language-bindings.telepathy-glib.variant-unpack"/>
+         shows how to unpack the type <literal>a(uv)</literal>.
+        </para>
+
+        <example id="ex.basics.language-bindings.telepathy-glib.variant-unpack"
+                 file="glib_telepathy_properties/example.c">
+         <title>Unpacking Type a(uv)</title>
+        </example>
+
+        <example id="ex.basics.language-bindings.telepathy-glib.variant-pack">
+         <title>Packing Type a(uv)</title>
+         <programlisting language="c">
+<![CDATA[GPtrArray *array = g_ptr_array_new ();
+
+/* pack structs into array */
+GValueArray *values = g_value_array_new (2);
+GValue box = { 0, }, value = { 0, };
+
+g_value_init (&value, G_TYPE_UINT);
+g_value_set_uint (&value, id);
+g_value_array_append (values, &value);
+g_value_unset (&value);
+
+g_value_init (&box, G_TYPE_VALUE);
+g_value_init (&value, G_TYPE_STRING);
+g_value_set_static_string (&value, "Test Subject");
+g_value_set_boxed (&box, &value);
+g_value_array_append (values, &box);
+g_value_unset (&value);
+g_value_unset (&box);
+
+g_ptr_array_add (array, values);
+
+...
+
+/* free array */
+g_ptr_array_foreach (array, (GFunc) g_value_array_free, NULL);
+g_ptr_array_free (array, TRUE);]]></programlisting>
+        </example>
+
+       </note>
+
       </sect3>
 
       <sect3 id="sect.basics.language-bindings.telepathy-glib.maps">
