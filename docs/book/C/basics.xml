@@ -957,13 +957,16 @@ get_channels_cb (TpProxy        *proxy,
          <classname>GHashTable</classname>.
         </para></listitem>
         <listitem><para>
-         Object paths (<literal>o</literal>) are stored as a boxed
-         <classname>GValue</classname>s of type
-         <type>DBUS_TYPE_G_OBJECT_PATH</type>.
+         Object paths (<literal>o</literal>) are stored as a string (e.g.
+         when used in a <literal>a{uo}</literal> map), or in a boxed
+         <classname>GValue</classname> of type
+         <type>DBUS_TYPE_G_OBJECT_PATH</type> (when stored in a struct or
+         variant type).
         </para></listitem>
         <listitem><para>
          Variant types (<literal>v</literal>) are stored as
-         <classname>GValue</classname>s of type specified by the spec.
+         <classname>GValue</classname>s of type specified by the spec
+         (see <xref linkend="note.basics.language-bindings.telepathy-glib.variant"/>).
         </para></listitem>
        </itemizedlist>
 
@@ -1018,7 +1021,7 @@ for (i = 0; i < channels->len; i++)
         </para>
        </tip>
 
-       <note>
+       <note id="note.basics.language-bindings.telepathy-glib.variant">
         <title>Variant Types</title>
 	<para>
          Variant types are stored as a <classname>GValue</classname> of type
