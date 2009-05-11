@@ -1470,11 +1470,21 @@ AC_SUBST(EXAMPLE_LIBS)</programlisting>
   <sect1 id="sect.basics.tpproperties">
    <title>Telepathy Properties</title>
 
-   <para>
-    Telepathy Properties should not be mistaken for D-Bus' own built in
-    properties.
-   </para>
-    
+   <important>
+    <para>
+     Telepathy Properties should not be mistaken for D-Bus' own built in
+     properties.
+    </para>
+   </important>
+
+   <warning>
+    <title>Candidate for Future Deprecation</title>
+    <para>
+     The Telepathy Properties interface is a little cumbersome to use and is
+     a candidate to be replaced by something easier in the future.
+    </para>
+   </warning>
+
    <para>
     Telepathy Properties differ from built-in D-Bus properties
     in that their read/write status can change dynamically (unlike D-Bus
@@ -1491,14 +1501,56 @@ AC_SUBST(EXAMPLE_LIBS)</programlisting>
     permission flags of the property change to reflect this status.
    </para>
 
-   <para>
-    Properties have fixed names in the Telepathy specification, but are
-    referred to by ID number in the API. These ID numbers are not assigned
-    to constant values, instead the method call
-    <methodname>ListProperties</methodname> should be used. This returns
-    back an array of structs containing the ID number, property name,
-    D-Bus type signature and access flags.
-   </para>
+   <sect2 id="sect.basics.tpproperties.list">
+    <title>Listing Properties</title>
+
+    <para>
+     Properties have fixed names in the Telepathy specification, but are
+     referred to by ID number in the API. These ID numbers are not assigned
+     to constant values, instead the method call
+     <methodname>ListProperties</methodname> should be used. This returns
+     back an array of structs containing the ID number, property name,
+     D-Bus type signature and access flags.
+    </para>
+   </sect2>
+
+   <sect2 id="sect.basics.tpproperties.flags">
+    <title>Changing Permissions (Property Flags)</title>
+    <para>
+     The permissions of a property can change during the lifetime of a
+     channel. For example, a user may not be able to set the channel's
+     <property>subject</property> until she has been granted special
+     privileges on the channel.
+    </para>
+
+    <para>
+     A change in property permissions is heralded by the
+     <methodname>PropertyFlagsChanged</methodname> signal. This signal
+     provides an array of property IDs and each property's new list of
+     flags.
+    </para>
+
+    <note>
+     <title>Write-only Properties</title>
+     <para>
+      It is possible for a channel to have what appear to be write-only
+      properties. This happens when there is no data to be read yet for a
+      property. For instance, a newly created MUC channel may appear to have
+      a write-only property for its <property>subject</property> property
+      because there is not yet any data to be read for this property.
+      Setting an initial subject will cause the property to change to a
+      read-write property.
+     </para>
+    </note>
+   </sect2>
+
+   <sect2 id="sect.basics.tpproperties.set">
+    <title>Getting Properties</title>
+   </sect2>
+
+   <sect2 id="sect.basics.tpproperties.set">
+    <title>Setting Properties</title>
+   </sect2>
 
   </sect1>
 
