@@ -4,6 +4,7 @@ example_dirs = \
 	glib_get_roster \
 	glib_salut_ft \
 	glib_jabber_muc \
+	glib_telepathy_properties \
 	pygtk_chat_client \
 	python_get_parameters \
 	python_iface_messaging \
