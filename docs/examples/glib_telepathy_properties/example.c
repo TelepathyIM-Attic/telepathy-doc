@@ -15,6 +15,29 @@ static GMainLoop *loop = NULL;
 static TpDBusDaemon *bus_daemon = NULL;
 static TpConnection *conn = NULL;
 
+typedef struct _TpProperty TpProperty;
+struct _TpProperty
+{
+	guint id;
+	char *name;
+	guint flags;
+};
+
+static GArray *tpproperties = NULL;
+static GHashTable *tpproperties_map = NULL;
+
+static guint
+tp_property_get_id (const char *name)
+{
+	return GPOINTER_TO_UINT (g_hash_table_lookup (tpproperties_map, name));
+}
+
+static TpProperty *
+tp_property_from_id (guint id)
+{
+	return &g_array_index (tpproperties, TpProperty, id);
+}
+
 static void
 handle_error (const GError *error)
 {
@@ -34,7 +57,6 @@ tp_properties_changed_cb (TpProxy	  *channel,
 {
 	g_print (" > tp_properties_changed_cb\n");
 
-	/* begin ex.basics.language-bindings.telepathy-glib.variant-unpack */
 	int i;
 	for (i = 0; i < properties->len; i++)
 	{
@@ -43,13 +65,13 @@ tp_properties_changed_cb (TpProxy	  *channel,
 		 * the variant is a GValue<GValue<??> */
 		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
 		GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
+		TpProperty *tpproperty = tp_property_from_id (id);
 
 		/* get a string representation of value */
 		char *str = g_strdup_value_contents (value);
-		g_print ("Property %i: %s\n", id, str);
+		g_print ("Property %s (%i): %s\n", tpproperty->name, id, str);
 		g_free (str);
 	}
-	/* end ex.basics.language-bindings.telepathy-glib.variant-unpack */
 }
 
 static void
@@ -64,10 +86,40 @@ tp_property_flags_changed_cb (TpProxy		*channel,
 	for (i = 0; i < properties->len; i++)
 	{
 		GValueArray *property = g_ptr_array_index (properties, i);
+		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
+		TpProperty *tpproperty = tp_property_from_id (id);
 
-		g_print ("Property %i: %x\n",
-			g_value_get_uint (g_value_array_get_nth (property, 0)),
+		g_print ("Property %s (%i): %x\n",
+			tpproperty->name, id,
 			g_value_get_uint (g_value_array_get_nth (property, 1)));
+	}
+}
+
+static void
+tp_properties_get_cb (TpProxy		*channel,
+		      const GPtrArray	*properties,
+		      const GError	*in_error,
+		      gpointer		 user_data,
+		      GObject		*weak_obj)
+{
+	handle_error (in_error);
+
+	g_print (" > tp_properties_get_cb\n");
+
+	int i;
+	for (i = 0; i < properties->len; i++)
+	{
+		GValueArray *property = g_ptr_array_index (properties, i);
+		/* the id is a GValue<UINT>
+		 * the variant is a GValue<GValue<??> */
+		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
+		GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
+		TpProperty *tpproperty = tp_property_from_id (id);
+
+		/* get a string representation of value */
+		char *str = g_strdup_value_contents (value);
+		g_print ("Property %s (%i): %s\n", tpproperty->name, id, str);
+		g_free (str);
 	}
 }
 
@@ -82,9 +134,10 @@ list_properties_cb (TpProxy		*channel,
 
 	g_print (" > list_properties_cb\n");
 
-	int set_props = GPOINTER_TO_INT (user_data);
-
-	GPtrArray *array = g_ptr_array_new ();
+	tpproperties = g_array_sized_new (FALSE, FALSE,
+			sizeof (TpProperty),
+			available_properties->len);
+	tpproperties_map = g_hash_table_new (g_str_hash, g_str_equal);
 
 	/* @available_properties is a GPtrArray of GValueArray structs
 	 * of signature (ussu) */
@@ -100,31 +153,64 @@ list_properties_cb (TpProxy		*channel,
 
 		g_print ("%u %s (%s) %x\n", id, name, sig, flags);
 
-		/* pack the readable properties into a GArray */
-		if (!strcmp (name, "subject"))
-		{
-			GValueArray *values = g_value_array_new (2);
-			GValue box = { 0, }, value = { 0, };
-
-			g_value_init (&value, G_TYPE_UINT);
-			g_value_set_uint (&value, id);
-			g_value_array_append (values, &value);
-			g_value_unset (&value);
-
-			g_value_init (&box, G_TYPE_VALUE);
-			g_value_init (&value, G_TYPE_STRING);
-			g_value_set_static_string (&value, "Test Subject");
-			g_value_set_boxed (&box, &value);
-			g_value_array_append (values, &box);
-			g_value_unset (&value);
-			g_value_unset (&box);
-
-			g_ptr_array_add (array, values);
-		}
+		TpProperty property = { 0, };
+		property.id = id;
+		property.name = g_strdup (name);
+		property.flags = flags;
+		g_array_append_val (tpproperties, property);
+		g_hash_table_insert (tpproperties_map,
+				property.name, GUINT_TO_POINTER (id));
 	}
 
+	{
+		GArray *array = g_array_new (FALSE, FALSE, sizeof (guint));
+
+		g_print ("Read property: ");
+		for (i = 0; i < tpproperties->len; i++)
+		{
+
+			TpProperty *property = tp_property_from_id (i);
+
+			if (!(property->flags & TP_PROPERTY_FLAG_READ)) continue;
+
+			g_print ("%i ", i);
+			g_array_append_val (array, i);
+		}
+		g_print ("\n");
+
+		tp_cli_properties_interface_call_get_properties (channel, -1,
+				array, tp_properties_get_cb,
+				NULL, NULL, NULL);
+
+		g_array_free (array, TRUE);
+	}
+
+	int set_props = GPOINTER_TO_INT (user_data);
 	if (set_props)
 	{
+		/* pack the readable properties into a GArray */
+		GPtrArray *array = g_ptr_array_new ();
+
+		guint id = tp_property_get_id ("subject");
+
+		GValueArray *values = g_value_array_new (2);
+		GValue box = { 0, }, value = { 0, };
+
+		g_value_init (&value, G_TYPE_UINT);
+		g_value_set_uint (&value, id);
+		g_value_array_append (values, &value);
+		g_value_unset (&value);
+
+		g_value_init (&box, G_TYPE_VALUE);
+		g_value_init (&value, G_TYPE_STRING);
+		g_value_set_static_string (&value, "Test Subject");
+		g_value_set_boxed (&box, &value);
+		g_value_array_append (values, &box);
+		g_value_unset (&value);
+		g_value_unset (&box);
+
+		g_ptr_array_add (array, values);
+
 		GError *error = NULL;
 
 		/* FIXME: we should pass an ID map to this callback */
@@ -140,11 +226,11 @@ list_properties_cb (TpProxy		*channel,
 		g_print ("Setting properties...\n");
 		tp_cli_properties_interface_call_set_properties (channel, -1,
 				array, NULL, NULL, NULL, NULL);
-	}
 
-	/* we need to unset array */
-	g_ptr_array_foreach (array, (GFunc) g_value_array_free, NULL);
-	g_ptr_array_free (array, TRUE);
+		/* we need to unset array */
+		g_ptr_array_foreach (array, (GFunc) g_value_array_free, NULL);
+		g_ptr_array_free (array, TRUE);
+	}
 }
 
 static void
