@@ -1030,9 +1030,24 @@ for (i = 0; i < channels->len; i++)
          shows how to unpack the type <literal>a(uv)</literal>.
         </para>
 
-        <example id="ex.basics.language-bindings.telepathy-glib.variant-unpack"
-                 file="glib_telepathy_properties/example.c">
+        <example id="ex.basics.language-bindings.telepathy-glib.variant-unpack">
          <title>Unpacking Type a(uv)</title>
+	 <programlisting language="c">
+<![CDATA[
+int i;
+for (i = 0; i < properties->len; i++)
+{
+        GValueArray *property = g_ptr_array_index (properties, i);
+        /* the id is a GValue<UINT>
+         * the variant is a GValue<GValue<??> */
+        guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
+        GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
+
+        /* get a string representation of value */
+        char *str = g_strdup_value_contents (value);
+        g_print ("Property %i: %s\n", id, str);
+        g_free (str);
+}]]></programlisting>
         </example>
 
         <example id="ex.basics.language-bindings.telepathy-glib.variant-pack">
@@ -1544,12 +1559,55 @@ AC_SUBST(EXAMPLE_LIBS)</programlisting>
     </note>
    </sect2>
 
-   <sect2 id="sect.basics.tpproperties.set">
+   <sect2 id="sect.basics.tpproperties.get">
     <title>Getting Properties</title>
+
+    <para>
+     Accessing properties is done using the
+     <methodname>GetProperties</methodname> method call. This method takes
+     an array of integer properties (as retrieved by
+     <methodname>ListProperties</methodname>) and returns an array of
+     integer property IDs and property values (as variant types).
+    </para>
+
+    <para>
+     Requesting invalid property IDs will result in the
+     <errorname>InvalidArgument</errorname> error. Requesting properties
+     that do not have the read flag set will result in
+     <errorname>PermissionDenied</errorname> being returned.
+    </para>
    </sect2>
 
    <sect2 id="sect.basics.tpproperties.set">
     <title>Setting Properties</title>
+
+    <para>
+     Setting properties is done using the
+     <methodname>SetProperties</methodname> method. This method takes an
+     array of integer property identifiers (as retrieved by
+     <methodname>ListProperties</methodname>) and variant types.
+    </para>
+
+    <para>
+     If the property is of the wrong type, the error
+     <errorname>NotAvailable</errorname> will be returned. If the property
+     ID is unknown, the error <errorname>InvalidArgument</errorname> will be
+     returned. If the write flag is not set on a given property, the error
+     <errorname>PermissionDenied</errorname> will be returned. If any error
+     condition is triggered, no properties will be updated, even ones that
+     would otherwise be valid.
+    </para>
+
+    <para>
+     When properties have been successfully changed, the
+     <methodname>PropertiesChanged</methodname> signal will be emitted with
+     the IDs and new values of the changed properties. Be aware that
+     changing one property may cause several properties to update. For
+     instance, changing <property>subject</property> will cause an update to
+     the properties <property>subject</property>,
+     <property>subject-timestamp</property> and
+     <property>subject-contact</property>.
+    </para>
    </sect2>
 
   </sect1>
