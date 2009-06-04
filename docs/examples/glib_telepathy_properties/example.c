@@ -23,19 +23,70 @@ struct _TpProperty
 	guint flags;
 };
 
-static GArray *tpproperties = NULL;
-static GHashTable *tpproperties_map = NULL;
+static GHashTable *
+tp_property_get_map (TpProxy *proxy)
+{
+	g_return_val_if_fail (TP_IS_PROXY (proxy), NULL);
+
+	GHashTable *map = g_object_get_data (G_OBJECT (proxy),
+			"tpproperties-map");
+
+	return map;
+}
 
 static guint
-tp_property_get_id (const char *name)
+tp_property_get_id (TpProxy *proxy, const char *name)
 {
-	return GPOINTER_TO_UINT (g_hash_table_lookup (tpproperties_map, name));
+	GHashTable *map = tp_property_get_map (proxy);
+
+	g_return_val_if_fail (map != NULL, 0);
+
+	return GPOINTER_TO_UINT (g_hash_table_lookup (map, name));
+}
+
+static GArray *
+tp_property_get_array (TpProxy *proxy)
+{
+	g_return_val_if_fail (TP_IS_PROXY (proxy), NULL);
+
+	GArray *array = g_object_get_data (G_OBJECT (proxy),
+			"tpproperties-array");
+
+	return array;
 }
 
 static TpProperty *
-tp_property_from_id (guint id)
+tp_property_from_id (TpProxy *proxy, guint id)
 {
-	return &g_array_index (tpproperties, TpProperty, id);
+	GArray *array = tp_property_get_array (proxy);
+
+	g_return_val_if_fail (array != NULL, NULL);
+
+	return &g_array_index (array, TpProperty, id);
+}
+
+static void
+tp_property_insert (TpProxy *proxy, TpProperty *property)
+{
+	GArray *array = tp_property_get_array (proxy);
+	GHashTable *map = tp_property_get_map (proxy);
+
+	g_array_append_val (array, *property);
+	g_hash_table_insert (map, property->name, GUINT_TO_POINTER (property->id));
+}
+
+static void
+tp_property_init (TpProxy *proxy)
+{
+	g_return_if_fail (TP_IS_PROXY (proxy));
+
+	GArray *array = g_array_new (FALSE, FALSE,
+			sizeof (TpProperty));
+	GHashTable *map = g_hash_table_new (g_str_hash, g_str_equal);
+
+	/* FIXME: use g_object_set_data_full() to cleanup on object finalize */
+	g_object_set_data (G_OBJECT (proxy), "tpproperties-array", array);
+	g_object_set_data (G_OBJECT (proxy), "tpproperties-map", map);
 }
 
 static void
@@ -65,7 +116,7 @@ tp_properties_changed_cb (TpProxy	  *channel,
 		 * the variant is a GValue<GValue<??> */
 		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
 		GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
-		TpProperty *tpproperty = tp_property_from_id (id);
+		TpProperty *tpproperty = tp_property_from_id (TP_PROXY (channel), id);
 
 		/* get a string representation of value */
 		char *str = g_strdup_value_contents (value);
@@ -87,7 +138,7 @@ tp_property_flags_changed_cb (TpProxy		*channel,
 	{
 		GValueArray *property = g_ptr_array_index (properties, i);
 		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
-		TpProperty *tpproperty = tp_property_from_id (id);
+		TpProperty *tpproperty = tp_property_from_id (TP_PROXY (channel), id);
 
 		g_print ("Property %s (%i): %x\n",
 			tpproperty->name, id,
@@ -114,7 +165,7 @@ tp_properties_get_cb (TpProxy		*channel,
 		 * the variant is a GValue<GValue<??> */
 		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
 		GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
-		TpProperty *tpproperty = tp_property_from_id (id);
+		TpProperty *tpproperty = tp_property_from_id (TP_PROXY (channel), id);
 
 		/* get a string representation of value */
 		char *str = g_strdup_value_contents (value);
@@ -134,11 +185,6 @@ list_properties_cb (TpProxy		*channel,
 
 	g_print (" > list_properties_cb\n");
 
-	tpproperties = g_array_sized_new (FALSE, FALSE,
-			sizeof (TpProperty),
-			available_properties->len);
-	tpproperties_map = g_hash_table_new (g_str_hash, g_str_equal);
-
 	/* @available_properties is a GPtrArray of GValueArray structs
 	 * of signature (ussu) */
 	int i;
@@ -157,9 +203,7 @@ list_properties_cb (TpProxy		*channel,
 		property.id = id;
 		property.name = g_strdup (name);
 		property.flags = flags;
-		g_array_append_val (tpproperties, property);
-		g_hash_table_insert (tpproperties_map,
-				property.name, GUINT_TO_POINTER (id));
+		tp_property_insert (TP_PROXY (channel), &property);
 	}
 
 	/* call the chained callback if set */
@@ -181,9 +225,9 @@ tpproperties_ready (TpChannel	*channel)
 		int i;
 
 		g_print ("Read property: ");
-		for (i = 0; i < tpproperties->len; i++)
+		for (i = 0; i < tp_property_get_array (TP_PROXY (channel))->len; i++)
 		{
-			TpProperty *property = tp_property_from_id (i);
+			TpProperty *property = tp_property_from_id (TP_PROXY (channel), i);
 
 			if (!(property->flags & TP_PROPERTY_FLAG_READ)) continue;
 
@@ -203,7 +247,7 @@ tpproperties_ready (TpChannel	*channel)
 		GPtrArray *array = g_ptr_array_new ();
 
 		/* FIXME we're assuming this property exists, we should check */
-		guint id = tp_property_get_id ("subject");
+		guint id = tp_property_get_id (TP_PROXY (channel), "subject");
 
 		GValueArray *values = g_value_array_new (2);
 		GValue box = { 0, }, value = { 0, };
@@ -245,6 +289,7 @@ muc_channel_ready (TpChannel	*channel,
 	 * Properties (not D-Bus properties). This interface is a little
 	 * awkward.
 	 * First we need to get a list of available properties */
+	tp_property_init (TP_PROXY (channel));
 	tp_cli_properties_interface_call_list_properties (channel, -1,
 			list_properties_cb, tpproperties_ready, NULL, NULL);
 
