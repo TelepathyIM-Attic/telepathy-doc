@@ -162,13 +162,27 @@ list_properties_cb (TpProxy		*channel,
 				property.name, GUINT_TO_POINTER (id));
 	}
 
+	/* call the chained callback if set */
+	if (user_data)
 	{
+		void (* func) (TpProxy *);
+
+		func = user_data;
+
+		func (channel);
+	}
+}
+
+static void
+tpproperties_ready (TpChannel	*channel)
+{
+	{ /* pack the readable properties into a GArray */
 		GArray *array = g_array_new (FALSE, FALSE, sizeof (guint));
+		int i;
 
 		g_print ("Read property: ");
 		for (i = 0; i < tpproperties->len; i++)
 		{
-
 			TpProperty *property = tp_property_from_id (i);
 
 			if (!(property->flags & TP_PROPERTY_FLAG_READ)) continue;
@@ -185,12 +199,10 @@ list_properties_cb (TpProxy		*channel,
 		g_array_free (array, TRUE);
 	}
 
-	int set_props = GPOINTER_TO_INT (user_data);
-	if (set_props)
-	{
-		/* pack the readable properties into a GArray */
+	{ /* set some properties */
 		GPtrArray *array = g_ptr_array_new ();
 
+		/* FIXME we're assuming this property exists, we should check */
 		guint id = tp_property_get_id ("subject");
 
 		GValueArray *values = g_value_array_new (2);
@@ -210,18 +222,6 @@ list_properties_cb (TpProxy		*channel,
 		g_value_unset (&box);
 
 		g_ptr_array_add (array, values);
-
-		GError *error = NULL;
-
-		/* FIXME: we should pass an ID map to this callback */
-		tp_cli_properties_interface_connect_to_properties_changed (
-				channel, tp_properties_changed_cb,
-				NULL, NULL, NULL, &error);
-		handle_error (error);
-		tp_cli_properties_interface_connect_to_property_flags_changed (
-				channel, tp_property_flags_changed_cb,
-				NULL, NULL, NULL, &error);
-		handle_error (error);
 
 		g_print ("Setting properties...\n");
 		tp_cli_properties_interface_call_set_properties (channel, -1,
@@ -246,7 +246,18 @@ muc_channel_ready (TpChannel	*channel,
 	 * awkward.
 	 * First we need to get a list of available properties */
 	tp_cli_properties_interface_call_list_properties (channel, -1,
-			list_properties_cb, GINT_TO_POINTER (1), NULL, NULL);
+			list_properties_cb, tpproperties_ready, NULL, NULL);
+
+	GError *error = NULL;
+
+	tp_cli_properties_interface_connect_to_properties_changed (
+			channel, tp_properties_changed_cb,
+			NULL, NULL, NULL, &error);
+	handle_error (error);
+	tp_cli_properties_interface_connect_to_property_flags_changed (
+			channel, tp_property_flags_changed_cb,
+			NULL, NULL, NULL, &error);
+	handle_error (error);
 }
 
 static void
