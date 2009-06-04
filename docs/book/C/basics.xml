@@ -1610,6 +1610,65 @@ AC_SUBST(EXAMPLE_LIBS)</programlisting>
     </para>
    </sect2>
 
+   <sect2 id="sect.basics.tpproperties.glib">
+    <title>telepathy-glib</title>
+
+    <para>
+     telepathy-glib provides no specific support infrastructure for
+     Telepathy Properties. You can set up some simple infrastructure for
+     handling properties in your project and attach it to the
+     <classname>TpProxy</classname>.
+    </para>
+
+    <sect3 id="sect.basics.tpproperties.glib.setup">
+     <title>Setup and Listing Properties</title>
+
+     <example id="ex.basics.tpproperties.setup"
+              file="glib_telepathy_properties/example.c">
+      <title>telepathy-glib Telepathy Properties Setup</title>
+     </example>
+
+     <example id="ex.basics.tpproperties.list"
+              file="glib_telepathy_properties/example.c">
+      <title>telepathy-glib Listing Telepathy Properties</title>
+     </example>
+    </sect3>
+
+    <sect3 id="sect.basics.tpproperties.glib.get">
+     <title>Getting Properties</title>
+
+     <example id="ex.basics.tpproperties.get"
+              file="glib_telepathy_properties/example.c">
+      <title>telepathy-glib Getting Telepathy Properties</title>
+     </example>
+
+     <example id="ex.basics.tpproperties.getcb"
+              file="glib_telepathy_properties/example.c">
+      <title>telepathy-glib Get Telepathy Properties Callback</title>
+     </example>
+    </sect3>
+
+    <sect3 id="sect.basics.tpproperties.glib.set">
+     <title>Setting Properties</title>
+
+     <example id="ex.basics.tpproperties.set"
+              file="glib_telepathy_properties/example.c">
+      <title>telepathy-glib Setting Telepathy Properties</title>
+     </example>
+
+     <example id="ex.basics.tpproperties.changecb"
+              file="glib_telepathy_properties/example.c">
+      <title>telepathy-glib Telepathy Properties Changed Callback</title>
+     </example>
+
+     <example id="ex.basics.tpproperties.flagchangecb"
+              file="glib_telepathy_properties/example.c">
+      <title>telepathy-glib Telepathy Property Flags Changed Callback</title>
+     </example>
+
+    </sect3>
+   </sect2>
+
   </sect1>
 
 </chapter>

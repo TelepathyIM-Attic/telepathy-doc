@@ -15,6 +15,7 @@ static GMainLoop *loop = NULL;
 static TpDBusDaemon *bus_daemon = NULL;
 static TpConnection *conn = NULL;
 
+/* begin ex.basics.tpproperties.setup */
 typedef struct _TpProperty TpProperty;
 struct _TpProperty
 {
@@ -88,6 +89,7 @@ tp_property_init (TpProxy *proxy)
 	g_object_set_data (G_OBJECT (proxy), "tpproperties-array", array);
 	g_object_set_data (G_OBJECT (proxy), "tpproperties-map", map);
 }
+/* end ex.basics.tpproperties.setup */
 
 static void
 handle_error (const GError *error)
@@ -100,6 +102,7 @@ handle_error (const GError *error)
 	}
 }
 
+/* begin ex.basics.tpproperties.changecb */
 static void
 tp_properties_changed_cb (TpProxy	  *channel,
 			  const GPtrArray *properties,
@@ -124,7 +127,9 @@ tp_properties_changed_cb (TpProxy	  *channel,
 		g_free (str);
 	}
 }
+/* end ex.basics.tpproperties.changecb */
 
+/* begin ex.basics.tpproperties.flagchangecb */
 static void
 tp_property_flags_changed_cb (TpProxy		*channel,
 			      const GPtrArray	*properties,
@@ -145,7 +150,9 @@ tp_property_flags_changed_cb (TpProxy		*channel,
 			g_value_get_uint (g_value_array_get_nth (property, 1)));
 	}
 }
+/* end ex.basics.tpproperties.flagchangecb */
 
+/* begin ex.basics.tpproperties.getcb */
 static void
 tp_properties_get_cb (TpProxy		*channel,
 		      const GPtrArray	*properties,
@@ -173,7 +180,9 @@ tp_properties_get_cb (TpProxy		*channel,
 		g_free (str);
 	}
 }
+/* end ex.basics.tpproperties.getcb */
 
+/* begin ex.basics.tpproperties.list */
 static void
 list_properties_cb (TpProxy		*channel,
 		    const GPtrArray	*available_properties,
@@ -216,11 +225,13 @@ list_properties_cb (TpProxy		*channel,
 		func (channel);
 	}
 }
+/* end ex.basics.tpproperties.list */
 
 static void
 tpproperties_ready (TpChannel	*channel)
 {
 	{ /* pack the readable properties into a GArray */
+		/* begin ex.basics.tpproperties.get */
 		GArray *array = g_array_new (FALSE, FALSE, sizeof (guint));
 		int i;
 
@@ -241,9 +252,11 @@ tpproperties_ready (TpChannel	*channel)
 				NULL, NULL, NULL);
 
 		g_array_free (array, TRUE);
+		/* end ex.basics.tpproperties.get */
 	}
 
 	{ /* set some properties */
+		/* begin ex.basics.tpproperties.set */
 		GPtrArray *array = g_ptr_array_new ();
 
 		/* FIXME we're assuming this property exists, we should check */
@@ -274,6 +287,7 @@ tpproperties_ready (TpChannel	*channel)
 		/* we need to unset array */
 		g_ptr_array_foreach (array, (GFunc) g_value_array_free, NULL);
 		g_ptr_array_free (array, TRUE);
+		/* end ex.basics.tpproperties.set */
 	}
 }
 
