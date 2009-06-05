@@ -5,13 +5,101 @@
 ]>
 
 <chapter id="chapter.tubes">
-  <title>Tubes</title>
-  <para>TODO:
-   - Helps me to implement an ad-hoc protocol or data-exchange structure above 
-     what the IM protocol does.
-   - You wouldn't need a tube for a chat, because the IM protocol has that 
-     already, but you'd need to implement more for some custom thing like 
-     networking of a game.
-   - Streamed Media Channels
+ <title>Tubes</title>
+
+ <para>
+  Telepathy Tubes provide a user-to-user or user-to-group networking layer
+  which applications can use to transfer data. Unlike a traditional
+  peer-to-peer network, which requires IP addresses or a service discovery
+  mechanism for locating peers, Telepathy Tubes provides contact-to-contact
+  data transfer. Telepathy connection managers handle network traversal
+  using the same technology as for file transfer and streamed media.
+ </para>
+
+ <para>
+  Telepathy currently offers two data formats for Tubes.
+  <interfacename>StreamTube</interfacename> channels allow for a regular
+  network socket to be shared between clients. This is best when adapting
+  existing applications or protocols to run over Telepathy Tubes.
+  <interfacename>DBusTube</interfacename> channels allow for a D-Bus bus to
+  be shared between clients. This enables the use of D-Bus method calling and
+  signalling rather than requiring the developer to develop their own
+  network protocol and should be strongly considered for new applications.
+ </para>
+
+ <para>
+  Telepathy Tubes can either be one-to-one (between two users) or
+  one-to-many (between a group of users).
+ </para>
+
+ <note>
+  <title>An Example of Using Tubes in Your Application</title>
+
+  <para>
+   Alice wants Bob’s help in editing her report. In Alice’s word processor
+   she chooses the option to collaboratively edit this document and she is
+   shown a list of instant-messaging contacts who are enabled for Telepathy
+   Tubes. She selects Bob's name from the list.
   </para>
+
+  <para>
+   The application requests an appropriate Tube channel from the Connection
+   Manager. This channel is received and dispatched by Telepathy on Bob's
+   computer. He is asked if he wishes to collaborate with Alice.
+  </para>
+
+  <para>
+   Bob accepts the channel. The Telepathy Connection Managers set up the
+   best data stream from the available options given the type of network and
+   the communications protocol.
+  </para>
+ </note>
+
+ <sect1 id="sect.tubes.compatibility">
+  <title>Compatibility</title>
+
+  <para>
+   Support for Telepathy Tubes requires certain features in the connection
+   manager and communications protocol, and thus cannot be supported by
+   every connection manager. <xref linkend="table.tubes.compatibility"/>
+   provides a list of known working connection managers.
+  </para>
+
+  <table id="table.tubes.compatibility">
+   <tgroup cols="3">
+    <thead>
+     <row>
+      <entry>Connection Manager</entry>
+      <entry>One-to-One Tubes</entry>
+      <entry>One-to-Many Tubes</entry>
+     </row>
+    </thead>
+
+    <tbody>
+     <row>
+      <entry>Gabble</entry>
+      <entry>Stream, D-Bus</entry>
+      <entry>Stream, D-Bus</entry>
+     </row>
+     <row>
+      <entry>Salut</entry>
+      <entry></entry>
+      <entry></entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </table>
+
+  <note>
+   <title>XMPP Protocol Support</title>
+
+   <para>
+    Telepathy Tubes over XMPP uses a protocol extension has been documented
+    <ulink url="http://telepathy.freedesktop.org/xmpp/tubes.html">on the
+    Telepathy website</ulink>. It has not been submitted as a XEP.
+   </para>
+  </note>
+
+ </sect1>
+
 </chapter>
