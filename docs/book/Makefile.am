@@ -33,7 +33,8 @@ DOC_FIGURES_SRC = \
 	bus-hierarchy-conceptual.svg \
 	contactlist-flowchart.svg \
 	telepathy-glib-type-unpacked.svg \
-	file-transfer-actors.svg
+	file-transfer-actors.svg \
+	tube-actors.svg
 
 # The names of any pictures:
 DOC_FIGURES = 

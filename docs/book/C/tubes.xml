@@ -102,4 +102,120 @@
 
  </sect1>
 
+ <sect1 id="sect.tubes.setup">
+  <title>Creating a Tube</title>
+
+  <para>
+   Telepathy Tubes are created by calling
+   <methodname>CreateChannel</methodname> with the type of Tube, target and
+   required properties (see <xref linkend="sect.channel.requesting"/>). The
+   target can either be a contact (<type>Handle_Type_Contact</type>) or a room
+   (<type>Handle_Type_Room</type>). <xref linkend="ex.tubes.setup.maps"/>
+   gives some example parameter maps to create Tubes.
+  </para>
+
+  <warning>
+   <title>Don't Use Old (Deprecated) Tubes API</title>
+
+   <para>
+    Telepathy originally had a different API for implementing Telepathy
+    Tubes,
+    <interfacename>org.freedesktop.Telepathy.Channel.Type.Tubes</interfacename>.
+   </para>
+   <para>
+    This API was deprecated because...
+   </para>
+  </warning>
+
+  <example id="ex.tubes.setup.maps">
+   <title>Example Parameter Maps to Create Tubes</title>
+   <informaltable>
+    <title>D-Bus, One-to-One Tube</title>
+    <tgroup cols="2">
+     <tbody>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+       <entry><interfacename>org.freedesktop.Telepathy.Channel.Type.DBusTube</interfacename></entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+       <entry><type>Handle_Type_Contact</type></entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.TargetID</entry>
+       <entry>"bob@example.com"</entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.Type.DBusTube.ServiceName</entry>
+       <entry>"com.example.ExampleService"</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+
+   <informaltable>
+    <title>D-Bus, One-to-Many Tube</title>
+    <tgroup cols="2">
+     <tbody>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+       <entry><interfacename>org.freedesktop.Telepathy.Channel.Type.DBusTube</interfacename></entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+       <entry><type>Handle_Type_Room</type></entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.TargetID</entry>
+       <entry>"tubegame@conference.xmpp.example.com"</entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.Type.DBusTube.ServiceName</entry>
+       <entry>"com.example.TubeGame"</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+
+   <informaltable>
+    <title>Stream, One-to-One Tube</title>
+    <tgroup cols="2">
+     <tbody>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.ChannelType</entry>
+       <entry><interfacename>org.freedesktop.Telepathy.Channel.Type.StreamTube</interfacename></entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.TargetHandleType</entry>
+       <entry><type>Handle_Type_Contact</type></entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.TargetID</entry>
+       <entry>"bob@example.com"</entry>
+      </row>
+      <row>
+       <entry>org.freedesktop.Telepathy.Channel.Type.StreamTube.Service</entry>
+       <entry>"ssh"</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </example>
+
+  <para>
+   Once the initiator has created the channel, it must be offered to the
+   receipient/group. This is done by calling the
+   <methodname>Offer</methodname> method.
+  </para>
+
+  <figure id="fig.tubes.setup">
+   <title>Flowchart for Setting up a Tube</title>
+   <mediaobject><imageobject>
+    <imagedata fileref="figures/tube-actors.png"
+               format="PNG" />
+   </imageobject></mediaobject>
+  </figure>
+
+ </sect1>
+
 </chapter>
