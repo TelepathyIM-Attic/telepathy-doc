@@ -944,8 +944,17 @@ get_channels_cb (TpProxy        *proxy,
        </para>
        <itemizedlist>
         <listitem><para>
-         Arrays (e.g. <literal>as</literal>) are stored as a
-         <classname>GPtrArray</classname>;
+         Arrays of complex types (e.g. <literal>a(suv)</literal>) and of object
+         paths (<literal>ao</literal>) are stored as a
+         <classname>GPtrArray</classname>.
+        </para></listitem>
+        <listitem><para>
+         Arrays of strings (<literal>as</literal>), which are stored as a
+         <literal>NULL</literal>-terminated <literal>gchar **</literal>.
+        </para></listitem>
+        <listitem><para>
+         Arrays of all other simple types (e.g. <literal>au</literal>) are
+         stored as a <classname>GArray</classname>.
         </para></listitem>
         <listitem><para>
          Structures (e.g. <literal>(oa{sv})</literal>) are stored as a
