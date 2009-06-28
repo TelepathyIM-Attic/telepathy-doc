@@ -123,7 +123,8 @@
     <interfacename>org.freedesktop.Telepathy.Channel.Type.Tubes</interfacename>.
    </para>
    <para>
-    This API was deprecated because...
+    This API was deprecated because it had several serious design flaws and
+    did not allow for future expansion.
    </para>
   </warning>
 
@@ -205,7 +206,14 @@
   <para>
    Once the initiator has created the channel, it must be offered to the
    receipient/group. This is done by calling the
-   <methodname>Offer</methodname> method.
+   <methodname>Offer</methodname> method. The parameters to this method
+   depend on the type of Tube that is being offered. Once the Tube is
+   offered it will be in the <literal>Remote Pending</literal> state.
+  </para>
+
+  <para>
+   <xref linkend="fig.tubes.setup"/> presents an overview of setting up a
+   Tube.
   </para>
 
   <figure id="fig.tubes.setup">
@@ -215,6 +223,67 @@
                format="PNG" />
    </imageobject></mediaobject>
   </figure>
+
+  <sect2 id="sect.tubes.setup.dbus">
+   <title>Offering a D-Bus Tube</title>
+
+   <para>
+    When creating the Tube, you must specify the property
+    <property>org.freedesktop.Telepathy.Channel.Type.DBusTube.ServiceName</property>,
+    which gives the name of the D-Bus service you intend to offer.
+   </para>
+
+   <note><para>
+    The Tube sets up a private D-Bus bus, and you may in fact offer any
+    service name or names you like, but the service name offered here is the
+    one that will be used by the Channel Dispatcher to dispatch your Tube to
+    the correct client.
+   </para></note>
+
+   <para>
+    The <methodname>DbusTube.Offer</methodname> method takes two parameters:
+   </para>
+   <orderedlist>
+    <listitem><para>
+     a map of arbitrary parameters to transmit with the Tube offer; and
+    </para></listitem>
+    <listitem><para>
+     an access control flag.
+    </para></listitem>
+   </orderedlist>
+
+   <para>
+    The parameter map allows properties to be passed that will be useful in
+    deciding whether to accept the Tube (e.g. the name of the file
+    to collaborate on; or specifics of the game being played), or
+    information about how to connect to other clients once this Tube is
+    established.
+   </para>
+
+   <para>
+    The access control flag should be set to
+    <type>Socket_Access_Control_Localhost</type>. No other type makes sense
+    for a D-Bus connection.
+   </para>
+
+   <para>
+    If the contact does not support Tubes, <methodname>Offer</methodname>
+    will return
+    the <errorname>NotAvailable</errorname> error. Otherwise the address of
+    a private D-Bus bus will be supplied.
+   </para>
+
+   <para>
+    Connection to the private bus is done using
+    <function>dbus_connection_open</function>,
+    <function>dbus_g_connection_open</function> or other similar function.
+   </para>
+
+  </sect2>
+
+  <sect2 id="sect.tubes.setup.stream">
+   <title>Offering a Stream Tube</title>
+  </sect2>
 
  </sect1>
 
