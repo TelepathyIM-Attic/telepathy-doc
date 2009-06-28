@@ -283,6 +283,54 @@
 
   <sect2 id="sect.tubes.setup.stream">
    <title>Offering a Stream Tube</title>
+
+   <para>
+    When creating a Stream Tube, you must specify the property
+    <property>org.freedesktop.Telepathy.Channel.Type.StreamTube.Service</property>,
+    which is the canonical name of the service your Tube is offering (e.g.
+    ssh).
+   </para>
+
+   <para>
+    The <methodname>StreamTube.Offer</methodname> method takes four
+    parameters:
+   </para>
+   <orderedlist>
+    <listitem><para>
+     the socket type;
+    </para></listitem>
+    <listitem><para>
+     the address of the service to offer (see below);
+    </para></listitem>
+    <listitem><para>
+     an access control flag; and
+    </para></listitem>
+    <listitem><para>
+     a map of arbitrary parameters to transmit with the Tube offer.
+    </para></listitem>
+   </orderedlist>
+
+   <para>
+    Stream Tubes differ from D-Bus Tubes in that it is assumed that a Stream
+    Tube will frequently be used to proxy an existing protocol or
+    service. Thus unlike for D-Bus Tubes or file transfer, the socket
+    you wish to offer must already be set up and listening as if you were
+    writing a regular network service. This address is then passed to
+    the <methodname>Offer</methodname> method.
+    The socket can either be a UNIX socket, an IPv4 socket or an IPv6
+    socket.
+   </para>
+
+   <para>
+    The appropriate access control should be chosen based on the socket type
+    and the service. Typically it will be either
+    <type>Socket_Access_Control_Localhost</type> or
+    <type>Socket_Access_Control_Port</type>.
+   </para>
+
+   <para>
+    The parameter map is the same as for D-Bus Tubes.
+   </para>
   </sect2>
 
  </sect1>
