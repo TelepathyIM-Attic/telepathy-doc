@@ -55,53 +55,6 @@
   </para>
  </note>
 
- <sect1 id="sect.tubes.compatibility">
-  <title>Compatibility</title>
-
-  <para>
-   Support for Telepathy Tubes requires certain features in the connection
-   manager and communications protocol, and thus cannot be supported by
-   every connection manager. <xref linkend="table.tubes.compatibility"/>
-   provides a list of known working connection managers.
-  </para>
-
-  <table id="table.tubes.compatibility">
-   <tgroup cols="3">
-    <thead>
-     <row>
-      <entry>Connection Manager</entry>
-      <entry>One-to-One Tubes</entry>
-      <entry>One-to-Many Tubes</entry>
-     </row>
-    </thead>
-
-    <tbody>
-     <row>
-      <entry>Gabble</entry>
-      <entry>Stream, D-Bus</entry>
-      <entry>Stream, D-Bus</entry>
-     </row>
-     <row>
-      <entry>Salut</entry>
-      <entry></entry>
-      <entry></entry>
-     </row>
-    </tbody>
-   </tgroup>
-  </table>
-
-  <note>
-   <title>XMPP Protocol Support</title>
-
-   <para>
-    Telepathy Tubes over XMPP uses a protocol extension has been documented
-    <ulink url="http://telepathy.freedesktop.org/xmpp/tubes.html">on the
-    Telepathy website</ulink>. It has not been submitted as a XEP.
-   </para>
-  </note>
-
- </sect1>
-
  <sect1 id="sect.tubes.setup">
   <title>Creating a Tube</title>
 
@@ -223,8 +176,12 @@
                format="PNG" />
    </imageobject></mediaobject>
   </figure>
+ </sect1>
 
-  <sect2 id="sect.tubes.setup.dbus">
+ <sect1 id="sect.tubes.dbus">
+  <title>D-Bus Tubes</title>
+
+  <sect2 id="sect.tubes.dbus.setup">
    <title>Offering a D-Bus Tube</title>
 
    <para>
@@ -280,8 +237,12 @@
    </para>
 
   </sect2>
+ </sect1>
 
-  <sect2 id="sect.tubes.setup.stream">
+ <sect1 id="sect.tubes.stream">
+  <title>Stream Tubes</title>
+
+  <sect2 id="sect.tubes.stream.setup">
    <title>Offering a Stream Tube</title>
 
    <para>
@@ -332,6 +293,52 @@
     The parameter map is the same as for D-Bus Tubes.
    </para>
   </sect2>
+ </sect1>
+
+ <sect1 id="sect.tubes.compatibility">
+  <title>Compatibility</title>
+
+  <para>
+   Support for Telepathy Tubes requires certain features in the connection
+   manager and communications protocol, and thus cannot be supported by
+   every connection manager. <xref linkend="table.tubes.compatibility"/>
+   provides a list of known working connection managers.
+  </para>
+
+  <table id="table.tubes.compatibility">
+   <tgroup cols="3">
+    <thead>
+     <row>
+      <entry>Connection Manager</entry>
+      <entry>One-to-One Tubes</entry>
+      <entry>One-to-Many Tubes</entry>
+     </row>
+    </thead>
+
+    <tbody>
+     <row>
+      <entry>Gabble</entry>
+      <entry>Stream, D-Bus</entry>
+      <entry>Stream, D-Bus</entry>
+     </row>
+     <row>
+      <entry>Salut</entry>
+      <entry></entry>
+      <entry></entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </table>
+
+  <note>
+   <title>XMPP Protocol Support</title>
+
+   <para>
+    Telepathy Tubes over XMPP uses a protocol extension has been documented
+    <ulink url="http://telepathy.freedesktop.org/xmpp/tubes.html">on the
+    Telepathy website</ulink>. It has not been submitted as a XEP.
+   </para>
+  </note>
 
  </sect1>
 
