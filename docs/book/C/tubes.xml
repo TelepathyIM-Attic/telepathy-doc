@@ -164,6 +164,12 @@
    offered it will be in the <literal>Remote Pending</literal> state.
   </para>
 
+  <important><para>
+   Calling the <methodname>Offer</methodname> method requires you to be able
+   to establish a contact's capabilities. For some protocols, e.g. XMPP,
+   this requires being subscribed to the contact's presence.
+  </para></important>
+
   <para>
    <xref linkend="fig.tubes.setup"/> presents an overview of setting up a
    Tube.
@@ -181,6 +187,44 @@
  <sect1 id="sect.tubes.dbus">
   <title>D-Bus Tubes</title>
 
+  <para>
+   D-Bus Tubes allow you to share a private D-Bus bus between two or more
+   clients, proxied over Telepathy. This allows clients to make method calls
+   and emit signals using regular D-Bus semantics rather than requiring an
+   individual RPC protocol to be developed.
+  </para>
+
+  <para>
+   For one-to-one D-Bus Tubes, the Tube behaves like a peer-to-peer D-Bus
+   connection. The sender and destination addresses are arbitrary and the
+   other client receives all D-Bus messages that are sent.
+  </para>
+
+  <para>
+   For multi-user D-Bus Tubes Telepathy
+   sets up a private, peer-to-peer D-Bus "bus" brokered by the
+   Telepathy Connection Managers. There is, however, no service through
+   which to register or lookup service names. Requests should be made using
+   a client's <literal>unique name</literal> (see
+   <xref linkend="sect.basics.dbus"/>). Instead
+   a mapping of Telepathy contact handles to D-Bus addresses is made
+   available via the <property>DbusNames</property> property.
+  </para>
+
+  <note>
+   <para>
+    D-Bus Tubes, especially MUC D-Bus Tubes, may prove unsuitable for
+    high-bandwidth communication.
+    It is not possible to detect or specify the transport mechanism for a
+    Telepathy Tube, nor determine what bandwidth is available.
+   </para>
+   <para>
+    As it stands in Telepathy-Gabble, D-Bus Tube packets
+    are transmitted between contacts inside XMPP messages relayed
+    via the XMPP server rather than via a peer-to-peer network socket.
+   </para>
+  </note>
+
   <sect2 id="sect.tubes.dbus.setup">
    <title>Offering a D-Bus Tube</title>
 
@@ -189,13 +233,6 @@
     <property>org.freedesktop.Telepathy.Channel.Type.DBusTube.ServiceName</property>,
     which gives the name of the D-Bus service you intend to offer.
    </para>
-
-   <note><para>
-    The Tube sets up a private D-Bus bus, and you may in fact offer any
-    service name or names you like, but the service name offered here is the
-    one that will be used by the Channel Dispatcher to dispatch your Tube to
-    the correct client.
-   </para></note>
 
    <para>
     The <methodname>DbusTube.Offer</methodname> method takes two parameters:
