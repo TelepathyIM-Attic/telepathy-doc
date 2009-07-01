@@ -225,13 +225,15 @@
    </para>
   </note>
 
-  <sect2 id="sect.tubes.dbus.setup">
+  <sect2 id="sect.tubes.dbus.offer">
    <title>Offering a D-Bus Tube</title>
 
    <para>
     When creating the Tube, you must specify the property
     <property>org.freedesktop.Telepathy.Channel.Type.DBusTube.ServiceName</property>,
-    which gives the name of the D-Bus service you intend to offer.
+    which gives the name of the D-Bus service you intend to offer. The
+    remote contact will not receive the channel until you call the
+    <methodname>Offer</methodname> method.
    </para>
 
    <para>
@@ -250,8 +252,9 @@
     The parameter map allows properties to be passed that will be useful in
     deciding whether to accept the Tube (e.g. the name of the file
     to collaborate on; or specifics of the game being played), or
-    information about how to connect to other clients once this Tube is
-    established.
+    data about how to retrieve more information once the Tube has been
+    established. Once the Tube has been offered, this map will remain
+    available through the <property>Parameters</property> property.
    </para>
 
    <para>
@@ -267,10 +270,94 @@
     a private D-Bus bus will be supplied.
    </para>
 
+   <important>
+    <para>
+     You must be able to retrieve a contact's capabilities (i.e. call
+     <methodname>GetContactCapabilities</methodname>) in order to determine
+     whether or not a contact supports Tubes. For some protocols (e.g. XMPP)
+     this requires you to be subscribed to the contact's presence.
+    </para>
+   </important>
+
+   <para>
+    The <property>State</property> property will change from
+    <type>Tube_Channel_State_Not_Offered</type> to
+    <type>Tube_Channel_State_Remote_Pending</type>, indicating that the
+    remote contact has to accept the tube.
+   </para>
+
+   <para>
+    <methodname>Offer</methodname> will return the address of a private
+    D-Bus connection. This should be stored until the channel is
+    in the state <type>Tube_Channel_State_Open</type> (listen for
+    <methodname>TubeChannelStateChanged</methodname>), at which point the
+    bus is ready to be connected to.
+   </para>
+  </sect2>
+
+  <sect2 id="sect.tubes.dbus.accept">
+   <title>Accepting a D-Bus Tube</title>
+
+   <para>
+    An incoming Tube appears as an incoming channel, heralded by
+    <methodname>NewChannels</methodname> (see
+    <xref linkend="sect.channel.newchannels"/>). The Tube will have two
+    immutable properties that you can inspect;
+    <property>ServiceName</property>, which was passed when creating the
+    Tube channel, and <property>Parameters</property>, the map of parameters
+    passed to <methodname>Offer</methodname>.
+   </para>
+
+   <para>
+    The channel will be in the initial <property>State</property>
+    <type>Tube_Channel_State_Local_Pending</type>, indicating that you have
+    to <methodname>Accept</methodname> the Tube.
+   </para>
+
+   <para>
+    The <methodname>DbusTube.Accept</methodname> method takes one property,
+    the access control mode. This should be set to
+    <type>Socket_Access_Control_Localhost</type>. No other mode makes sense
+    for a D-Bus connection.
+   </para>
+
+   <para>
+    Like <methodname>Offer</methodname>, <methodname>Accept</methodname>
+    will return the address of a private D-Bus connection. This address
+    should be stored until the channel's <property>State</property> changes
+    to <type>Tube_Channel_State_Open</type>, as noted by the
+    <methodname>TubeChannelStateChanged</methodname> property.
+   </para>
+  </sect2>
+
+  <sect2 id="sect.tubes.dbus.open">
+   <title>Communicating via D-Bus</title>
+
    <para>
     Connection to the private bus is done using
     <function>dbus_connection_open</function>,
     <function>dbus_g_connection_open</function> or other similar function.
+   </para>
+
+   <para>
+    There is no "bus driver" present on this bus (nothing provides
+    <literal>org.freedesktop.DBus</literal>), so there is no way to call
+    D-Bus methods like <methodname>ListNames</methodname>,
+    <methodname>RequestName</methodname>, and
+    <methodname>GetNameOwner</methodname>, etc.
+   </para>
+
+   <para>
+    For one-to-one channels, the Tube works like a private, peer-to-peer
+    D-Bus connection. Any transmitted messages will arrive at the other end
+    regardless of their source or destination addresses.
+   </para>
+
+   <para>
+    For multi-user Tubes, the property <property>DbusNames</property>
+    provides the mapping of Telepathy contact handles to D-Bus unique names.
+    The signal <methodname>DBusNamesChanged</methodname> will be emitted
+    when this property changes (e.g. users enter or leave the group).
    </para>
 
   </sect2>
