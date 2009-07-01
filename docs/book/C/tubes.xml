@@ -216,12 +216,15 @@
     D-Bus Tubes, especially MUC D-Bus Tubes, may prove unsuitable for
     high-bandwidth communication.
     It is not possible to detect or specify the transport mechanism for a
-    Telepathy Tube, nor determine what bandwidth is available.
+    Telepathy Tube (e.g. out-of-band socket, or in-band with the protocol),
+    nor determine what bandwidth is available.
    </para>
    <para>
-    As it stands in Telepathy-Gabble, D-Bus Tube packets
+    As it stands for multi-user Tubes in Telepathy-Gabble, D-Bus messages
     are transmitted between contacts inside XMPP messages relayed
-    via the XMPP server rather than via a peer-to-peer network socket.
+    via the XMPP server rather than via peer-to-peer network sockets.
+    Other types of Tubes will use a network socket (e.g. SOCKS5 bytestream)
+    when it is available, else fall back to in-band messaging.
    </para>
   </note>
 
