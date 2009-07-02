@@ -34,6 +34,7 @@ AC_OUTPUT([
       docs/examples/glib_salut_ft/Makefile
       docs/examples/glib_jabber_muc/Makefile
       docs/examples/glib_telepathy_properties/Makefile
+      docs/examples/glib_dbus_tube/Makefile
       docs/examples/pygtk_chat_client/Makefile
       docs/examples/python_get_parameters/Makefile
       docs/examples/python_iface_messaging/Makefile
