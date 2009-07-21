@@ -28,6 +28,40 @@ handle_error (const GError *error)
 }
 
 static void
+tube_state_changed_cb (TpChannel *channel,
+		       guint      state,
+		       gpointer   user_data,
+		       GObject   *weak_obj)
+{
+	g_print ("Tube state changed %i\n", state);
+}
+
+static void
+dbus_names_changed_cb (TpChannel    *channel,
+		       GHashTable   *added,
+		       const GArray *removed,
+		       gpointer      user_data,
+		       GObject      *weak_obj)
+{
+	g_print ("::DBusNamesChanged\n");
+
+	GHashTableIter iter;
+	gpointer key, value;
+	guint handle;
+	char *address;
+
+	g_print ("Added:\n");
+	g_hash_table_iter_init (&iter, added);
+	while (g_hash_table_iter_next (&iter, &key, &value))
+	{
+		handle = GPOINTER_TO_UINT (key);
+		address = (char *) value;
+
+		g_print (" - %u: %s\n", handle, address);
+	}
+}
+
+static void
 tube_accept_cb (TpChannel	*channel,
 	        const char	*address,
 	        const GError	*in_error,
@@ -36,7 +70,7 @@ tube_accept_cb (TpChannel	*channel,
 {
 	handle_error (in_error);
 
-	g_print (" > tube_offer_cb (%s)\n", address);
+	g_print (" > tube_accept_cb (%s)\n", address);
 }
 
 static void
@@ -44,8 +78,19 @@ channel_ready (TpChannel	*channel,
 	       const GError	*in_error,
 	       gpointer		 user_data)
 {
+	GError *error = NULL;
 	g_print (" > channel_ready (%s)\n",
 			tp_channel_get_identifier (channel));
+
+	tp_cli_channel_interface_tube_connect_to_tube_channel_state_changed (
+			channel, tube_state_changed_cb,
+			NULL, NULL, NULL, &error);
+	handle_error (error);
+
+	tp_cli_channel_type_dbus_tube_connect_to_dbus_names_changed (
+			channel, dbus_names_changed_cb,
+			NULL, NULL, NULL, &error);
+	handle_error (error);
 
 	/* accept the channel */
 	tp_cli_channel_type_dbus_tube_call_accept (channel, -1,
