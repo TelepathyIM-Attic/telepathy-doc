@@ -6,6 +6,7 @@ example_dirs = \
 	glib_jabber_muc \
 	glib_telepathy_properties \
 	glib_dbus_tube \
+	glib_stream_tube \
 	pygtk_chat_client \
 	python_get_parameters \
 	python_iface_messaging \
