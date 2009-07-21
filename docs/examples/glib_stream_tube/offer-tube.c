@@ -318,6 +318,7 @@ main (int argc, char **argv)
 		g_error ("%s", error->message);
 	}
 
+	/* begin ex.tubes.stream.setup.gnio */
 	/* create the network service */
 	GSocketService *socket_service = g_socket_service_new ();
 	GInetAddress *inet_address = g_inet_address_new_loopback (
@@ -348,6 +349,7 @@ main (int argc, char **argv)
 	g_signal_connect (socket_service, "incoming",
 			G_CALLBACK (socket_incoming), NULL);
 	g_socket_service_start (socket_service);
+	/* end ex.tubes.stream.setup.gnio */
 
 	/* begin ex.basics.language-bindings.telepathy-glib.ready */
 	/* we want to request the gabble CM */

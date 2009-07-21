@@ -280,6 +280,11 @@
      whether or not a contact supports Tubes. For some protocols (e.g. XMPP)
      this requires you to be subscribed to the contact's presence.
     </para>
+    <para>
+     For a multi-user Tube, the room you are connecting to should already
+     exist as a text channel. Create a text channel before offering the
+     Tube.
+    </para>
    </important>
 
    <para>
@@ -369,6 +374,18 @@
  <sect1 id="sect.tubes.stream">
   <title>Stream Tubes</title>
 
+  <para>
+   Stream Tubes allow you to proxy an existing network socket via Telepathy.
+   Stream Tubes should be used when you wish to share an existing network
+   protocol, for instance a HTTP stream, between two contacts.
+  </para>
+
+  <para>
+   Unlike D-Bus Tubes, multi-user Stream Tubes are point-to-point between
+   the offerer and the accepter. Stream Tubes cannot be used to multicast
+   between members of the MUC room.
+  </para>
+
   <sect2 id="sect.tubes.stream.setup">
    <title>Offering a Stream Tube</title>
 
@@ -388,7 +405,8 @@
      the socket type;
     </para></listitem>
     <listitem><para>
-     the address of the service to offer (see below);
+     the address of the service to offer
+     (see <link linkend="note.tubes.stream.setup.variants">below</link>);
     </para></listitem>
     <listitem><para>
      an access control flag; and
@@ -419,7 +437,107 @@
    <para>
     The parameter map is the same as for D-Bus Tubes.
    </para>
+
+   <note id="note.tubes.stream.setup.variants">
+    <title>Address Variants</title>
+
+    <para>
+     For Stream Tubes, network addresses are passed as a variant type that
+     varies based on the provided <type>Socket_Address_Type</type>. More
+     information is provided in
+     <xref linkend="tip.filetransfer.sending.decoding-address"/>.
+    </para>
+
+    <para>
+     Alternatively, <application>telepathy-glib</application> provides API
+     to convert between address variants and
+     <classname>GSocketAddress</classname> objects:
+     <function>tp_address_variant_from_g_socket_address</function> and
+     <function>tp_g_socket_address_from_address_variant</function>.
+    </para>
+   </note>
+
+   <sect3 id="sect.tubes.stream.setup.gnio">
+    <title>Offering a Network Service using GNIO</title>
+
+    <para>
+     In general, Stream Tubes will be used to proxy an existing network
+     protocol or application between contacts. However, if you wish to open
+     your own socket, or your protocol library doesn't handle sockets for
+     you, the you can serve your own network socket using GNIO.
+    </para>
+
+    <example id="ex.tubes.stream.setup.gnio"
+             file="glib_stream_tube/offer-tube.c">
+     <title>Using GNIO to Offer a Network Service</title>
+    </example>
+
+    <para>
+     <application>telepathy-glib</application> provides API to convert
+     between Telepathy address variants and
+     <classname>GSocketAddress</classname> objects:
+     <function>tp_address_variant_from_g_socket_address</function> and
+     <function>tp_g_socket_address_from_address_variant</function>.
+    </para>
+
+   </sect3>
   </sect2>
+
+  <sect2 id="sect.tubes.stream.accept">
+   <title>Accepting a Stream Tube</title>
+
+   <para>
+    An incoming Stream Tube appears as an incoming channel, heralded by
+    <methodname>NewChannels</methodname> (see
+    <xref linkend="sect.channel.newchannels"/>). The Tube will have two
+    immutable properties that you can inspect; <property>Service</property>,
+    which is a TCP service name (this should be a well-known IANA or DNS-SD
+    service name, e.g. "ssh" or "_raap._tcp") and
+    <property>Parameters</property>, the map of parameters passed to
+    <methodname>Offer</methodname>.
+   </para>
+
+   <para>
+    The channel will be in the initial <property>State</property>
+    <type>Tube_Channel_State_Local_Pending</type>, incidating that you have
+    to <methodname>Accept</methodname> the Tube.
+   </para>
+
+   <para>
+    The <methodname>StreamTube.Accept</methodname> method takes three
+    properties: a <type>Socket_Address_Type</type>, the type of address for
+    this socket (e.g. TCP), a <type>Socket_Access_Control</type>, and a
+    variant access control parameter.
+   </para>
+
+   <important>
+    <title>Optional Variants</title>
+    <para>
+     D-Bus provides no <literal>NULL</literal> type, so even in cases where
+     an optional variant is not required, a variant value must be provided
+     (e.g. integer 0).
+    </para>
+
+    <para>
+     <xref linkend="ex.tubes.stream.accept.noop"/> provides an example for
+     <application>telepathy-glib</application>.
+    </para>
+
+    <example id="ex.tubes.stream.accept.noop"
+             file="glib_stream_tube/accept-tube.c">
+     <title>Passing an ignored variant in telepathy-glib</title>
+    </example>
+
+   </important>
+
+   <para>
+    The <methodname>Accept</methodname> method will return an address
+    variant of the appropriate for the requeseted
+    <type>Socket_Address_Type</type> (see
+    <link linkend="note.tubes.stream.setup.variants">above</link>).
+   </para>
+  </sect2>
+
  </sect1>
 
  <sect1 id="sect.tubes.compatibility">

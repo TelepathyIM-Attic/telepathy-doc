@@ -75,6 +75,7 @@ channel_ready (TpChannel	*channel,
 	handle_error (error);
 
 	/* accept the channel */
+	/* begin ex.tubes.stream.accept.noop */
 	GValue noop = { 0, };
 	g_value_init (&noop, G_TYPE_INT);
 	tp_cli_channel_type_stream_tube_call_accept (channel, -1,
@@ -82,6 +83,7 @@ channel_ready (TpChannel	*channel,
 			TP_SOCKET_ACCESS_CONTROL_LOCALHOST, &noop,
 			tube_accept_cb, NULL, NULL, NULL);
 	g_value_unset (&noop);
+	/* end ex.tubes.stream.accept.noop */
 }
 
 static void
