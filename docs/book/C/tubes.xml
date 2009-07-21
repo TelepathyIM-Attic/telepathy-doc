@@ -435,6 +435,14 @@
    </para>
 
    <para>
+    Not all connection managers that support Stream Tubes support all
+    combinations of address type and access control. Connection managers
+    must at least offer IPv4 sockets with
+    <type>Socket_Access_Control_Localhost</type>, other supported methods
+    are listed in the <property>SupportedSocketTypes</property> property.
+   </para>
+
+   <para>
     The parameter map is the same as for D-Bus Tubes.
    </para>
 
