@@ -388,6 +388,26 @@
     If you wish to cancel your own file transfer, simply
     <methodname>Close</methodname> the channel.
    </para>
+
+   <sect3 id="sect.filetransfer.sending.open.gio">
+    <title>Using GIO</title>
+
+    <para>
+     With GLib's GIO, you can splice transfer between the disk and the
+     network, which makes implementing file transfer very simple.
+     <xref linkend="ex.filetransfer.sending.open.gio"/> shows an example of
+     doing this.
+    </para>
+
+    <example id="ex.filetransfer.sending.open.gio"
+             file="glib_salut_ft/gnio-sender.c">
+     <title>Splicing a file stream into a network socket with GIO</title>
+    </example>
+
+    <para>
+     A similar implementation can be used to receive files.
+    </para>
+   </sect3>
   </sect2>
  </sect1>
 

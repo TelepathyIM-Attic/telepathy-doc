@@ -115,6 +115,7 @@ file_transfer_state_changed_cb (TpChannel	*channel,
 
 	if (state == TP_FILE_TRANSFER_STATE_OPEN)
 	{
+		/* begin ex.filetransfer.sending.open.gio */
 		ftstate->connection = g_socket_client_connect (
 				ftstate->client,
 				G_SOCKET_CONNECTABLE (ftstate->address),
@@ -140,6 +141,7 @@ file_transfer_state_changed_cb (TpChannel	*channel,
 				G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE,
 				0, NULL,
 				splice_done_cb, ftstate);
+		/* end ex.filetransfer.sending.open.gio */
 	}
 	else if (state == TP_FILE_TRANSFER_STATE_COMPLETED ||
 		 state == TP_FILE_TRANSFER_STATE_CANCELLED)
