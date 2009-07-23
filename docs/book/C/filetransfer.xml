@@ -276,6 +276,7 @@
        <row>
         <entry>Socket Type</entry>
 	<entry>D-Bus Type</entry>
+	<entry>GLib Type</entry>
 	<entry>Structure</entry>
 	<entry>Example</entry>
        </row>
@@ -284,6 +285,7 @@
        <row>
         <entry>Unix</entry>
 	<entry morerows="1" valign="middle"><literal>ay</literal></entry>
+	<entry morerows="1" valign="middle"><type>DBUS_TYPE_G_UCHAR_ARRAY</type></entry>
 	<entry morerows="1" valign="middle">Address as a character array</entry>
 	<entry morerows="1" valign="middle">/tmp/tp-ft-1612616106</entry>
        </row>
@@ -293,14 +295,16 @@
        <row>
         <entry>IPv4</entry>
 	<entry morerows="1" valign="middle"><literal>(sq)</literal></entry>
+	<entry><type>TP_STRUCT_TYPE_SOCKET_ADDRESS_IPV4</type></entry>
 	<entry morerows="1" valign="middle">
 	 IP address (as a string in the canonical form) and a port number
-	 (as an integer)
+	 (as an unsigned integer)
 	</entry>
 	<entry>127.0.0.1, 12001</entry>
        </row>
        <row>
         <entry>IPv6</entry>
+	<entry><type>TP_STRUCT_TYPE_SOCKET_ADDRESS_IPV6</type></entry>
 	<entry>::1, 22222</entry>
        </row>
       </tbody>
@@ -327,7 +331,6 @@
 
 	case TP_SOCKET_ADDRESS_TYPE_IPV4:
 	case TP_SOCKET_ADDRESS_TYPE_IPV6:
-		g_return_if_fail (G_VALUE_HOLDS (addressv, G_TYPE_VALUE_ARRAY));
 		GValueArray *address = g_value_get_boxed (addressv);
 		const char *host = g_value_get_string (
 			g_value_array_get_nth (address, 0));
@@ -340,6 +343,20 @@
 		g_return_if_reached ();
 }]]></programlisting>
     </example>
+    <para>
+     Be aware that abstract Unix sockets can contain the NUL character
+     (usually as their first character) so should be copied with
+     <function>memcpy</function> instead of <function>strcpy</function>.
+    </para>
+
+    <para>
+     If you're using a recent GLib you can connect to the socket using GIO,
+     <application>telepathy-glib</application> provides utilities for
+     converting between <classname>GSocketAddress</classname> objects and
+     Telepathy's address types. The functions are
+     <function>tp_address_variant_from_g_socket_address</function> and
+     <function>tp_g_socket_address_from_variant</function>.
+    </para>
    </tip>
   </sect2>
 

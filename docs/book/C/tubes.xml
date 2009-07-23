@@ -455,14 +455,6 @@
      information is provided in
      <xref linkend="tip.filetransfer.sending.decoding-address"/>.
     </para>
-
-    <para>
-     Alternatively, <application>telepathy-glib</application> provides API
-     to convert between address variants and
-     <classname>GSocketAddress</classname> objects:
-     <function>tp_address_variant_from_g_socket_address</function> and
-     <function>tp_g_socket_address_from_address_variant</function>.
-    </para>
    </note>
 
    <sect3 id="sect.tubes.stream.setup.gnio">
@@ -485,7 +477,7 @@
      between Telepathy address variants and
      <classname>GSocketAddress</classname> objects:
      <function>tp_address_variant_from_g_socket_address</function> and
-     <function>tp_g_socket_address_from_address_variant</function>.
+     <function>tp_g_socket_address_from_variant</function>.
     </para>
 
    </sect3>

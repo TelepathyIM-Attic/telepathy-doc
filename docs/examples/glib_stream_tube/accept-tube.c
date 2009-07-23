@@ -9,6 +9,7 @@
 #include <telepathy-glib/interfaces.h>
 #include <telepathy-glib/gtypes.h>
 #include <telepathy-glib/util.h>
+#include <telepathy-glib/gnio-util.h>
 #include <telepathy-glib/enums.h>
 #include <telepathy-glib/debug.h>
 
@@ -16,8 +17,7 @@ static GMainLoop *loop = NULL;
 static TpDBusDaemon *bus_daemon = NULL;
 static TpConnection *conn = NULL;
 
-static char *host;
-static guint port;
+static GSocketAddress *sockaddr = NULL;
 
 static void
 handle_error (const GError *error)
@@ -51,13 +51,22 @@ tube_accept_cb (TpChannel	*channel,
 	        gpointer	 user_data,
 	        GObject		*weak_obj)
 {
+	GError *error = NULL;
+
 	handle_error (in_error);
 
-	GValueArray *array = g_value_get_boxed (address);
-	host = g_value_dup_string (g_value_array_get_nth (array, 0));
-	port = g_value_get_uint (g_value_array_get_nth (array, 1));
+	g_print ("variant type = %s\n", G_VALUE_TYPE_NAME (address));
+	sockaddr = tp_g_socket_address_from_variant (
+			TP_SOCKET_ADDRESS_TYPE_IPV4,
+			address);
 
-	g_print (" > tube_accept_cb (%s:%u)\n", host, port);
+	/* FIXME: I _think_ the spec says you need to wait for state Open and 
+	 * this callback -- seeking spec clarification */
+	GSocketClient *client = g_socket_client_new ();
+	GSocketConnection *conn = g_socket_client_connect (client,
+			G_SOCKET_CONNECTABLE (sockaddr),
+			NULL, &error);
+	handle_error (error);
 }
 
 static void
