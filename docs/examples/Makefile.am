@@ -7,6 +7,7 @@ example_dirs = \
 	glib_telepathy_properties \
 	glib_dbus_tube \
 	glib_stream_tube \
+	glib_mc5_connections \
 	pygtk_chat_client \
 	python_get_parameters \
 	python_iface_messaging \
