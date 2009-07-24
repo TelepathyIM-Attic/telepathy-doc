@@ -388,7 +388,7 @@
     All channels are announced, including channels that you created. You
     can check the <property>Requested</property> property to discover if
     this channel is one you requested yourself (i.e. via
-    <methodname>CreateChannel</methodname>.
+    <methodname>CreateChannel</methodname>).
    </para>
 
    <tip>
