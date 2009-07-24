@@ -9,9 +9,8 @@
   <note>
    <para>
     The <interfacename>AccountManager</interfacename> and
-    <interfacename>Account</interfacename> interfaces are not implemented
-    in <application>Mission Control 5</application> exactly as they are
-    specified in the Telepathy API specification.
+    <interfacename>Account</interfacename> interfaces are implemented
+    in <application>Mission Control 5</application>.
    </para>
 
    <para>
@@ -68,6 +67,12 @@
     <methodname>org.freedesktop.Telepathy.Account.UpdateParameters</methodname>
     method. <xref linkend="table.accounts.account-properties"/> shows the
     properties of an <interfacename>Account</interfacename> object.
+   </para>
+
+   <para>
+    Obtaining connections and managing the online/offline status of accounts
+    is documented in
+    <xref linkend="sect.connection.obtaining.account-manager"/>.
    </para>
 
    <table id="table.accounts.account-properties">

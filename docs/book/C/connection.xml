@@ -198,9 +198,8 @@
      <note>
       <para>
        The <interfacename>AccountManager</interfacename> and
-       <interfacename>Account</interfacename> interfaces are not implemented
-       in <application>Mission Control 5</application> exactly as they are
-       specified in the Telepathy API specification.
+       <interfacename>Account</interfacename> interfaces are implemented
+       in <application>Mission Control 5</application>.
       </para>
       <para>
        <application>Mission Control 4</application> implements a completely
@@ -215,6 +214,64 @@
       <link linkend="chapter.accounts">Account Manager</link> manages
       connections for configured accounts which can be retrieved as a
       property from each <interfacename>Account</interfacename> object.
+     </para>
+
+     <para>
+      Connections are created and managed by the Account Manager for valid,
+      online accounts.
+      The Account Manager is available via the well known D-Bus name
+      <literal>org.freedesktop.Telepathy.AccountManager</literal> and object
+      path <literal>/org/freedesktop/Telepathy/AccountManager</literal>.
+     </para>
+
+     <para>
+      Valid, connectable (or connected) accounts are available via the
+      <property>ValidAccounts</property> property of the Account Manager.
+      This property contains a list of D-Bus object paths the Account
+      Manager exports. An account's current presence can be read via the
+      <property>CurrentPresence</property> property.
+     </para>
+
+     <para>
+      To bring an account online, set
+      <property>RequestedPresence</property> to an online state (e.g.
+      <type>Connection_Presence_Type_Available</type> (the account must also
+      be <property>Enabled</property>).
+      Equally, to take an account offline, set the
+      <property>RequestedPresence</property> property to
+      <type>Connection_Presence_Type_Offline</type>.
+     </para>
+
+     <tip>
+      <title>Automatically Onlining Accounts</title>
+      <para>
+       Mission Control will automatically bring online any
+       <property>Enabled</property> account when a channel is requested for
+       that account via the Channel Dispatcher. This is done by setting
+       <property>RequestedPresence</property> to the value set in
+       <property>AutomaticPresence</property>.
+      </para>
+      <para>
+       See ...
+      </para>
+     </tip>
+
+     <para>
+      The <property>Connection</property> property gives the object path for
+      the connection associated with the account. A value of
+      <literal>/</literal> indicates that no connection has been created.
+     </para>
+
+     <para>
+      The well-known bus name of the connection can be determined from the
+      object path by removing the leading forward-slash and replacing
+      the remaining slashes with periods (for example,
+      <literal>/org/freedesktop/Telepathy/Connection/gabble/jabber/bob_40example_2ecom_2ftelepathy</literal>
+      becomes
+      <literal>org.freedesktop.Telepathy.Connection.gabble.jabber.bob_40example_2ecom_2ftelepathy</literal>).
+      Note that doing this conversion is not normally required, as most
+      Telepathy bindings are able to do it for you (e.g.
+      <function>tp_connection_new</function>).
      </para>
     </sect2>
 
