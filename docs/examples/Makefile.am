@@ -8,6 +8,7 @@ example_dirs = \
 	glib_dbus_tube \
 	glib_stream_tube \
 	glib_mc5_connections \
+	glib_mc5_observer \
 	pygtk_chat_client \
 	python_get_parameters \
 	python_iface_messaging \
