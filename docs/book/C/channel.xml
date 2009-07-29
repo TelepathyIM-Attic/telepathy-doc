@@ -124,12 +124,20 @@
     <title>Requesting Channels</title>
 
     <para>
-     Channels are requested from a <classname>Connection</classname> object
-     using the <interfacename>Requests</interfacename> interface.
+     Channels may be requested from the
+     <xref linkend="chapter.channel-dispatcher"/> or directly from a
+     <classname>Connection</classname> object
+     using the <interfacename>Requests</interfacename> interface. Requesting
+     a channel from the dispatcher will cause it to be handled like any
+     other dispatched channel, and this is the preferred way of requesting
+     new channels. Requesting a channel directly from the
+     <classname>Connection</classname> will cause it to be ignored by the
+     Channel Dispatcher, meaning that the requesting application must
+     handle the channel itself.
     </para>
 
     <para>
-     This interface provides two methods:
+     These interfaces provides two methods:
      <methodname>CreateChannel</methodname> and
      <methodname>EnsureChannel</methodname>.
      Both methods take the same parameter, a dictionary containing the

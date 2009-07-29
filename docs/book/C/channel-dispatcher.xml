@@ -2,27 +2,128 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
                "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY mdash "&#8212;">
-  <!ENTITY appversion "0.7">
-  <!ENTITY manrevision "0.2">
-  <!ENTITY date "12 August 2008">
-  <!ENTITY app_no_markup "Telepathy">
-  <!ENTITY app "<application>&app_no_markup;</application>">
-  <!ENTITY url_examples_base "./examples/">
-  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec.html">
-  <!ENTITY url_spec_base "&url_spec;#org.freedesktop.Telepathy.">
-  <!ENTITY url_telepathy_glib_base "http://telepathy.freedesktop.org/doc/telepathy-glib/telepathy-glib-">
-  <!ENTITY url_dbus_spec_base "http://dbus.freedesktop.org/doc/dbus-specification.html#">
-  <!ENTITY url_dbus_glib_base "http://dbus.freedesktop.org/doc/dbus-glib/">
-  <!ENTITY url_dbus_python_base "http://dbus.freedesktop.org/doc/dbus-python/api/">
 ]>
 
 <chapter id="chapter.channel-dispatcher">
   <title>ChannelDispatcher</title>
-  <para>TODO:
-   Notes:
-   - This is in mission control.
-   - This dispatches some events to applications that care about them, by 
-     calling a method on the ChannelHandler interface (that the application 
-     implements). This API is currently in flux.
+
+  <note>
+   <para>
+    The <interfacename>ChannelDispatcher</interfacename> interface is
+    implemented in <application>Mission Control 5</application>.
+   </para>
+   <para>
+    There are no channel dispatching capabilities available in
+    <application>Mission Control 4</application>.
+   </para>
+  </note>
+
+  <para>
+   The Channel Dispatcher is responsible for discovering and launching
+   Telepathy clients to handle incoming channels from accounts being managed
+   by the <link linkend="chapter.accounts">Account Manager</link>. Clients
+   register themselves and their capabilities with the Channel Dispatcher,
+   which then hands off incoming channels to the appropriate client. Clients
+   will be launched via D-Bus activation if required.
   </para>
+
+  <para>
+   For example, a one-to-one text channel comes in via the
+   <link xref="chapter.connection">Connection</link> associated with the account
+   <literal>gabble/jabber/bob@example.com</literal>, which is being managed
+   by the Account Manager. The Channel Dispatcher is watching this
+   connection for new channels. When the channel is received, the dispatcher
+   compares the properties on the channel against the list of registered
+   clients and the types of channels they can handle. When a suitable client
+   is found, the dispatcher will pass this channel off to the client. In
+   this case, the Empathy chat client might be found, activated if required,
+   and asked to handle the channel causing it to pop up a new chat window.
+  </para>
+
+  <para>
+   The Channel Dispatcher may also support error recovery in the case of
+   broken or buggy clients. If a client crashes or generates an error when
+   asked to handle the channel, the Dispatcher may attempt to use a
+   different client instead.
+  </para>
+
+  <sect1 id="sect.channel-dispatcher.clients">
+   <title>Telepathy Clients</title>
+
+   <para>
+    Telepathy Clients appear as D-Bus services registered or activatable on
+    a user's session bus. Every running or activatable Telepathy client must
+    provide a D-Bus well-known name of the form
+    <literal>org.freedesktop.Telepathy.Client.clientname</literal>
+    (e.g. <literal>org.freedesktop.Telepathy.Client.Empathy</literal>).
+   </para>
+
+   <note>
+    <title>D-Bus Activation</title>
+    <para>
+     Telepathy clients can be activated by the Channel Dispatcher using
+     D-Bus Activation. This is done in the regular way by registering a
+     <filename>.service</filename> file with D-Bus.
+    </para>
+    <para>
+     An activatable client can be used by the Dispatcher to handle an
+     incoming channel at any time. Examples of clients that might be
+     activatable are clients for handling incoming text, VoIP or file
+     transfers or Telepathy Tubes.
+    </para>
+    <para>
+     Clients needn't be activatable if you only wish for a client to be
+     considered by the Channel Dispatcher while the client is running.
+     Applications that you wish to integrate with Telepathy, but do not wish
+     to have launched except by the user are in this category. An example
+     might be a full-screen media-centre type application.
+    </para>
+   </note>
+
+   <para>
+    There are three types of Telepathy clients:
+   </para>
+   <itemizedlist>
+    <listitem><para>Observers;</para></listitem>
+    <listitem><para>Approvers; and</para></listitem>
+    <listitem><para>Handlers.</para></listitem>
+   </itemizedlist>
+
+   <para>
+    Observers are used to monitor the creation of new channels and the
+    status of those channels. Observers can be used for functions such as
+    chat logging, or monitoring file transfer progress. Observers
+    <emphasis>must not</emphasis> make method calls that are the role of the
+    channel Handler (e.g. acknowledging chat messages), but they may change
+    channel state as the result of user interaction (e.g. an observer may
+    offer the user a <guibutton>Cancel</guibutton> button to terminate a
+    file transfer).
+   </para>
+
+   <para>
+    Approvers serve to notify users of new channels and allow the user to
+    accept or reject the channel. The Approver is also able to choose the
+    preferred Handler for a channel from a list of possible Handlers (which
+    it might choose to offer to the user or select based on some other
+    criteria). <!-- FIXME: how does this work vs AcceptFile/Accepting Tubes -->
+   </para>
+
+   <para>
+    Handlers do the heavy lifting to handle a channel. A Handler might be a
+    text-chat or video-chat window, or a handler to receive a file or an
+    application that uses Tubes for collaboration. Ultimately all
+    interaction with a channel is done in the Handler, for instance
+    acknowledging text messages.
+   </para>
+
+   <para>
+    All Telepathy clients must implement the
+    <interfacename>org.freedesktop.Telepathy.Client</interfacename>
+    interface plus (at least) one of
+    <interfacename>org.freedesktop.Telepathy.Client.Observer</interfacename>,
+    <interfacename>org.freedesktop.Telepathy.Client.Approver</interfacename>
+    or
+    <interfacename>org.freedesktop.Telepathy.Client.Handler</interfacename>.
+   </para>
+  </sect1>
 </chapter>
