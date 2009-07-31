@@ -49,6 +49,18 @@ example_observer_observe_channels (TpSvcClientObserver   *self,
   g_print ("     connection = %s\n", connection);
   g_print ("     dispatchop = %s\n", dispatch_op);
 
+  /* channels is of type a(oa{sv}) */
+  int i;
+  for (i = 0; i < channels->len; i++)
+    {
+      GValueArray *channel = g_ptr_array_index (channels, i);
+
+      char *path = g_value_get_boxed (g_value_array_get_nth (channel, 0));
+      GHashTable *map = g_value_get_boxed (g_value_array_get_nth (channel, 1));
+
+      g_print ("     channel    = %s\n", path);
+    }
+
   tp_svc_client_observer_return_from_observe_channels (context);
 }
 
