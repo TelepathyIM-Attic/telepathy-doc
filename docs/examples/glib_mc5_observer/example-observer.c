@@ -59,6 +59,7 @@ example_observer_get_property (GObject    *self,
   switch (property_id)
     {
       case PROP_INTERFACES:
+        g_print (" :: interfaces\n");
         g_value_set_boxed (value, client_interfaces);
         break;
 

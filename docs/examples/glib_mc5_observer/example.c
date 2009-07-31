@@ -6,8 +6,11 @@
 #include <dbus/dbus-glib.h>
 
 #include <telepathy-glib/dbus.h>
+#include <telepathy-glib/defs.h>
 
 #include "example-observer.h"
+
+#define CLIENT_NAME "ExampleObserver"
 
 static GMainLoop *loop = NULL;
 
@@ -20,12 +23,18 @@ main (int argc, char **argv)
 
   loop = g_main_loop_new (NULL, FALSE);
 
+  TpDBusDaemon *tpdbus = tp_dbus_daemon_dup (NULL);
   DBusGConnection *dbus = tp_get_bus ();
 
   ExampleObserver *example_observer = example_observer_new ();
 
+  /* register well-known name */
+  g_assert (tp_dbus_daemon_request_name (tpdbus,
+      TP_CLIENT_BUS_NAME_BASE CLIENT_NAME,
+      TRUE, NULL));
+  /* register ExampleObserver on the bus */
   dbus_g_connection_register_g_object (dbus,
-      "/org/freedesktop/Telepathy/Client/ExampleObserver",
+      TP_CLIENT_OBJECT_PATH_BASE CLIENT_NAME,
       G_OBJECT (example_observer));
 
   g_main_loop_run (loop);
