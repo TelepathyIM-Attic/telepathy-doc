@@ -1,4 +1,5 @@
 #include <telepathy-glib/interfaces.h>
+#include <telepathy-glib/gtypes.h>
 #include <telepathy-glib/svc-generic.h>
 #include <telepathy-glib/svc-client.h>
 
@@ -24,7 +25,8 @@ static const char *client_interfaces[] = {
 enum
 {
   PROP_0,
-  PROP_INTERFACES
+  PROP_INTERFACES,
+  PROP_CHANNEL_FILTER
 };
 
 // typedef struct _ExampleObserverPrivate ExampleObserverPrivate;
@@ -63,6 +65,17 @@ example_observer_get_property (GObject    *self,
         g_value_set_boxed (value, client_interfaces);
         break;
 
+      case PROP_CHANNEL_FILTER:
+        g_print (" :: channel-filter\n");
+
+        /* create an empty filter - which means all channels */
+        GPtrArray *array = g_ptr_array_new ();
+        GHashTable *map = g_hash_table_new (NULL, NULL);
+
+        g_ptr_array_add (array, map);
+        g_value_set_boxed (value, array);
+        break;
+
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
         break;
@@ -84,12 +97,22 @@ example_observer_class_init (ExampleObserverClass *klass)
         { NULL }
   };
 
+  static TpDBusPropertiesMixinPropImpl client_observer_props[] = {
+        { "ObserverChannelFilter", "channel-filter", NULL },
+        { NULL }
+  };
+
   /* complete list of interfaces with properties */
   static TpDBusPropertiesMixinIfaceImpl prop_interfaces[] = {
         { TP_IFACE_CLIENT,
           tp_dbus_properties_mixin_getter_gobject_properties,
           NULL,
           client_props
+        },
+        { TP_IFACE_CLIENT_OBSERVER,
+          tp_dbus_properties_mixin_getter_gobject_properties,
+          NULL,
+          client_observer_props
         },
         { NULL }
   };
@@ -99,6 +122,13 @@ example_observer_class_init (ExampleObserverClass *klass)
                           "Interfaces",
                           "Available D-Bus Interfaces",
                           G_TYPE_STRV,
+                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_CHANNEL_FILTER,
+      g_param_spec_boxed ("channel-filter",
+                          "Channel Filter",
+                          "Filter for channels we observe",
+                          TP_ARRAY_TYPE_CHANNEL_CLASS_LIST,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   /* call our mixin class init */
