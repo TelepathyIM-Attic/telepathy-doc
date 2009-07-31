@@ -1,3 +1,5 @@
+#include <telepathy-glib/interfaces.h>
+#include <telepathy-glib/svc-generic.h>
 #include <telepathy-glib/svc-client.h>
 
 #include "example-observer.h"
@@ -8,9 +10,22 @@ static void observer_iface_init (gpointer, gpointer);
 // #define EXAMPLE_OBSERVER_GET_PRIVATE(obj)	(G_TYPE_INSTANCE_GET_PRIVATE ((obj), EXAMPLE_TYPE_OBSERVER, ExampleObserverPrivate))
 
 G_DEFINE_TYPE_WITH_CODE (ExampleObserver, example_observer, G_TYPE_OBJECT,
-    G_IMPLEMENT_INTERFACE (TP_TYPE_SVC_CLIENT, client_iface_init);
+    G_IMPLEMENT_INTERFACE (TP_TYPE_SVC_DBUS_PROPERTIES,
+      tp_dbus_properties_mixin_iface_init);
+    G_IMPLEMENT_INTERFACE (TP_TYPE_SVC_CLIENT, NULL);
     G_IMPLEMENT_INTERFACE (TP_TYPE_SVC_CLIENT_OBSERVER, observer_iface_init);
     );
+
+static const char *client_interfaces[] = {
+    TP_IFACE_CLIENT_OBSERVER,
+    NULL
+};
+
+enum
+{
+  PROP_0,
+  PROP_INTERFACES
+};
 
 // typedef struct _ExampleObserverPrivate ExampleObserverPrivate;
 // struct _ExampleObserverPrivate
@@ -36,19 +51,64 @@ example_observer_observe_channels (TpSvcClientObserver   *self,
 }
 
 static void
-example_observer_class_init (ExampleObserverClass *class)
+example_observer_get_property (GObject    *self,
+                               guint       property_id,
+                               GValue     *value,
+                               GParamSpec *pspec)
 {
+  switch (property_id)
+    {
+      case PROP_INTERFACES:
+        g_value_set_boxed (value, client_interfaces);
+        break;
+
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (self, property_id, pspec);
+        break;
+    }
+}
+
+static void
+example_observer_class_init (ExampleObserverClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->get_property = example_observer_get_property;
+
+  /* D-Bus properties are exposed as GObject properties through the
+   * TpDBusPropertiesMixin */
+  /* properties on the Client interface */
+  static TpDBusPropertiesMixinPropImpl client_props[] = {
+        { "Interfaces", "interfaces", NULL },
+        { NULL }
+  };
+
+  /* complete list of interfaces with properties */
+  static TpDBusPropertiesMixinIfaceImpl prop_interfaces[] = {
+        { TP_IFACE_CLIENT,
+          tp_dbus_properties_mixin_getter_gobject_properties,
+          NULL,
+          client_props
+        },
+        { NULL }
+  };
+
+  g_object_class_install_property (object_class, PROP_INTERFACES,
+      g_param_spec_boxed ("interfaces",
+                          "Interfaces",
+                          "Available D-Bus Interfaces",
+                          G_TYPE_STRV,
+                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+  /* call our mixin class init */
+  klass->dbus_props_class.interfaces = prop_interfaces;
+  tp_dbus_properties_mixin_class_init (object_class,
+      G_STRUCT_OFFSET (ExampleObserverClass, dbus_props_class));
 }
 
 static void
 example_observer_init (ExampleObserver *self)
 {
-}
-
-static void
-client_iface_init (gpointer g_iface, gpointer iface_data)
-{
-  /* no methods */
 }
 
 static void

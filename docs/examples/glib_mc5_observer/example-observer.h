@@ -2,6 +2,7 @@
 #define __EXAMPLE_OBSERVER_H__
 
 #include <glib-object.h>
+#include <telepathy-glib/dbus-properties-mixin.h>
 
 G_BEGIN_DECLS
 
@@ -23,6 +24,7 @@ struct _ExampleObserver
 struct _ExampleObserverClass
 {
 	GObjectClass parent_class;
+	TpDBusPropertiesMixinClass dbus_props_class;
 };
 
 GType example_observer_get_type (void);
