@@ -104,6 +104,8 @@ added in future.
   </para>
 </chapter>
 
+<xi:include href="services.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
 <index id="refindex">
 </index>
 

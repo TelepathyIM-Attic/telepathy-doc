@@ -24,7 +24,8 @@ DOC_INCLUDES = \
 	contactinfo.xml \
 	messaging.xml \
 	filetransfer.xml \
-	tubes.xml
+	tubes.xml \
+	services.xml
 
 # these are figures that need to be rasterised
 DOC_FIGURES_SRC = \

@@ -1,0 +1,146 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY ellipsis "&#8230;">
+]>
+
+<chapter id="chapter.services">
+  <title>Implementing Telepathy Services</title>
+
+  <para>
+   Occasionally you may wish to implement your own Telepathy service, a
+   program that implements a Telepathy API interface (most commonly this
+   will be <interfacename>org.freedesktop.Telepathy.Client</interfacename>,
+   but maybe you will be implement a Connection Manager, or some other
+   Telepathy interface).
+  </para>
+  <para>
+   This is done by implementing the D-Bus API for each interface as
+   detailed in the
+   <ulink url="http://telepathy.freedesktop.org/spec/">Telepathy
+   Specification</ulink>. To make this simpler, the various Telepathy API
+   bindings provide support for writing Telepathy services.
+  </para>
+
+  <sect1 id="sect.services.glib">
+   <title>telepathy-glib</title>
+
+   <important>
+    <title>Implementing GObjects</title>
+    <para>
+     This section of the manual assumes that you're already familiar with
+     implementing a GObject in the C programming language. If you're not, we
+     recommend reading the FIXME NEED SOME RESOURCES HERE.
+    </para>
+   </important>
+
+   <para>
+    The <application>telepathy-glib</application> bindings provide a
+    mechanism for implementing D-Bus interfaces as
+    <classname>GInterface</classname> interfaces on a
+    <classname>GObject</classname>. These interfaces begin with the
+    namespace <classname>TpSvc</classname>&ellipsis; and have GTypes beginning
+    with <type>TP_TYPE_SVC_</type>&ellipsis;.
+   </para>
+
+   <para>
+    <application>telepathy-glib</application> also provides class mixins
+    that can be used to implement support for functionality such as D-Bus
+    properties and other Telepathy interfaces.
+   </para>
+
+   <para>
+    <classname>GObject</classname>s that implement these interfaces and
+    mixins can be published via D-Bus using the standard
+    <application>dbus-glib</application> function call
+    <function>dbus_g_connection_register_g_object</function>.
+   </para>
+
+   <sect2 id="sect.services.glib.iface">
+    <title>Implementing a D-Bus Interface</title>
+
+    <para>
+     D-Bus method interfaces are provided by
+     <application>telepathy-glib</application> as regular GInterfaces to
+     be implemented by your class.
+    </para>
+
+    <para>
+     For example, we have implemented our own class
+     <classname>ExampleObserver</classname> which implements the
+     <interfacename>Client</interfacename> and
+     <interfacename>Client.Observer</interfacename> interfaces (also the
+     D-Bus properties mixin, <link>see below</link>). The type definition
+     for this class is presented in
+     <xref linkend="ex.services.glib.iface.define-type"/>.
+    </para>
+
+    <example id="ex.services.glib.iface.define-type"
+             file="glib_mc5_observer/example-observer.c">
+     <title>Defining the Type</title>
+    </example>
+
+    <tip>
+     <para>
+      In <xref linkend="ex.services.glib.iface.define-type"/>, interfaces
+      that implement no methods (i.e. <classname>Client</classname>) do not
+      need to provide initialisation methods and <literal>NULL</literal> may
+      be passed instead.
+     </para>
+    </tip>
+
+    <para>
+     Unlike with most GInterfaces, which use a vcall table to map interface
+     methods to implementations, <application>telepathy-glib</application>
+     uses method calls. This is simply to avoid potential ABI problems in
+     the future.
+    </para>
+
+    <para>
+     Each method has an "implement" function, of the form
+     <literal>tp_svc_interface_name_implement_method_name</literal> which
+     accepts a method of the prototype
+     <literal>tp_svc_interface_name_method_name_impl</literal>. For example,
+     the method call
+     <methodname>Client.Observer.ObserveChannels</methodname> is connected
+     using the function
+     <function>tp_svc_client_observer_implement_observe_channels</function>
+     which accepts a function with the prototype of
+     <function>tp_svc_client_observer_observe_channels_impl</function>.
+     This is shown in
+     <xref linkend="ex.services.glib.iface.long-iface-init"/>.
+    </para>
+
+    <example id="ex.services.glib.iface.long-iface-init">
+     <title>Initialising the Interface</title>
+     <programlisting language="c">
+<![CDATA[static void
+observer_iface_init (gpointer g_iface, gpointer iface_data)
+{
+  TpSvcClientObserverClass *klass = (TpSvcClientObserverClass *) g_iface;
+
+  tp_svc_client_observer_implement_observe_channels (klass,
+      example_observer_observer_channels);
+}]]></programlisting>
+    </example>
+
+    <tip>
+     <para>
+      To save excessive typing for interfaces with lots of methods, you can
+      use a temporary <literal>IMPLEMENT</literal> macro, as demonstrated
+      in <xref linkend="ex.services.glib.iface.iface-init"/> which is
+      functionality identical to
+      <xref linkend="ex.services.glib.iface.long-iface-init"/>.
+     </para>
+
+     <example id="ex.services.glib.iface.iface-init"
+              file="glib_mc5_observer/example-observer.c">
+      <title>Initialising the Interface</title>
+     </example>
+    </tip>
+
+   </sect2>
+
+  </sect1>
+</chapter>

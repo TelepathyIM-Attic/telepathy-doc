@@ -55,7 +55,10 @@
     a user's session bus. Every running or activatable Telepathy client must
     provide a D-Bus well-known name of the form
     <literal>org.freedesktop.Telepathy.Client.clientname</literal>
-    (e.g. <literal>org.freedesktop.Telepathy.Client.Empathy</literal>).
+    (e.g. <literal>org.freedesktop.Telepathy.Client.Empathy</literal>) and
+    an object with path of the form
+    <literal>/org/freedesktop/Telepathy/Client/clientname</literal>
+    (e.g. <literal>/org/freedesktop/Telepathy/Client/Empathy</literal>).
    </para>
 
    <note>
@@ -116,14 +119,31 @@
     acknowledging text messages.
    </para>
 
-   <para>
-    All Telepathy clients must implement the
-    <interfacename>org.freedesktop.Telepathy.Client</interfacename>
-    interface plus (at least) one of
-    <interfacename>org.freedesktop.Telepathy.Client.Observer</interfacename>,
-    <interfacename>org.freedesktop.Telepathy.Client.Approver</interfacename>
-    or
-    <interfacename>org.freedesktop.Telepathy.Client.Handler</interfacename>.
-   </para>
+   <sect2 id="sect.channel-dispatcher.clients.impl">
+    <title>Implementing a Telepathy Client</title>
+
+    <para>
+     Telepathy clients are services that implement a D-Bus API which is
+     called by the Channel Dispatcher (just as the client itself makes
+     method calls to the Account Manager and Connection Managers).
+    </para>
+
+    <para>
+     All Telepathy clients must implement the
+     <interfacename>org.freedesktop.Telepathy.Client</interfacename>
+     interface plus (at least) one of
+     <interfacename>org.freedesktop.Telepathy.Client.Observer</interfacename>,
+     <interfacename>org.freedesktop.Telepathy.Client.Approver</interfacename>
+     or
+     <interfacename>org.freedesktop.Telepathy.Client.Handler</interfacename>.
+    </para>
+
+    <para>
+     The various Telepathy binding APIs provide straightforward procedures
+     for implementing a Telepathy service (such as a Client). These methods
+     are documented in <xref linkend="chapter.services"/>.
+    </para>
+
+   </sect2>
   </sect1>
 </chapter>

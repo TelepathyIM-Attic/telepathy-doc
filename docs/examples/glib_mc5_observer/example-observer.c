@@ -10,12 +10,14 @@ static void observer_iface_init (gpointer, gpointer);
 
 // #define EXAMPLE_OBSERVER_GET_PRIVATE(obj)	(G_TYPE_INSTANCE_GET_PRIVATE ((obj), EXAMPLE_TYPE_OBSERVER, ExampleObserverPrivate))
 
+/* begin ex.services.glib.iface.define-type */
 G_DEFINE_TYPE_WITH_CODE (ExampleObserver, example_observer, G_TYPE_OBJECT,
     G_IMPLEMENT_INTERFACE (TP_TYPE_SVC_DBUS_PROPERTIES,
       tp_dbus_properties_mixin_iface_init);
     G_IMPLEMENT_INTERFACE (TP_TYPE_SVC_CLIENT, NULL);
     G_IMPLEMENT_INTERFACE (TP_TYPE_SVC_CLIENT_OBSERVER, observer_iface_init);
     );
+/* end ex.services.glib.iface.define-type */
 
 static const char *client_interfaces[] = {
     TP_IFACE_CLIENT_OBSERVER,
@@ -154,6 +156,7 @@ example_observer_init (ExampleObserver *self)
 {
 }
 
+/* begin ex.services.glib.iface.iface-init */
 static void
 observer_iface_init (gpointer g_iface, gpointer iface_data)
 {
@@ -164,6 +167,7 @@ observer_iface_init (gpointer g_iface, gpointer iface_data)
   IMPLEMENT (observe_channels);
 #undef IMPLEMENT
 }
+/* end ex.services.glib.iface.iface-init */
 
 ExampleObserver *
 example_observer_new (void)
