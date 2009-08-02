@@ -110,6 +110,8 @@
      <function>tp_svc_client_observer_observe_channels_impl</function>.
      This is shown in
      <xref linkend="ex.services.glib.iface.long-iface-init"/>.
+     <xref linkend="ex.services.glib.iface.method"/> shows the corresponding
+     method implementation.
     </para>
 
     <example id="ex.services.glib.iface.long-iface-init">
@@ -139,6 +141,23 @@ observer_iface_init (gpointer g_iface, gpointer iface_data)
       <title>Initialising the Interface</title>
      </example>
     </tip>
+
+    <example id="ex.services.glib.iface.method"
+             file="glib_mc5_observer/example-observer.c">
+     <title>Method Implementation for ObserveChannels</title>
+    </example>
+
+    <para>
+     Method implementations may be either synchronous or asynchronous as you
+     desire, however while your mainloop is blocked in a method call your
+     service will be unable to handle any other incoming method calls
+     (or other mainloop events, such as a client UI). When you are ready to
+     return from the method call, call the appropriate
+     <literal>return_from</literal> function, which will be of the form
+     <literal>tp_svc_interface_name_return_from_method_name</literal>, e.g.
+     <literal>tp_svc_client_observer_return_from_observe_channels</literal>
+     (<xref linkend="ex.services.glib.iface.method"/>).
+    </para>
 
    </sect2>
 

@@ -36,6 +36,7 @@ enum
 // {
 // };
 
+/* begin ex.services.glib.iface.method */
 static void
 example_observer_observe_channels (TpSvcClientObserver   *self,
                                    const char            *account,
@@ -65,6 +66,7 @@ example_observer_observe_channels (TpSvcClientObserver   *self,
 
   tp_svc_client_observer_return_from_observe_channels (context);
 }
+/* end ex.services.glib.iface.method */
 
 static void
 example_observer_get_property (GObject    *self,
