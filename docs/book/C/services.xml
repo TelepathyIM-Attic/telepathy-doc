@@ -161,5 +161,55 @@ observer_iface_init (gpointer g_iface, gpointer iface_data)
 
    </sect2>
 
+   <sect2 id="sect.services.glib.properties">
+    <title>Implementing D-Bus Properties (TpDBusPropertiesMixin)</title>
+
+    <para>
+     <application>telepathy-glib</application> provides a special class
+     mixin for handling D-Bus properties as GObject properties,
+     <classname>TpDBusPropertiesMixin</classname>.
+    </para>
+
+    <note>
+     <title>Mixins</title>
+     <para>
+      Mixins are so called because they are mixed into a class to extend its
+      functionality. For example, a class my inherit from
+      <classname>GObject</classname> or some subclass, but then has the
+      <classname>TpDBusPropertiesMixin</classname> to add additional
+      functionality without having to inherit from a different class.
+     </para>
+     <para>
+      It is functionally similar to multiple inheritance, which is not
+      available in GLib.
+     </para>
+    </note>
+
+    <para>
+     To add the D-Bus properties mixin to your class, several steps are
+     required:
+    </para>
+
+    <itemizedlist>
+     <listitem><para>
+      When you register support for the D-Bus properties interface, pass the
+      mixin initialiser,
+      <function>tp_dbus_properties_mixin_iface_init</function>. See
+      <xref linkend="ex.services.glib.iface.define-type"/>.
+     </para></listitem>
+     <listitem>
+      <para>
+       Your class structure needs to include the
+       <classname>TpDBusPropertiesMixinClass</classname>
+       (<xref linkend="ex.services.glib.properties.class"/>).
+      </para>
+      <example id="ex.services.glib.properties.class"
+               file="glib_mc5_observer/example-observer.h">
+       <title>Class structure</title>
+      </example>
+     </listitem>
+    </itemizedlist>
+   </sect2>
+
   </sect1>
 </chapter>

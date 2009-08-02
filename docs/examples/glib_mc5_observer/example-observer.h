@@ -14,18 +14,20 @@ G_BEGIN_DECLS
 #define EXAMPLE_OBSERVER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_EXAMPLE_OBSERVER, ExampleObserverClass))
 
 typedef struct _ExampleObserver ExampleObserver;
-typedef struct _ExampleObserverClass ExampleObserverClass;
 
 struct _ExampleObserver
 {
 	GObject parent;
 };
 
+/* begin ex.services.glib.properties.class */
+typedef struct _ExampleObserverClass ExampleObserverClass;
 struct _ExampleObserverClass
 {
 	GObjectClass parent_class;
 	TpDBusPropertiesMixinClass dbus_props_class;
 };
+/* end ex.services.glib.properties.class */
 
 GType example_observer_get_type (void);
 ExampleObserver *example_observer_new (void);
