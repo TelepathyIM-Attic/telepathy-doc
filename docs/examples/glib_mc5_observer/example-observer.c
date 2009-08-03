@@ -105,6 +105,7 @@ example_observer_class_init (ExampleObserverClass *klass)
 
   object_class->get_property = example_observer_get_property;
 
+  /* begin ex.services.glib.properties.prop-mappings */
   /* D-Bus properties are exposed as GObject properties through the
    * TpDBusPropertiesMixin */
   /* properties on the Client interface */
@@ -113,6 +114,7 @@ example_observer_class_init (ExampleObserverClass *klass)
         { NULL }
   };
 
+  /* properties on the Client.Observer interface */
   static TpDBusPropertiesMixinPropImpl client_observer_props[] = {
         { "ObserverChannelFilter", "channel-filter", NULL },
         { NULL }
@@ -132,6 +134,7 @@ example_observer_class_init (ExampleObserverClass *klass)
         },
         { NULL }
   };
+  /* end ex.services.glib.properties.prop-mappings */
 
   g_object_class_install_property (object_class, PROP_INTERFACES,
       g_param_spec_boxed ("interfaces",
@@ -147,10 +150,12 @@ example_observer_class_init (ExampleObserverClass *klass)
                           TP_ARRAY_TYPE_CHANNEL_CLASS_LIST,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
+  /* begin ex.services.glib.properties.chain-up */
   /* call our mixin class init */
   klass->dbus_props_class.interfaces = prop_interfaces;
   tp_dbus_properties_mixin_class_init (object_class,
       G_STRUCT_OFFSET (ExampleObserverClass, dbus_props_class));
+  /* end ex.services.glib.properties.chain-up */
 }
 
 static void

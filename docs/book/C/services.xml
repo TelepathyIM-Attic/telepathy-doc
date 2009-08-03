@@ -166,7 +166,7 @@ observer_iface_init (gpointer g_iface, gpointer iface_data)
 
     <para>
      <application>telepathy-glib</application> provides a special class
-     mixin for handling D-Bus properties as GObject properties,
+     mixin for handling D-Bus properties,
      <classname>TpDBusPropertiesMixin</classname>.
     </para>
 
@@ -174,7 +174,7 @@ observer_iface_init (gpointer g_iface, gpointer iface_data)
      <title>Mixins</title>
      <para>
       Mixins are so called because they are mixed into a class to extend its
-      functionality. For example, a class my inherit from
+      functionality. For example, a class might inherit from
       <classname>GObject</classname> or some subclass, but then has the
       <classname>TpDBusPropertiesMixin</classname> to add additional
       functionality without having to inherit from a different class.
@@ -206,6 +206,55 @@ observer_iface_init (gpointer g_iface, gpointer iface_data)
       <example id="ex.services.glib.properties.class"
                file="glib_mc5_observer/example-observer.h">
        <title>Class structure</title>
+      </example>
+     </listitem>
+     <listitem>
+      <para>
+       The simplest way to use this mixin is to map D-Bus properties to
+       GObject properties.
+       Your class' class_init method provides the mapping from D-Bus
+       property names to GObject property names.
+      </para>
+      <para>
+       Each D-Bus interface requires a NULL-terminated array of
+       <type>TpDBusPropertiesMixinPropImpl</type> structures which provide
+       the mappings between property names. The class also requires a
+       NULL-terminated array of <type>TpDBusPropertiesMixinIfaceImpl</type>,
+       which gives the D-Bus interface name, and getter and setter for each
+       interface as shown in
+       <xref linkend="ex.services.glib.properties.prop-mappings"/>.
+      </para>
+      <example id="ex.services.glib.properties.prop-mappings"
+               file="glib_mc5_observer/example-observer.c">
+       <title>Property Mappings</title>
+      </example>
+      <para>
+       The mixin provides default getter and setter functions,
+       <function>tp_dbus_properties_mixin_getter_gobject_properties</function>
+       and
+       <function>tp_dbus_properties_mixin_setter_gobject_properties</function>
+       for mapping D-Bus properties to GObject properties.
+      </para>
+      <tip>
+       <para>
+        If you wish, rather than using GObject properties, you may write
+	your own getter and setter functions for handling D-Bus properties.
+       </para>
+       <para>
+        The data provided to <type>TpDBusPropertiesMixinPropImpl</type> will
+	be passed as the data to your callback.
+       </para>
+      </tip>
+     </listitem>
+     <listitem>
+      <para>
+       You must chain up the mixin's class_init method at the end of your
+       class' class_init, as shown in
+       <xref linkend="ex.services.glib.properties.chain-up"/>.
+      </para>
+      <example id="ex.services.glib.properties.chain-up"
+               file="glib_mc5_observer/example-observer.c">
+       <title>Property Mappings</title>
       </example>
      </listitem>
     </itemizedlist>
