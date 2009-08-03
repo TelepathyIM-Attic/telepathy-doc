@@ -260,5 +260,19 @@ observer_iface_init (gpointer g_iface, gpointer iface_data)
     </itemizedlist>
    </sect2>
 
+   <sect2 id="sect.services.glib.signals">
+    <title>Emitting D-Bus Signals</title>
+
+    <para>
+     Emitting a signal is done via calling the function of the form
+     <literal>tp_svc_interface_name_emit_signal_name</literal>, for instance
+     emitting the <methodname>Account.AccountPropertyChanged</methodname>
+     signal is done via the
+     <function>tp_svc_account_emit_account_property_changed</function>
+     function.
+    </para>
+
+   </sect2>
+
   </sect1>
 </chapter>
