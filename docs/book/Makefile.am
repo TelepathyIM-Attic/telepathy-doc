@@ -36,6 +36,7 @@ DOC_FIGURES_SRC = \
 	contactlist-flowchart.svg \
 	telepathy-glib-type-unpacked.svg \
 	file-transfer-actors.svg \
+	stream-tubes.svg \
 	tube-actors.svg
 
 # The names of any pictures:

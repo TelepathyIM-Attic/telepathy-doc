@@ -382,9 +382,18 @@
 
   <para>
    Unlike D-Bus Tubes, multi-user Stream Tubes are point-to-point between
-   the offerer and the accepter. Stream Tubes cannot be used to multicast
-   between members of the MUC room.
+   the offerer and the accepter (see
+   <xref linkend="fig.tubes.stream.connections"/>). Stream Tubes cannot be
+   used to multicast between members of the MUC room.
   </para>
+
+  <figure id="fig.tubes.stream.connections">
+   <title>Stream Tubes</title>
+   <mediaobject><imageobject>
+    <imagedata fileref="figures/stream-tubes.png"
+               format="PNG" />
+   </imageobject></mediaobject>
+  </figure>
 
   <sect2 id="sect.tubes.stream.setup">
    <title>Offering a Stream Tube</title>
