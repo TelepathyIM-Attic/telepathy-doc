@@ -51,13 +51,35 @@
    <title>Telepathy Clients</title>
 
    <para>
+    Telepathy Clients are applications that interact with Telepathy services
+    to provide some service to the user. It could be a chat client, a VoIP
+    client, a file transfer client, a Telepathy Tubes enabled application,
+    or something else or maybe even some combination of these.
+   </para>
+
+   <para>
+    Just like Telepathy Connection Managers, the Account Manager and the
+    Channel Dispatcher, Telepathy Clients implement a D-Bus API that is
+    used by the Channel Dispatcher to dispatch incoming channels to the
+    client.
+   </para>
+
+   <figure id="fig.channel-dispatcher.clients.components">
+    <title>Telepathy Components</title>
+    <mediaobject><imageobject>
+     <imagedata fileref="figures/telepathy-components.png"
+                format="PNG" />
+    </imageobject></mediaobject>
+   </figure>
+
+   <para>
     Telepathy Clients appear as D-Bus services registered or activatable on
     a user's session bus. Every running or activatable Telepathy client must
     provide a D-Bus well-known name of the form
-    <literal>org.freedesktop.Telepathy.Client.clientname</literal>
+    <literal>org.freedesktop.Telepathy.Client.<emphasis>clientname</emphasis></literal>
     (e.g. <literal>org.freedesktop.Telepathy.Client.Empathy</literal>) and
     an object with path of the form
-    <literal>/org/freedesktop/Telepathy/Client/clientname</literal>
+    <literal>/org/freedesktop/Telepathy/Client/<emphasis>clientname</emphasis></literal>
     (e.g. <literal>/org/freedesktop/Telepathy/Client/Empathy</literal>).
    </para>
 
@@ -87,37 +109,66 @@
     There are three types of Telepathy clients:
    </para>
    <itemizedlist>
-    <listitem><para>Observers;</para></listitem>
-    <listitem><para>Approvers; and</para></listitem>
-    <listitem><para>Handlers.</para></listitem>
+    <listitem><para><interfacename>Observer</interfacename>s;</para></listitem>
+    <listitem><para><interfacename>Approver</interfacename>s; and</para></listitem>
+    <listitem><para><interfacename>Handler</interfacename>s.</para></listitem>
    </itemizedlist>
 
    <para>
-    Observers are used to monitor the creation of new channels and the
-    status of those channels. Observers can be used for functions such as
-    chat logging, or monitoring file transfer progress. Observers
-    <emphasis>must not</emphasis> make method calls that are the role of the
-    channel Handler (e.g. acknowledging chat messages), but they may change
-    channel state as the result of user interaction (e.g. an observer may
+    <interfacename>Observer</interfacename>s are used to monitor the creation
+    of new channels and the status of those channels.
+    <interfacename>Observer</interfacename>s can be used for functions such as
+    chat logging, or monitoring file transfer progress.
+    <interfacename>Observer</interfacename>s <emphasis>must not</emphasis>
+    make method calls that are the role of the
+    channel <interfacename>Handler</interfacename> (e.g. acknowledging chat
+    messages), but they may change channel state as the result of user
+    interaction (e.g. an <interfacename>Observer</interfacename> may
     offer the user a <guibutton>Cancel</guibutton> button to terminate a
     file transfer).
    </para>
 
    <para>
-    Approvers serve to notify users of new channels and allow the user to
-    accept or reject the channel. The Approver is also able to choose the
-    preferred Handler for a channel from a list of possible Handlers (which
+    <interfacename>Approver</interfacename>s serve to notify users of new
+    channels and allow the user to accept or reject the channel. The
+    <interfacename>Approver</interfacename> is also able to choose the
+    preferred <interfacename>Handler</interfacename> for a channel from a
+    list of possible <interfacename>Handler</interfacename>s (which
     it might choose to offer to the user or select based on some other
-    criteria). <!-- FIXME: how does this work vs AcceptFile/Accepting Tubes -->
+    criteria).
    </para>
 
    <para>
-    Handlers do the heavy lifting to handle a channel. A Handler might be a
+    <interfacename>Handler</interfacename>s do the heavy lifting to handle a
+    channel. A <interfacename>Handler</interfacename> might be a
     text-chat or video-chat window, or a handler to receive a file or an
     application that uses Tubes for collaboration. Ultimately all
-    interaction with a channel is done in the Handler, for instance
+    interaction with a channel is done in the
+    <interfacename>Handler</interfacename>, for instance
     acknowledging text messages.
    </para>
+
+   <note>
+    <title>Approvers vs Handlers</title>
+    <para>
+     It is the <interfacename>Approver</interfacename>'s job to accept the
+     channel, but it should not call methods on the channel, that is the
+     responsibility of the <interfacename>Handler</interfacename>.
+    </para>
+    <para>
+     Take, for example, a file transfer channel. The
+     <interfacename>Approver</interfacename> is tasked with asking the user
+     to accept the incoming file transfer, providing the details about the
+     incoming file; but the action of calling
+     <methodname>AcceptFile</methodname> is the responsibility of the
+     <interfacename>Handler</interfacename>.
+    </para>
+    <para>
+     In many instances, the <interfacename>Approver</interfacename> and the
+     <interfacename>Handler</interfacename> will be the same client
+     implementing both interfaces.
+    </para>
+   </note>
 
    <sect2 id="sect.channel-dispatcher.clients.impl">
     <title>Implementing a Telepathy Client</title>

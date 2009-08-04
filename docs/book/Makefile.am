@@ -30,6 +30,7 @@ DOC_INCLUDES = \
 # these are figures that need to be rasterised
 DOC_FIGURES_SRC = \
 	telepathy-architecture-overview.svg \
+	telepathy-components.svg \
 	bus-conceptual.svg \
 	bus-hierarchy-conceptual.svg \
 	contactlist-flowchart.svg \
