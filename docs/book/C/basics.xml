@@ -29,20 +29,56 @@
     WRITTEN YET.<!-- FIXME -->
    </para>
 
-   <!-- FIXME: what order do these go in? -->
-   <!-- FIXME: some of this information is too detailed for this glossary
-               and should be moved further down the manual -->
    <sect2 id="sect.basics.terminology.mission-control">
     <title>Mission Control</title>
     <para>
-     Mission Control is responsible for the management of messaging
-     accounts, the creation of connections (if an account is considered
-     online) and setting the user's requested presence for that account.
+     Mission Control provides the Account Manager and Channel Dispatcher.
     </para>
     <para>
      This manual is specifically concerned with Mission Control 5. There are
      earlier versions of Mission Control, but they are extremely different
      to the version documented here.
+    </para>
+    <para>
+     It's possible that a particular device uses a different Account Manager
+     or Channel Dispatcher from Mission Control, but this may still be
+     referred to by the name Mission Control.
+    </para>
+   </sect2>
+
+   <sect2 id="sect.basics.terminology.account-manager">
+    <title>Account Manager</title>
+    <para>
+     The Account Manager is responsible for maintaining the list of
+     configured accounts for a user and setting up Connection's to those
+     accounts.
+    </para>
+    <para>
+     In general, a client will request available Accounts and Connections,
+     and control the user's online presence via the Account Manager.
+    </para>
+    <para>
+     The Account Manager is documented in
+     <xref linkend="chapter.accounts"/>.
+    </para>
+   </sect2>
+
+   <sect2 id="sect.basics.terminology.channel-dispatcher">
+    <title>Channel Dispatcher</title>
+    <para>
+     The Channel Dispatcher handles incoming Channels from the various
+     Connections known to the Account Manager and dispatches them to the
+     appropriate Telepathy Client (e.g. chat client, VoIP client, Tube
+     application).
+    </para>
+    <para>
+     The Channel Dispatcher may also be used to request Channels that you
+     want another client to handle (e.g. a program wanting to open a
+     text-chat to a user, but not wanting to handle the chat itself).
+    </para>
+    <para>
+     The Channel Dispatcher is documented in
+     <xref linkend="chapter.channel-dispatcher"/>.
     </para>
    </sect2>
 
@@ -53,7 +89,7 @@
      In general, there is little need for a client to interact much with
      the <interfacename>ConnectionManager</interfacename> interface. Most of
      the work in obtaining and managing connections should be done via
-     Mission Control.
+     the Account Manager.
     </para>
     <para>
      The term
@@ -66,6 +102,24 @@
      connection manager object to provide only the main connection manager
      interface (the common D-Bus introspection and properties interfaces
      excepted).
+    </para>
+    <para>
+     More about Connection Managers is given in
+     <xref linkend="sect.connection.connection-manager"/>.
+    </para>
+   </sect2>
+
+   <sect2 id="sect.basics.terminology.client">
+    <title>Client</title>
+    <para>
+     A Client is the name for a program that is registered with the Channel
+     Dispatcher to do something with Telepathy Channels. There are three
+     types of Clients: Observers, Approvers and Handlers. Most people
+     reading this manual will be developing a Telepathy Client.
+    </para>
+    <para>
+     More on Clients is available in
+     <xref linkend="sect.channel-dispatcher.clients"/>.
     </para>
    </sect2>
 
@@ -135,6 +189,32 @@
    <sect2 id="sect.basics.terminology.interface">
     <title>Interface</title>
     <para>
+     A D-Bus Interface.
+    </para>
+    <para>
+     Telepathy makes extensive use of D-Bus interfaces. Telepathy uses
+     interfaces both to indicate an object's type and its capabilities so
+     it is not uncommon for an object to implement several Telepathy
+     D-Bus interfaces. For instance, an object might implement
+     <interfacename>org.freedesktop.Telepathy.Channel</interfacename>,
+     <interfacename>org.freedesktop.Telepathy.Channel.Type.Text</interfacename>,
+     <interfacename>org.freedesktop.Telepathy.Channel.Interface.Messages</interfacename>,
+     <interfacename>org.freedesktop.Telepathy.Channel.Interface.Group</interfacename>
+     and
+     <interfacename>org.freedesktop.Telepathy.Channel.Interface.Password</interfacename>,
+     which would indicate the object is a password-protected multi-user chat
+     (MUC) channel.
+    </para>
+    <para>
+     The <property>Interfaces</property> property says what interfaces a
+     given object implements.
+    </para>
+    <para>
+     Because an object can implement so many interfaces, Telepathy API
+     bindings do not require you to specify an interface when requesting a
+     proxy object. Instead this is done when making a method call or
+     connecting a signal. Telepathy API bindings provide named constants for the
+     available interfaces.
     </para>
    </sect2>
   </sect1>
