@@ -5,7 +5,7 @@
 ]>
 
 <chapter id="chapter.channel-dispatcher">
-  <title>ChannelDispatcher</title>
+  <title>Channel Dispatcher and Clients</title>
 
   <note>
    <para>
@@ -28,16 +28,61 @@
   </para>
 
   <para>
-   For example, a one-to-one text channel comes in via the
-   <link xref="chapter.connection">Connection</link> associated with the account
-   <literal>gabble/jabber/bob@example.com</literal>, which is being managed
-   by the Account Manager. The Channel Dispatcher is watching this
-   connection for new channels. When the channel is received, the dispatcher
-   compares the properties on the channel against the list of registered
-   clients and the types of channels they can handle. When a suitable client
-   is found, the dispatcher will pass this channel off to the client. In
-   this case, the Empathy chat client might be found, activated if required,
-   and asked to handle the channel causing it to pop up a new chat window.
+   The Channel Dispatcher is available via the well-known D-Bus name
+   <literal>org.freedesktop.Telepathy.ChannelDispatcher</literal>, which
+   publishes an object
+   <literal>/org/freedesktop/Telepathy/ChannelDispatcher</literal>.
+  </para>
+
+  <tip>
+   <title>Binding Constants</title>
+   <para>
+    These names and paths are available in the API bindings as named constants.
+   </para>
+   <informaltable>
+    <tgroup cols="2">
+     <colspec colname="item"/>
+     <colspec colname="const"/>
+     <tbody>
+      <row>
+       <entry namest="item" nameend="const" align="center">
+        telepathy-glib
+       </entry>
+      </row>
+      <row>
+       <entry>Bus Name</entry>
+       <entry>TP_CHANNEL_DISPATCHER_BUS_NAME</entry>
+      </row>
+      <row>
+       <entry>Object Path</entry>
+       <entry>TP_CHANNEL_DISPATCHER_OBJECT_PATH</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </tip>
+
+  <para>
+   The Channel Dispatcher watches the
+   <link xref="chapter.connection">Connections</link> known to the
+   <link xref="chapter.accounts">Account Manager</link> and keeps track of what
+   <link xref="sect.channel-dispatcher.clients">Clients</link> are available
+   to handle incoming Channels from those Connections. When a new channel
+   comes in, the Channel Dispatcher looks at the available clients, and the
+   types of channels they handle and then selects clients to dispatch the
+   channel to.
+  </para>
+
+  <para>
+   There are three types of Telepathy Clients: Observers, Approvers and
+   Handlers.
+  </para>
+
+  <para>
+   The Channel Dispatcher will dispatch a channel to all running or
+   activatable Observers and Approvers with a channel filter that matches
+   the incoming channel. The Channel Dispatcher provides the Approver with a
+   list of suitable Handlers, from which the Approver may make a choice.
   </para>
 
   <para>
@@ -103,6 +148,14 @@
      to have launched except by the user are in this category. An example
      might be a full-screen media-centre type application.
     </para>
+    <para>
+     Be aware that <emphasis>all</emphasis> Approvers for a channel are
+     dispatched (e.g. if six Approvers match a given incoming channel,
+     that channel will be passed to all six clients), so generic Approvers
+     (Approvers that aren't associated with a specific application &mdash;
+     i.e. Tube applications) should not be activatable by D-Bus activation
+     and instead be started by the desktop session.
+    </para>
    </note>
 
    <para>
@@ -164,9 +217,10 @@
      <interfacename>Handler</interfacename>.
     </para>
     <para>
-     In many instances, the <interfacename>Approver</interfacename> and the
+     In some instances, the <interfacename>Approver</interfacename> and the
      <interfacename>Handler</interfacename> will be the same client
-     implementing both interfaces.
+     implementing both interfaces. In other instances there will be a common
+     <interfacename>Approver</interfacename> provided by the desktop.
     </para>
    </note>
 
