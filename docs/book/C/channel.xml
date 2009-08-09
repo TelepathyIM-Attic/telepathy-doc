@@ -326,6 +326,71 @@
     </para>
    </sect2>
 
+   <sect2 id="sect.channel.requesting.python">
+    <title>telepathy-python</title>
+
+    <para>
+      telepathy-python provides the
+      <classname>telepathy.client.Channel</classname> class as a D-Bus proxy
+      object. To construct this proxy you need to pass the connection's
+      D-Bus service name and the path to the channel object.
+    </para>
+
+    <para>
+     <classname>telepathy.client.Channel</classname> can be inherited like
+     any other Python class, so that you can pass around all of the methods
+     and state relating to that channel as one object. This is shown in
+     <xref linkend="ex.channel.requesting.python.class"/>.
+    </para>
+
+    <example id="ex.channel.requesting.python.class"
+             file="python_iface_messaging/example.py">
+     <title>Inheriting telepathy.client.Channel</title>
+    </example>
+   </sect2>
+
+   <sect2 id="sect.channel.requesting.glib">
+    <title>telepathy-glib</title>
+
+    <para>
+     <application>telepathy-glib</application> maps
+     <methodname>CreateChannel</methodname> and
+     <methodname>EnsureChannel</methodname> to the functions
+     <function>tp_cli_connection_interface_requests_call_create_channel</function>
+     and <function>tp_cli_connection_interface_requests_call_ensure_channel</function>
+     respectively. <xref linkend="ex.channel.requesting.glib.ensure"/>
+     shows how this is done.
+    </para>
+
+    <example id="ex.channel.requesting.glib.ensure"
+             file="glib_get_roster/example.c">
+     <title>Ensuring a Channel With telepathy-glib</title>
+    </example>
+
+    <para>
+     The <classname>TpChannel</classname> is used to work with channels in
+     <application>telepathy-glib</application>. It also provides API to help
+     use the <link linkend="sect.channel.groups">Groups interface</link>,
+     that is present on many channels.
+    </para>
+
+    <para>
+     A <classname>TpChannel</classname> can either be created using
+     <function>tp_channel_new</function> or
+     <function>tp_channel_new_from_properties</function>. The latter is more
+     useful when you've created a channel using the
+     <interfacename>Requests</interfacename> interface,
+     as you can just pass in the returned property map, as shown in
+     <xref linkend="ex.channel.requesting.glib.tpchannel"/>.
+    </para>
+
+    <example id="ex.channel.requesting.glib.tpchannel"
+             file="glib_get_roster/example.c">
+     <title>Using tp_channel_new_from_properties</title>
+    </example>
+
+   </sect2>
+
    <sect2 id="sect.channel.requesting.requestchannel">
     <title>The RequestChannel Method</title>
 
@@ -394,71 +459,6 @@
      <xref linkend="ex.channel.requestchannel"/>), pass the handle id
      <literal>0</literal>.
     </para>
-   </sect2>
-
-   <sect2 id="sect.channel.requesting.python">
-    <title>telepathy-python</title>
-
-    <para>
-      telepathy-python provides the
-      <classname>telepathy.client.Channel</classname> class as a D-Bus proxy
-      object. To construct this proxy you need to pass the connection's
-      D-Bus service name and the path to the channel object.
-    </para>
-
-    <para>
-     <classname>telepathy.client.Channel</classname> can be inherited like
-     any other Python class, so that you can pass around all of the methods
-     and state relating to that channel as one object. This is shown in
-     <xref linkend="ex.channel.requesting.python.class"/>.
-    </para>
-
-    <example id="ex.channel.requesting.python.class"
-             file="python_iface_messaging/example.py">
-     <title>Inheriting telepathy.client.Channel</title>
-    </example>
-   </sect2>
-   
-   <sect2 id="sect.channel.requesting.glib">
-    <title>telepathy-glib</title>
-    
-    <para>
-     <application>telepathy-glib</application> maps
-     <methodname>CreateChannel</methodname> and
-     <methodname>EnsureChannel</methodname> to the functions
-     <function>tp_cli_connection_interface_requests_call_create_channel</function>
-     and <function>tp_cli_connection_interface_requests_call_ensure_channel</function>
-     respectively. <xref linkend="ex.channel.requesting.glib.ensure"/>
-     shows how this is done.
-    </para>
-
-    <example id="ex.channel.requesting.glib.ensure"
-             file="glib_get_roster/example.c">
-     <title>Ensuring a Channel With telepathy-glib</title>
-    </example>
-
-    <para>
-     The <classname>TpChannel</classname> is used to work with channels in
-     <application>telepathy-glib</application>. It also provides API to help
-     use the <link linkend="sect.channel.groups">Groups interface</link>,
-     that is present on many channels.
-    </para>
-
-    <para>
-     A <classname>TpChannel</classname> can either be created using
-     <function>tp_channel_new</function> or
-     <function>tp_channel_new_from_properties</function>. The latter is more
-     useful when you've created a channel using the
-     <interfacename>Requests</interfacename> interface,
-     as you can just pass in the returned property map, as shown in
-     <xref linkend="ex.channel.requesting.glib.tpchannel"/>.
-    </para>
-
-    <example id="ex.channel.requesting.glib.tpchannel"
-             file="glib_get_roster/example.c">
-     <title>Using tp_channel_new_from_properties</title>
-    </example>
-
    </sect2>
 
   </sect1>
