@@ -353,18 +353,53 @@
     <title>telepathy-glib</title>
 
     <para>
-     <application>telepathy-glib</application> maps
-     <methodname>CreateChannel</methodname> and
-     <methodname>EnsureChannel</methodname> to the functions
-     <function>tp_cli_connection_interface_requests_call_create_channel</function>
-     and <function>tp_cli_connection_interface_requests_call_ensure_channel</function>
-     respectively. <xref linkend="ex.channel.requesting.glib.ensure"/>
-     shows how this is done.
+     <xref linkend="table.channel.requesting.glib"/> shows the respective
+     functions for calling <methodname>CreateChannel</methodname> and
+     <methodname>EnsureChannel</methodname> using
+     <application>telepathy-glib</application>.
+    </para>
+
+    <table id="table.channel.requesting.glib">
+     <title>telepathy-glib Functions for Requesting Channels</title>
+     <tgroup cols="2">
+      <thead>
+       <row>
+        <entry>From the...</entry>
+	<entry>Method</entry>
+	<entry>telepathy-glib Function</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry morerows="1" valign="middle">Channel Dispatcher</entry>
+	<entry><methodname>CreateChannel</methodname></entry>
+	<entry><function>tp_cli_channel_dispatcher_call_create_channel</function></entry>
+       </row>
+       <row>
+        <entry><methodname>EnsureChannel</methodname></entry>
+	<entry><function>tp_cli_channel_dispatcher_call_ensure_channel</function></entry>
+       </row>
+       <row>
+        <entry morerows="1" valign="middle">Connection</entry>
+	<entry><methodname>CreateChannel</methodname></entry>
+	<entry><function>tp_cli_connection_interface_requests_call_create_channel</function></entry>
+       </row>
+       <row>
+        <entry><methodname>EnsureChannel</methodname></entry>
+	<entry><function>tp_cli_connection_interface_requests_call_ensure_channel</function></entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+
+    <para>
+     <xref linkend="ex.channel.requesting.glib.ensure"/>
+     shows ensuring a channel directly from a Connection.
     </para>
 
     <example id="ex.channel.requesting.glib.ensure"
              file="glib_get_roster/example.c">
-     <title>Ensuring a Channel With telepathy-glib</title>
+     <title>Ensuring a Channel from a Connection with telepathy-glib</title>
     </example>
 
     <para>
@@ -377,10 +412,9 @@
     <para>
      A <classname>TpChannel</classname> can either be created using
      <function>tp_channel_new</function> or
-     <function>tp_channel_new_from_properties</function>. The latter is more
-     useful when you've created a channel using the
-     <interfacename>Requests</interfacename> interface,
-     as you can just pass in the returned property map, as shown in
+     <function>tp_channel_new_from_properties</function>. The latter is
+     generally preferred as you can just pass in the returned property map,
+     as shown in
      <xref linkend="ex.channel.requesting.glib.tpchannel"/>.
     </para>
 
