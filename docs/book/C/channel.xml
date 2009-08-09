@@ -119,22 +119,46 @@
      </varlistentry>
 
   </variablelist>
-  
+
   <sect1 id="sect.channel.requesting">
     <title>Requesting Channels</title>
 
     <para>
      Channels may be requested from the
-     <xref linkend="chapter.channel-dispatcher"/> or directly from a
-     <classname>Connection</classname> object
-     using the <interfacename>Requests</interfacename> interface. Requesting
-     a channel from the dispatcher will cause it to be handled like any
-     other dispatched channel, and this is the preferred way of requesting
-     new channels. Requesting a channel directly from the
+     <link linkend="chapter.channel-dispatcher">Channel Dispatcher</link> or
+     directly from a <classname>Connection</classname> object
+     using the <interfacename>Requests</interfacename> interface.
+    </para>
+    <para>
+     Requesting a channel from the dispatcher will cause it to be handled
+     like any other dispatched channel. This is the preferred way of requesting
+     new channels.
+    </para>
+    <para>
+     Requesting a channel directly from the
      <classname>Connection</classname> will cause it to be ignored by the
      Channel Dispatcher, meaning that the requesting application must
      handle the channel itself.
     </para>
+    <tip>
+     <title>Request Channels from the Channel Dispatcher</title>
+     <para>
+      Channels requested from the
+      <link linkend="chapter.channel-dispatcher">Channel Dispatcher</link>
+      will be dispatched via the same mechanism as an unrequested, incoming
+      channel. This means that the best available application to handle the
+      channel will be used.
+     </para>
+     <para>
+      Requesting channels through the Channel Dispatcher also allows the
+      Dispatcher to try a different client if the first client fails to handle
+      the channel.
+     </para>
+     <para>
+      If you wish to handle the request yourself, you can pass the D-Bus
+      well-known name of your client as the preferred handler.
+     </para>
+    </tip>
 
     <para>
      These interfaces provides two methods:
@@ -221,7 +245,7 @@
       </tbody>
      </tgroup>
     </informaltable>
-    
+
    <note>
     <title>Anonymous Channels</title>
     <para>
@@ -237,6 +261,71 @@
     </para>
    </note>
 
+   <para>
+    When using the <interfacename>Requests</interfacename> interface to request
+    a channel directly from a
+    <link linkend="chapter.connection">Connection</link>, both
+    <methodname>EnsureChannel</methodname> and
+    <methodname>CreateChannel</methodname> return the object path of a
+    channel that can be access on that Connection.
+   </para>
+
+   <para>
+    Using the <link linkend="chapter.channel-dispatcher">Channel
+    Dispatcher</link>, requests might take some time (e.g. if the account
+    has to be brought online), so you are instead returned a Channel Request
+    Object, which is discussed further in
+    <xref linkend="sect.channel.requesting.requestobjects"/>.
+   </para>
+
+   <sect2 id="sect.channel.requesting.requestobjects">
+    <title>Channel Request Objects</title>
+
+    <para>
+     Channels requested via the
+     <link linkend="chapter.channel-dispatcher">Channel Dispatcher</link>
+     don't immediately return the newly created channel from calls to
+     <methodname>CreateChannel</methodname> and
+     <methodname>EnsureChannel</methodname>. This is because the specified
+     <interfacename>Account</interfacename> may not be immediately ready to
+     request a channel, and the D-Bus method call may time out before the
+     channel is requested.
+    </para>
+
+    <note><para>
+     In the worst case, the specified Account for a request may be offline
+     and have to be brought online by the Account Manager. The network
+     connection may only connect on demand (common on mobile devices) and
+     may have to be brought up before the account can be connected.
+    </para></note>
+
+    <para>
+     To solve this problem, the Channel Dispatcher returns Channel Request
+     Objects, which implement the
+     <interfacename>ChannelRequest</interfacename> interface. These objects
+     are accessible via the
+     <link linkend="chapter.channel-dispatcher">Channel Dispatcher</link>
+     well-known bus name
+     (<literal>org.freedesktop.Telepathy.ChannelDispatcher</literal>).
+    </para>
+
+    <para>
+     Channel Requests provide two signals:
+     <methodname>Succeeded</methodname> and <methodname>Failed</methodname>.
+     You should connect these two signals and then call the
+     <methodname>Proceed</methodname> method to begin the request.
+     If you do not call <methodname>Proceed</methodname>, the request will
+     not begin.
+    </para>
+
+    <para>
+     There is also a <methodname>Cancel</methodname> method that will allow
+     you to cancel a method up until the time it has been dispatched to a
+     Channel Handler. The precise semantics of this method are provided in
+     the Telepathy specification.
+    </para>
+   </sect2>
+
    <sect2 id="sect.channel.requesting.requestchannel">
     <title>The RequestChannel Method</title>
 
@@ -246,7 +335,7 @@
       The <methodname>RequestChannel</methodname> method has been deprecated
       and should only be used if compatibility is required with older
       Connection Managers that do not implement the
-      <interfacename>Requests</interfacename> interface. 
+      <interfacename>Requests</interfacename> interface.
      </para>
     </warning>
 
