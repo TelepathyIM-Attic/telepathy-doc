@@ -1008,10 +1008,23 @@ get_channels_cb (TpProxy        *proxy,
        </para>
 
        <table id="table.basics.language-bindings.telepathy-glib.types">
-        <title>telepathy-glib Types</title>
-	<tgroup cols="3">
+        <title>D-Bus Simple GTypes</title>
+	<tgroup cols="6">
+	 <colspec colname="sdtype"/>
+	 <colspec colname="sgtype"/>
+	 <colspec colname="sctype"/>
+	 <colspec colname="adtype"/>
+	 <colspec colname="agtype"/>
+	 <colspec colname="actype"/>
 	 <thead>
 	  <row>
+	   <entry namest="sdtype" nameend="sctype">Single Values</entry>
+	   <entry namest="adtype" nameend="actype">Lists/Arrays</entry>
+	  </row>
+	  <row>
+	   <entry>D-Bus Type</entry>
+	   <entry>GType</entry>
+	   <entry>C type</entry>
 	   <entry>D-Bus Type</entry>
 	   <entry>GType</entry>
 	   <entry>C type</entry>
@@ -1022,49 +1035,6 @@ get_channels_cb (TpProxy        *proxy,
 	   <entry><literal>o</literal></entry>
 	   <entry><type>DBUS_TYPE_G_OBJECT_PATH</type></entry>
 	   <entry>String (<type>char *</type>)</entry>
-	  </row>
-	  <row>
-	   <entry><literal>y</literal></entry>
-	   <entry><type>G_TYPE_UCHAR</type></entry>
-	   <entry><type>guchar</type></entry>
-	  </row>
-	  <row>
-	   <entry><literal>u</literal></entry>
-	   <entry><type>G_TYPE_UINT</type></entry>
-	   <entry><type>guint</type></entry>
-	  </row>
-	  <row>
-	   <entry><literal>i</literal></entry>
-	   <entry><type>G_TYPE_INT</type></entry>
-	   <entry><type>int</type></entry>
-	  </row>
-	  <row>
-	   <entry><literal>t</literal></entry>
-	   <entry><type>G_TYPE_UINT64</type></entry>
-	   <entry><type>guint64</type></entry>
-	  </row>
-	  <row>
-	   <entry><literal>x</literal></entry>
-	   <entry><type>G_TYPE_INT64</type></entry>
-	   <entry><type>gint64</type></entry>
-	  </row>
-	  <row>
-	   <entry><literal>d</literal></entry>
-	   <entry><type>G_TYPE_DOUBLE</type></entry>
-	   <entry><type>double</type></entry>
-	  </row>
-	  <row>
-	   <entry><literal>b</literal></entry>
-	   <entry><type>G_TYPE_BOOLEAN</type></entry>
-	   <entry><type>gboolean</type></entry>
-	  </row>
-	  <row>
-	   <entry><literal>s</literal></entry>
-	   <entry><type>G_TYPE_STRING</type></entry>
-	   <entry><type>char *</type></entry>
-	  </row>
-
-	  <row>
 	   <entry><literal>ao</literal></entry>
 	   <entry><type>TP_ARRAY_TYPE_OBJECT_PATH_LIST</type></entry>
 	   <entry>
@@ -1073,6 +1043,9 @@ get_channels_cb (TpProxy        *proxy,
 	   </entry>
 	  </row>
 	  <row>
+	   <entry><literal>y</literal></entry>
+	   <entry><type>G_TYPE_UCHAR</type></entry>
+	   <entry><type>guchar</type></entry>
 	   <entry><literal>ay</literal></entry>
 	   <entry><type>DBUS_TYPE_G_UCHAR_ARRAY</type></entry>
 	   <entry>
@@ -1080,6 +1053,9 @@ get_channels_cb (TpProxy        *proxy,
 	   </entry>
 	  </row>
 	  <row>
+	   <entry><literal>u</literal></entry>
+	   <entry><type>G_TYPE_UINT</type></entry>
+	   <entry><type>guint</type></entry>
 	   <entry><literal>au</literal></entry>
 	   <entry><type>DBUS_TYPE_G_UINT_ARRAY</type></entry>
 	   <entry>
@@ -1087,6 +1063,9 @@ get_channels_cb (TpProxy        *proxy,
 	   </entry>
 	  </row>
 	  <row>
+	   <entry><literal>i</literal></entry>
+	   <entry><type>G_TYPE_INT</type></entry>
+	   <entry><type>int</type></entry>
 	   <entry><literal>ai</literal></entry>
 	   <entry><type>DBUS_TYPE_G_INT_ARRAY</type></entry>
 	   <entry>
@@ -1094,6 +1073,9 @@ get_channels_cb (TpProxy        *proxy,
 	   </entry>
 	  </row>
 	  <row>
+	   <entry><literal>t</literal></entry>
+	   <entry><type>G_TYPE_UINT64</type></entry>
+	   <entry><type>guint64</type></entry>
 	   <entry><literal>at</literal></entry>
 	   <entry><type>DBUS_TYPE_G_UINT64_ARRAY</type></entry>
 	   <entry>
@@ -1101,6 +1083,9 @@ get_channels_cb (TpProxy        *proxy,
 	   </entry>
 	  </row>
 	  <row>
+	   <entry><literal>x</literal></entry>
+	   <entry><type>G_TYPE_INT64</type></entry>
+	   <entry><type>gint64</type></entry>
 	   <entry><literal>ax</literal></entry>
 	   <entry><type>DBUS_TYPE_G_INT64_ARRAY</type></entry>
 	   <entry>
@@ -1108,6 +1093,9 @@ get_channels_cb (TpProxy        *proxy,
 	   </entry>
 	  </row>
 	  <row>
+	   <entry><literal>d</literal></entry>
+	   <entry><type>G_TYPE_DOUBLE</type></entry>
+	   <entry><type>double</type></entry>
 	   <entry><literal>ad</literal></entry>
 	   <entry><type>DBUS_TYPE_G_DOUBLE_ARRAY</type></entry>
 	   <entry>
@@ -1115,6 +1103,9 @@ get_channels_cb (TpProxy        *proxy,
 	   </entry>
 	  </row>
 	  <row>
+	   <entry><literal>b</literal></entry>
+	   <entry><type>G_TYPE_BOOLEAN</type></entry>
+	   <entry><type>gboolean</type></entry>
 	   <entry><literal>ab</literal></entry>
 	   <entry><type>DBUS_TYPE_G_BOOLEAN_ARRAY</type></entry>
 	   <entry>
@@ -1122,6 +1113,9 @@ get_channels_cb (TpProxy        *proxy,
 	   </entry>
 	  </row>
 	  <row>
+	   <entry><literal>s</literal></entry>
+	   <entry><type>G_TYPE_STRING</type></entry>
+	   <entry><type>char *</type></entry>
 	   <entry><literal>as</literal></entry>
 	   <entry><type>G_TYPE_STRV</type></entry>
 	   <entry><type>char **</type></entry>
