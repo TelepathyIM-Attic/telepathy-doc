@@ -4,7 +4,6 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <gio/gnio.h>
 
 #include <telepathy-glib/connection-manager.h>
 #include <telepathy-glib/connection.h>
@@ -12,6 +11,7 @@
 #include <telepathy-glib/interfaces.h>
 #include <telepathy-glib/gtypes.h>
 #include <telepathy-glib/util.h>
+#include <telepathy-glib/gnio-util.h>
 #include <telepathy-glib/enums.h>
 #include <telepathy-glib/debug.h>
 
@@ -21,7 +21,7 @@ static TpConnection *conn = NULL;
 
 struct ft_state
 {
-	GSocketClient *client;
+	TpSocketAddressType type;
 	GSocketConnection *connection;
 	GSocketAddress *address;
 
@@ -53,37 +53,8 @@ provide_file_cb (TpChannel	*channel,
 
 	handle_error (in_error);
 
-
-	if (G_IS_UNIX_CLIENT (ftstate->client))
-	{
-		/* old versions of telepathy-salut stored this address as a
-		   string rather than an 'ay'. Those versions of Salut are
-		   broken */
-		GArray *address = g_value_get_boxed (addressv);
-		char path[address->len + 1];
-
-		strncpy (path, address->data, address->len);
-		path[address->len] = '\0';
-
-		g_print (" > file_transfer_cb (unix:%s)\n", path);
-
-		ftstate->address = G_SOCKET_ADDRESS (
-			g_unix_socket_address_new (path));
-	}
-	else if (G_IS_TCP_CLIENT (ftstate->client))
-	{
-		GValueArray *address = g_value_get_boxed (addressv);
-		const char *host = g_value_get_string (
-			g_value_array_get_nth (address, 0));
-		guint port = g_value_get_uint (
-			g_value_array_get_nth (address, 1));
-		g_print (" > file_transfer_cb (tcp:%s:%i)\n", host, port);
-
-		GInetAddress *addr = g_inet_address_new_from_string (host);
-		ftstate->address = G_SOCKET_ADDRESS (
-			g_inet_socket_address_new (addr, port));
-		g_object_unref (addr);
-	}
+	ftstate->address = tp_g_socket_address_from_variant (ftstate->type,
+			addressv);
 }
 
 static void
@@ -98,7 +69,9 @@ splice_done_cb (GObject		*output,
 	handle_error (error);
 
 	/* close the socket */
-	g_socket_connection_close (ftstate->connection);
+	g_io_stream_close (G_IO_STREAM (ftstate->connection),
+			NULL, &error);
+	handle_error (error);
 }
 
 static void
@@ -116,11 +89,13 @@ file_transfer_state_changed_cb (TpChannel	*channel,
 	if (state == TP_FILE_TRANSFER_STATE_OPEN)
 	{
 		/* begin ex.filetransfer.sending.open.gio */
+		GSocketClient *client = g_socket_client_new ();
 		ftstate->connection = g_socket_client_connect (
-				ftstate->client,
+				client,
 				G_SOCKET_CONNECTABLE (ftstate->address),
 				NULL, &error);
 		handle_error (error);
+		g_object_unref (client);
 
 		/* we can now use the stream like any other GIO stream.
 		 * Open an output stream for writing to */
@@ -149,7 +124,6 @@ file_transfer_state_changed_cb (TpChannel	*channel,
 		/* free the resources */
 		g_object_unref (ftstate->connection);
 		g_object_unref (ftstate->address);
-		g_object_unref (ftstate->client);
 		g_object_unref (ftstate->input);
 		g_object_unref (ftstate->file);
 		g_slice_free (struct ft_state, ftstate);
@@ -201,22 +175,20 @@ file_transfer_channel_ready (TpChannel		*channel,
 	
 	struct ft_state *ftstate = g_slice_new (struct ft_state);
 	ftstate->file = file;
-	guint socket_type, access_control;
+	guint access_control;
 
 	/* let's try for IPv4 */
 	if (g_hash_table_lookup (sockets,
 				GINT_TO_POINTER (TP_SOCKET_ADDRESS_TYPE_IPV4)))
 	{
-		socket_type = TP_SOCKET_ADDRESS_TYPE_IPV4;
+		ftstate->type = TP_SOCKET_ADDRESS_TYPE_IPV4;
 		access_control = TP_SOCKET_ACCESS_CONTROL_LOCALHOST;
-		ftstate->client = G_SOCKET_CLIENT (g_tcp_client_new ());
 	}
 	else if (g_hash_table_lookup (sockets,
 				GINT_TO_POINTER (TP_SOCKET_ADDRESS_TYPE_UNIX)))
 	{
-		socket_type = TP_SOCKET_ADDRESS_TYPE_UNIX;
+		ftstate->type = TP_SOCKET_ADDRESS_TYPE_UNIX;
 		access_control = TP_SOCKET_ACCESS_CONTROL_LOCALHOST;
-		ftstate->client = G_SOCKET_CLIENT (g_unix_client_new ());
 	}
 
 	tp_cli_channel_type_file_transfer_connect_to_initial_offset_defined (
@@ -232,7 +204,7 @@ file_transfer_channel_ready (TpChannel		*channel,
 	/* set up the socket for providing the file */
 	GValue *value = tp_g_value_slice_new_static_string ("");
 	tp_cli_channel_type_file_transfer_call_provide_file (channel,
-			-1, socket_type, access_control,
+			-1, ftstate->type, access_control,
 			value, provide_file_cb,
 			ftstate, NULL, NULL);
 	tp_g_value_slice_free (value);
