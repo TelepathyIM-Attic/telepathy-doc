@@ -507,40 +507,175 @@
    </para>
 
    <para>
-    New channels are heralded by the <methodname>NewChannels</methodname>
-    signal, which is part of the <interfacename>Requests</interfacename>
-    interface.
+    The creation of channels is heralded by up to three mechanisms:
    </para>
+   <orderedlist>
+    <listitem>
+     <para>
+      Via a method call on the
+      <link linkend="sect.channel-dispatcher.clients">Client</link> made by the
+      <link linkend="chapter.channel-dispatcher">Channel Dispatcher</link>
+      (i.e. <methodname>ObserveChannels</methodname> or
+      <methodname>HandleChannels</methodname>).
+     </para>
+     <para>
+      This is the preferred method. See
+      <xref linkend="sect.channel.newchannels.handlechannels"/>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Via the <methodname>NewChannels</methodname> signal emitted by a
+      <link linkend="chapter.connection">Connection</link>'s
+      <interfacename>Requests</interfacename> interface.
+     </para>
+     <para>
+      This should be used when talking to a
+      <interfacename>Connection</interfacename> directly. See
+      <xref linkend="sect.channel.newchannels.newchannels"/>.
+     </para>
+    </listitem>
+    <listitem>
+     <para>
+      Via the <methodname>NewChannel</methodname> signal, emitted by a
+      <link linkend="chapter.connection">Connection</link>.
+     </para>
+     <para>
+      This signal has been deprecated in favour of
+      <methodname>NewChannels</methodname> and should not be used unless
+      absolutely required to talk to a legacy Connection Manager. See
+      <xref linkend="sect.channel.newchannels.newchannel"/>.
+     </para>
+    </listitem>
+   </orderedlist>
 
-   <para>
-    When channels are created, the <methodname>NewChannels</methodname>
-    callback will pass you a list of newly created channels by their object
-    paths along with a map of immutable properties for the channel.
-    All channels are announced, including channels that you created. You
-    can check the <property>Requested</property> property to discover if
-    this channel is one you requested yourself (i.e. via
-    <methodname>CreateChannel</methodname>).
-   </para>
-
-   <tip>
+   <sect2 id="sect.channel.newchannels.handlechannels">
+    <title>The HandleChannels (or ObserveChannels) Method</title>
     <para>
-     It is possible to call <methodname>CreateChannel</methodname> in a
-     fire-and-forget way (if you don't care about error conditions), or only
-     handle the error condition in the method callback, and do
-     all of the channel setup in the <methodname>NewChannels</methodname>
-     callback, using a common codepath for channels you requested, and
-     channels you did not (e.g. setting up a new text channel).
+     In many cases, your Telepathy application will implement the
+     <interfacename>Handler</interfacename> (or
+     <interfacename>Observer</interfacename>) Telepathy Client interface
+     (see <xref linkend="sect.channel-dispatcher.clients"/>) allowing the
+     Channel Dispatcher to dispatch incoming Telepathy channels to your
+     application.
     </para>
     <para>
-     If required, use the <property>Requested</property> property to determine
-     if you created the channel yourself.
+     When the Channel Dispatcher wishes to notify your client of a new
+     channel to handle, it calls the <methodname>HandleChannels</methodname>
+     method on your client. This method contains the following information:
     </para>
-   </tip>
+    <orderedlist>
+     <listitem>
+      <para>
+       The object path to the <interfacename>Account</interfacename>
+       associated with these channels.
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       The object path to the <interfacename>Connection</interfacename>
+       associated with these channels.
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       A list of channels as a <type>Channel_Details_List</type>.
+      </para>
+      <para>
+       This is an array of structures containing object paths for the
+       Channels and their associated properties &mdash;
+       <literal>a(oa{sv})</literal>.
+       This is the same structure that is passed to
+       <methodname>NewChannels</methodname>.
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       A list of object paths to requests that are satisfied by this method
+       call. See ...
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       A user action time.
+      </para>
+      <para>
+       This is similar to the X11 user action time and can be used by the
+       Handler for managing things like focus stealing prevention.
+      </para>
+     </listitem>
+     <listitem>
+      <para>
+       An <literal>a{sv}</literal> map of unstructured handler information.
+      </para>
+     </listitem>
+    </orderedlist>
 
-   <para>
-    Use the <property>ChannelType</property> property to decide how to
-    handle a channel.
-   </para>
+    <note><para>
+     The <methodname>ObserveChannels</methodname> method is very similar to
+     this, but includes the path of the
+     <interfacename>ChannelDispatchOperation</interfacename> for the
+     dispatch in progress and does not include the user action time.
+    </para></note>
+
+    <para>
+     If this method call succeeds (that is, does not return an error), then
+     the Channel Dispatcher now considers the client to be responsible for
+     these channels. The client should keep a list of channels it is
+     handling so that they may be returned by the
+     <property>HandledChannels</property> property.
+    </para>
+
+    <important>
+     <title>HandleChannels May Be Called on Existing Channels</title>
+     <para>
+      The Channel Dispatcher call <methodname>HandleChannels</methodname> on
+      channels that your client is already handling. The Channel Dispatcher
+      does this when it wants your client to present the channel to the user
+      (i.e. bring the channel to the foreground).
+     </para>
+    </important>
+   </sect2>
+
+   <sect2 id="sect.channel.newchannels.newchannels">
+    <title>The NewChannels Signal</title>
+    <para>
+     New channels are heralded by a Connection with the
+     <methodname>NewChannels</methodname>
+     signal, which is part of the Connection's
+     <interfacename>Requests</interfacename> interface.
+    </para>
+
+    <para>
+     When channels are created, the <methodname>NewChannels</methodname>
+     callback will pass you a list of newly created channels by their object
+     paths along with a map of immutable properties for the channel.
+     All channels are announced, including channels that you created. You
+     can check the <property>Requested</property> property to discover if
+     this channel is one you requested yourself (i.e. via
+     <methodname>CreateChannel</methodname>).
+    </para>
+
+    <tip>
+     <para>
+      It is possible to call <methodname>CreateChannel</methodname> in a
+      fire-and-forget way (if you don't care about error conditions), or only
+      handle the error condition in the method callback, and do
+      all of the channel setup in the <methodname>NewChannels</methodname>
+      callback, using a common codepath for channels you requested, and
+      channels you did not (e.g. setting up a new text channel).
+     </para>
+     <para>
+      If required, use the <property>Requested</property> property to determine
+      if you created the channel yourself.
+     </para>
+    </tip>
+
+    <para>
+     Use the <property>ChannelType</property> property to decide how to
+     handle a channel.
+    </para>
+   </sect2>
 
    <sect2 id="sect.channel.newchannels.newchannel">
     <title>The NewChannel Signal</title>
