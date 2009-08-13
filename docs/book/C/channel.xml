@@ -675,6 +675,20 @@
      Use the <property>ChannelType</property> property to decide how to
      handle a channel.
     </para>
+    <para>
+     <xref linkend="ex.channel.contactlist.user-defined.glib"/> in
+     <xref linkend="sect.channel.contactlist.user-defined"/> gives an
+     example of handling the <methodname>NewChannels</methodname> signal.
+    </para>
+
+    <note>
+     <para>
+      <methodname>NewChannels</methodname> is also used by the Channel
+      Dispatcher to discover new channels coming from Connections. This
+      means that the <methodname>NewChannels</methodname> signal is received
+      before the <methodname>HandleChannels</methodname> method.
+     </para>
+    </note>
    </sect2>
 
    <sect2 id="sect.channel.newchannels.newchannel">
@@ -975,7 +989,7 @@
       discovered at any time by checking the <property>Channels</property>
       property or connecting to the <methodname>NewChannels</methodname>
       signal on the <interfacename>Requests</interfacename> interface
-      (see <xref linkend="sect.channel.newchannels"/>).
+      (see <xref linkend="sect.channel.newchannels.newchannels"/>).
      </para>
 
      <para>
