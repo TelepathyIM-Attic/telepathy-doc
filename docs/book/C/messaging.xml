@@ -277,18 +277,18 @@
 
    <para>
     When a remote user initiates a new text chat, Telepathy will
-    automatically create a new channel for the chat, who's creation will
-    be heralded by the <methodname>NewChannels</methodname> signal
+    automatically create a new channel for the chat
     (see <xref linkend="sect.channel.newchannels"/>).
     Filter on the channels given for channels of type
     <type>Channel_Type_Text</type>.
     <xref linkend="ex.channel.text.messages.receiving.newchannels"/> shows
-    how to discover this channel.
+    how to discover this channel using the
+    <methodname>NewChannels</methodname> signal.
    </para>
 
    <example id="ex.channel.text.messages.receiving.newchannels"
             file="python_iface_messaging/example.py">
-     <title>Discovering Incoming Channels</title>
+     <title>Discovering Incoming Channels with NewChannels</title>
    </example>
 
    <para>
@@ -382,8 +382,8 @@
    </para>
 
    <para>
-    The creation of a new text channel will be heralded by the
-    <methodname>NewChannels</methodname> signal (see
+    The connection manager will create a new text channels for the incoming
+    chat. Clients will be notified via the usual mechanism (see
     <xref linkend="sect.channel.newchannels"/>). Filter on the new channels
     for channels of type <type>Channel_Type_Text</type>
     (see <xref linkend="ex.channel.text.messages.receiving.newchannels"/>).
