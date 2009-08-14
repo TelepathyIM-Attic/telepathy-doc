@@ -307,8 +307,7 @@
    <title>Accepting a D-Bus Tube</title>
 
    <para>
-    An incoming Tube appears as an incoming channel, heralded by
-    <methodname>NewChannels</methodname> (see
+    An incoming Tube appears as an incoming channel (see
     <xref linkend="sect.channel.newchannels"/>). The Tube will have two
     immutable properties that you can inspect;
     <property>ServiceName</property>, which was passed when creating the
@@ -496,8 +495,7 @@
    <title>Accepting a Stream Tube</title>
 
    <para>
-    An incoming Stream Tube appears as an incoming channel, heralded by
-    <methodname>NewChannels</methodname> (see
+    An incoming Stream Tube appears as an incoming channel (see
     <xref linkend="sect.channel.newchannels"/>). The Tube will have two
     immutable properties that you can inspect; <property>Service</property>,
     which is a TCP service name (this should be a well-known IANA or DNS-SD
