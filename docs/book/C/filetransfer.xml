@@ -420,13 +420,22 @@
    <title>Handling The New Channel</title>
 
    <para>
-    An incoming file transfer channel will be heralded by the
-    <methodname>NewChannels</methodname> signal (as with other incoming
-    channels, e.g. <link linkend="sect.messaging.messages.receiving">text
-    channels</link> &mdash; see <xref linkend="sect.channel.newchannels"/>).
+    An incoming file transfer channel will be heralded using the same
+    mechanism as other incoming channels (e.g.
+    <link linkend="sect.messaging.messages.receiving">text channels</link>
+    &mdash; see <xref linkend="sect.channel.newchannels"/>).
     The channel type of the new channel will be
     <interfacename>org.freedesktop.Telepathy.Channel.Type.FileTransfer</interfacename>.
    </para>
+
+   <important>
+    <para>
+     If this particular Connection is being handled by Mission Control, it
+     is important to let only the dispatched Handler handle the channel
+     &mdash; see <xref linkend="sect.channel-dispatcher.clients"/> for more
+     information.
+    </para>
+   </important>
 
    <para>
     As well as common channel properties (e.g.
