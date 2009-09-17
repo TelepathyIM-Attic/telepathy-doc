@@ -24,7 +24,7 @@
         <revnumber>0.1</revnumber> 
           <date>UNRELEASED</date> 
           <revdescription> 
-            <para role="author">Davyd Madeley</para> 
+            <para role="author">Danielle Madeley</para> 
             <para role="author">Murray Cumming</para> 
             <para role="publisher">Collabora, Ltd.</para> 
 	  </revdescription> 
@@ -33,11 +33,11 @@
 
     <authorgroup>
       <author role="maintainer">
-        <firstname>Davyd</firstname>
+        <firstname>Danielle</firstname>
         <surname>Madeley</surname>
         <affiliation>
           <orgname>Collabora Ltd.</orgname>
-          <address> <email>davyd.madeley@collabora.co.uk</email> </address>
+          <address> <email>danielle.madeley@collabora.co.uk</email> </address>
         </affiliation>
       </author>
       <author> 
@@ -52,7 +52,7 @@
       
     <copyright>
       <year>2008-9</year>
-      <holder>Collabora Ltd</holder>
+      <holder>Collabora Ltd.</holder>
     </copyright>
 
     <abstract role="description">
