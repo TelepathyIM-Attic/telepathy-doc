@@ -22,6 +22,12 @@
   <para>
    The Account Manager is implemented as part of Mission Control and is
    responsible for keeping a list of accounts (e.g. XMPP/Jabber, IRC, MSN).
+   The Account Manager is also responsible for maintaining the
+   <link linkend="chapter.connection">Connection</link> to each account and
+   setting the presence on that connection.
+  </para>
+
+  <para>
    The service is available on the session bus via the well-known bus name
    <literal>org.freedesktop.Telepathy.AccountManager</literal>, object
    <literal>/org/freedesktop/Telepathy/AccountManager</literal> and
@@ -259,6 +265,15 @@
      </tbody>
     </tgroup>
    </table>
+  </sect1>
+
+  <sect1 id="sect.accounts.presence">
+   <title>Managing Presence</title>
+
+   <para>
+    The Account Manager is responsible for managing the user's presence for
+    each configured <interfacename>Account</interfacename>.
+   </para>
   </sect1>
 
   <!-- para>TODO:
