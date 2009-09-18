@@ -64,12 +64,12 @@
 
   <para>
    The Channel Dispatcher watches the
-   <link xref="chapter.connection">Connections</link> known to the
-   <link xref="chapter.accounts">Account Manager</link> and keeps track of what
-   <link xref="sect.channel-dispatcher.clients">Clients</link> are available
-   to handle incoming Channels from those Connections. When a new channel
-   comes in, the Channel Dispatcher looks at the available clients, and the
-   types of channels they handle and then selects clients to dispatch the
+   <link linkend="chapter.connection">Connections</link> known to the
+   <link linkend="chapter.accounts">Account Manager</link> and keeps track of
+   what <link linkend="sect.channel-dispatcher.clients">Clients</link> are
+   available to handle incoming Channels from those Connections. When a new
+   channel comes in, the Channel Dispatcher looks at the available clients, and
+   the types of channels they handle and then selects clients to dispatch the
    channel to.
   </para>
 

@@ -252,7 +252,8 @@
        <property>AutomaticPresence</property>.
       </para>
       <para>
-       See ...
+       See <xref linkend="sect.accounts.presence.going-online.on-demand"/>
+       for more information.
       </para>
      </tip>
 

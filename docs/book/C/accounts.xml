@@ -324,40 +324,111 @@
     </para>
    </tip>
 
-  <table id="table.sect.accounts.presence.Connection-Presence-Type">
-   <title>Status Types (Connection_Presence_Type)</title>
-   <tgroup cols="2">
-    <thead>
-     <row>
-      <entry>Online Statuses</entry>
-      <entry>Offline Statuses</entry>
-     </row>
-    </thead>
-    <tbody>
-     <row>
-      <entry>Available</entry>
-      <entry>Offline</entry>
-     </row>
-     <row>
-      <entry>Away</entry>
-      <entry></entry>
-     </row>
-     <row>
-      <entry>Extended_Away</entry>
-      <entry></entry>
-     </row>
-     <row>
-      <entry>Hidden</entry>
-      <entry></entry>
-     </row>
-     <row>
-      <entry>Busy</entry>
-      <entry></entry>
-     </row>
-    </tbody>
-   </tgroup>
-  </table>
+   <sect2 id="sect.accounts.presence.going-online">
+    <title>Going Online</title>
 
+    <sect3 id="sect.accounts.presence.going-online.on-request">
+     <title>On Request</title>
+
+     <para>
+      Mission Control will attempt to connect any enabled account that has a
+      <property>RequestedPresence</property> other than
+      <type>Connection_Presence_Type_Offline</type>.
+     </para>
+
+     <para>
+      Bringing an <interfacename>Account</interfacename> online in the
+      Account Manager simply requires setting the presence via
+      <property>RequestedPresence</property> to a presence that
+      requires being online (see
+      <xref linkend="table.sect.accounts.presence.Connection-Presence-Type"/>).
+     </para>
+
+     <para>
+      For example, to make an account be connected, you might set the presence
+      (<type>Connection_Presence_Type_Available</type>, "available", "Working
+      Hard"). You can watch the properties <property>Connection</property>,
+      <property>ConnectionStatus</property>,
+      <property>ConnectionStatusReason</property> and
+      <property>CurrentPresence</property> to monitor the state of the new
+      connection via the signal
+      <methodname>AccountPropertyChanged</methodname>.
+     </para>
+
+     <table id="table.sect.accounts.presence.Connection-Presence-Type">
+      <title>Status Types (Connection_Presence_Type)</title>
+      <tgroup cols="2">
+       <thead>
+        <row>
+         <entry>Online Statuses</entry>
+         <entry>Offline Statuses</entry>
+        </row>
+       </thead>
+       <tbody>
+        <row>
+         <entry>Available</entry>
+         <entry>Offline</entry>
+        </row>
+        <row>
+         <entry>Away</entry>
+         <entry></entry>
+        </row>
+        <row>
+         <entry>Extended_Away</entry>
+         <entry></entry>
+        </row>
+        <row>
+         <entry>Hidden</entry>
+         <entry></entry>
+        </row>
+        <row>
+         <entry>Busy</entry>
+         <entry></entry>
+        </row>
+       </tbody>
+      </tgroup>
+     </table>
+
+     <para>
+      To disconnect an account for any reason, simply set its status to
+      Offline with the presence
+      (<type>Connection_Presence_Type_Offline</type>, "offline", "").
+     </para>
+    </sect3>
+
+    <sect3 id="sect.accounts.presence.going-online.on-demand">
+     <title>On Demand</title>
+
+     <para>
+      Enabled accounts can be brought online automatically at the request of
+      the <link linkend="chapter.channel-dispatcher">Channel Dispatcher</link>
+      to service a new channel request.
+     </para>
+
+     <para>
+      This is done by setting the current value for
+      <property>AutomaticPresence</property> as the
+      <property>RequestedPresence</property>.
+     </para>
+    </sect3>
+
+    <sect3 id="sect.accounts.presence.going-online.automatic">
+     <title>Automatically</title>
+
+     <para>
+      Enabled accounts with the <property>ConnectAutomatically</property>
+      property set are brought online automatically by the Account Manager
+      without any action required on the part of the user or other software.
+     </para>
+
+     <para>
+      This is done by setting the current value for
+      <property>AutomaticPresence</property> as the
+      <property>RequestedPresence</property>.
+     </para>
+    </sect3>
+
+   </sect2>
   </sect1>
   <!-- para>TODO:
    Notes:
