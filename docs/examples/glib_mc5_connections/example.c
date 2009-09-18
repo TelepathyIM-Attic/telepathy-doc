@@ -15,6 +15,47 @@ static GMainLoop *loop = NULL;
 static TpDBusDaemon *bus_daemon = NULL;
 
 static void
+get_statuses_cb (TpProxy      *conn,
+                 const GValue *value,
+                 const GError *in_error,
+                 gpointer      user_data,
+                 GObject      *weak_obj)
+{
+  GError *error = NULL;
+
+  if (in_error) g_error ("%s", in_error->message);
+
+  g_return_if_fail (G_VALUE_HOLDS (value, TP_HASH_TYPE_SIMPLE_STATUS_SPEC_MAP));
+
+  g_print ("%s\n", tp_proxy_get_object_path (conn));
+
+  GHashTable *map = g_value_get_boxed (value);
+  GHashTableIter iter;
+  gpointer k, v;
+
+  g_hash_table_iter_init (&iter, map);
+  while (g_hash_table_iter_next (&iter, &k, &v))
+    {
+      char *status = k, *str;
+      GValueArray *array = v;
+
+      g_print ("%s -> (", status);
+
+      str = g_strdup_value_contents (g_value_array_get_nth (array, 0));
+      g_print ("%s, ", str);
+      g_free (str);
+
+      str = g_strdup_value_contents (g_value_array_get_nth (array, 1));
+      g_print ("%s, ", str);
+      g_free (str);
+
+      str = g_strdup_value_contents (g_value_array_get_nth (array, 2));
+      g_print ("%s)\n", str);
+      g_free (str);
+    }
+}
+
+static void
 get_connection_cb (TpProxy      *account,
                    const GValue *value,
                    const GError *in_error,
@@ -35,6 +76,13 @@ get_connection_cb (TpProxy      *account,
 
   TpConnection *conn = tp_connection_new (bus_daemon, NULL, path, &error);
   if (error) g_error ("%s", error->message);
+
+  /* request the Statuses property */
+  tp_cli_dbus_properties_call_get (conn, -1,
+      TP_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE,
+      "Statuses",
+      get_statuses_cb,
+      NULL, NULL, NULL);
 
 out:
   /* we're done with the Account */
