@@ -292,6 +292,38 @@
     <xref linkend="sect.connection.presence.simplepresence"/>).
    </para>
 
+   <tip>
+    <title>Who Is Responsible For Setting Presence?</title>
+    <para>
+     Application authors should be aware that lots of applications may be
+     connected to the Telepathy service and may be interested in displaying
+     or editing the user's presence; that some applications may allow more
+     fine-grained control than others.
+    </para>
+    <para>
+     The Telepathy specification does not delegate the task of setting the
+     presence to any one client, or type of client. Applications should take
+     care not to trample over the configured presence unneccesarily.
+     Applications should not change the value of
+     <property>RequestedPresence</property> (especially when starting up)
+     unless it is because of a change by the user.
+    </para>
+    <para>
+     Rather than requesting a default presence to bring themselves online,
+     applications can ensure that they're brought online by requesting their
+     channels from the Channel Dispatcher (for example, ensuring the
+     ContactList channels).
+    </para>
+    <para>
+     Telepathy allows for a separate presence per-Account (e.g. your work
+     account might be Available/"In the Office" and your personal account
+     might be Busy/"Working"). If a user interface cannot display or edit
+     presence with this level of detail, it should provide some visual
+     indication of this (i.e. similar to the way a checkbox might indicate
+     an inconsistent state).
+    </para>
+   </tip>
+
   <table id="table.sect.accounts.presence.Connection-Presence-Type">
    <title>Status Types (Connection_Presence_Type)</title>
    <tgroup cols="2">
