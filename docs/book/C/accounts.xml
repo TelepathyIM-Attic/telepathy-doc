@@ -272,10 +272,61 @@
 
    <para>
     The Account Manager is responsible for managing the user's presence for
-    each configured <interfacename>Account</interfacename>.
+    each configured <interfacename>Account</interfacename>. The presence
+    requested for an account also controls whether that account is connected or
+    disconnected in Mission Control.
    </para>
-  </sect1>
 
+   <para>
+    The presence you desire for each <interfacename>Account</interfacename>
+    should be set as that account's <property>RequestedPresence</property>
+    property. The Account Manager will then attempt to set that presence on
+    the account, connecting or disconnecting the account as required. The
+    <property>CurrentPresence</property> property can be read to find out
+    what the current presence of an account is.
+   </para>
+
+   <para>
+    All presence properties in the Account Manager are of type
+    <type>SimplePresence</type> (see
+    <xref linkend="sect.connection.presence.simplepresence"/>).
+   </para>
+
+  <table id="table.sect.accounts.presence.Connection-Presence-Type">
+   <title>Status Types (Connection_Presence_Type)</title>
+   <tgroup cols="2">
+    <thead>
+     <row>
+      <entry>Online Statuses</entry>
+      <entry>Offline Statuses</entry>
+     </row>
+    </thead>
+    <tbody>
+     <row>
+      <entry>Available</entry>
+      <entry>Offline</entry>
+     </row>
+     <row>
+      <entry>Away</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry>Extended_Away</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry>Hidden</entry>
+      <entry></entry>
+     </row>
+     <row>
+      <entry>Busy</entry>
+      <entry></entry>
+     </row>
+    </tbody>
+   </tgroup>
+  </table>
+
+  </sect1>
   <!-- para>TODO:
    Notes:
    - This is described in the telepathy specification but only partially 

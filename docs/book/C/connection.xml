@@ -457,6 +457,173 @@
      </para>
     </warning>
 
+    <sect2 id="sect.connection.presence.simplepresence">
+     <title>The SimplePresence Tuple</title>
+
+     <para>
+      The <type>SimplePresence</type> tuple is a D-Bus structure consisting
+      of three members that is used throughout Telepathy.
+     </para>
+     <para>
+      The three members are:
+     </para>
+     <orderedlist>
+      <listitem>
+       <para>
+        A presence type from the enum <type>Connection_Presence_Type</type>.
+       </para>
+       <para>
+        This type must match the type specified for the status string as
+	returned by the <property>Statuses</property> property
+	(<link linkend="sect.connection.presence.statuses">see
+	below</link>).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        A status string (e.g. "<literal>available</literal>" or
+	"<literal>xa</literal>").
+       </para>
+       <para>
+        This status string must valid for this Connection, as
+	returned by the <property>Statuses</property> property
+	(<link linkend="sect.connection.presence.statuses">see
+	below</link>).
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        An optional free-form status message (e.g. "Gone Fishing").
+       </para>
+       <para>
+        This message may only be provided if the <literal>Can Have
+	Message</literal> bit is true for the specificed status string
+	(<link linkend="sect.connection.presence.statuses">see
+	below</link>).
+       </para>
+      </listitem>
+     </orderedlist>
+    </sect2>
+
+    <sect2 id="sect.connection.presence.statuses">
+     <title>The Statuses Property</title>
+     <para>
+      The <property>Statuses</property> property is provided by a
+      Connection's <interfacename>SimplePresence</interfacename> interface,
+      and maps the available status strings that can be used on that
+      connection (the second member of the <type>SimplePresence</type>
+      tuple) to properties for each status.
+     </para>
+
+     <para>
+      The string keys returned can be considered a superset of the enum
+      <type>Connection_Presence_Type</type>, and allow extra presence
+      information supported by a protocol to be reported back to Telepathy
+      clients. For instance, a protocol that supports redirecting messages
+      to your mobile phone might expose the status string
+      "<literal>mobile</literal>", which is part of the type
+      <type>Connection_Presence_Type_Away</type>, a Telepathy client can
+      choose to expose this detail if it wishes. The
+      <interfacename>SimplePresence</interfacename> entry lists some
+      well-known status strings that might be reported by a Connection
+      Manager.
+     </para>
+
+     <para>
+      The value of this map is a D-Bus struct containing three members:
+      the <type>Connection_Presence_Type</type> for this status string;
+      a boolean indicating whether a client can request this status, or if
+      it's only returnable by the Connection Manager (i.e. used for error
+      conditions); and a boolean flag indicating whether or not the status
+      supports an additional free-form status message.
+     </para>
+
+     <para>
+      <xref linkend="table.connection.presence.statuses.example"/> is an
+      example of a status map that might be returned (e.g. from Telepathy
+      Gabble).
+     </para>
+
+     <table id="table.connection.presence.statuses.example">
+      <title>Example Statuses Map</title>
+      <tgroup cols="4">
+       <colspec colname="status" colsep="1"/>
+       <colspec colname="type"/>
+       <colspec colname="may_set_on_self"/>
+       <colspec colname="can_have_message"/>
+
+       <thead>
+        <row>
+	 <entry>Key</entry>
+	 <entry namest="type" nameend="can_have_message">Value</entry>
+	</row>
+	<row>
+	 <entry>Status</entry>
+	 <entry>Type</entry>
+	 <entry>May Set on Self</entry>
+	 <entry>Can Have Message</entry>
+	</row>
+       </thead>
+       <tbody>
+        <row>
+	 <entry>available</entry>
+	 <entry><type>Connection_Presence_Type_Available</type></entry>
+	 <entry>True</entry>
+	 <entry>True</entry>
+	</row>
+        <row>
+	 <entry>chat</entry>
+	 <entry><type>Connection_Presence_Type_Available</type></entry>
+	 <entry>True</entry>
+	 <entry>True</entry>
+	</row>
+       	<row>
+	 <entry>dnd</entry>
+	 <entry><type>Connection_Presence_Type_Busy</type></entry>
+	 <entry>True</entry>
+	 <entry>True</entry>
+	</row>
+        <row>
+	 <entry>away</entry>
+	 <entry><type>Connection_Presence_Type_Away</type></entry>
+	 <entry>True</entry>
+	 <entry>True</entry>
+	</row>
+        <row>
+	 <entry>xa</entry>
+	 <entry><type>Connection_Presence_Type_Extended_Away</type></entry>
+	 <entry>True</entry>
+	 <entry>True</entry>
+	</row>
+        <row>
+	 <entry>hidden</entry>
+	 <entry><type>Connection_Presence_Type_Hidden</type></entry>
+	 <entry>True</entry>
+	 <entry>True</entry>
+	</row>
+        <row>
+	 <entry>offline</entry>
+	 <entry><type>Connection_Presence_Type_Offline</type></entry>
+	 <entry>False</entry>
+	 <entry>True</entry>
+	</row>
+        <row>
+	 <entry>unknown</entry>
+	 <entry><type>Connection_Presence_Type_Unknown</type></entry>
+	 <entry>False</entry>
+	 <entry>True</entry>
+	</row>
+        <row>
+	 <entry>error</entry>
+	 <entry><type>Connection_Presence_Type_Error</type></entry>
+	 <entry>False</entry>
+	 <entry>True</entry>
+	</row>
+       </tbody>
+      </tgroup>
+     </table>
+    </sect2>
+
     <sect2 id="sect.connection.presence.user">
      <title>Setting the User's Presence</title>
 
@@ -485,6 +652,11 @@
        <interfacename>Account</interfacename> interface. This property takes
        a <type>SimplePresence</type> as its value.
       </para>
+
+      <para>
+       Setting presence via the Account Manager is documented fully in
+       <xref linkend="sect.accounts.presence"/>.
+      </para>
      </sect3>
 
      <sect3 id="sect.connection.presence.connection">
@@ -495,7 +667,8 @@
        identifier (e.g. available, away, hidden) and an optional status message
        (e.g. &quot;At the Movies&quot;). Valid status identifiers for this
        connection can be retrieved using the <property>Statuses</property>
-       property. This is shown in
+       property (<link linkend="sect.connection.presence.statuses">see
+       above</link>). This is shown in
        <xref linkend="ex.connection.presence.set-presence"/>.
       </para>
 
