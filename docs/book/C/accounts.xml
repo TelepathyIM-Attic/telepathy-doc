@@ -327,11 +327,36 @@
    <sect2 id="sect.accounts.presence.going-online">
     <title>Going Online</title>
 
+    <para>
+     When using an Account Manager with Telepathy, clients are no longer
+     responsible for establishing their own connections, and indeed will
+     vary rarely make use of the
+     <interfacename>ConnectionManager</interfacename> interface. Connections
+     are instead established through the Account Manager.
+    </para>
+
+    <para>
+     The Account Manager will attempt to connect any account that meets
+     three requirements: the account must be valid, the account must be
+     enabled, and the requested presence must be something other than
+     Offline.
+    </para>
+
+    <para>
+     There are also three ways in which the requested presence may be set:
+     <link linkend="sect.accounts.presence.going-online.on-request">directly
+     by an application</link>,
+     <link linkend="sect.accounts.presence.going-online.on-demand">on demand
+     by the Channel Dispatcher</link> or
+     <link linkend="sect.accounts.presence.going-online.automatic">automatically
+     by the Account Manager</link>.
+    </para>
+
     <sect3 id="sect.accounts.presence.going-online.on-request">
      <title>On Request</title>
 
      <para>
-      Mission Control will attempt to connect any enabled account that has a
+      The Account Manager will attempt to connect any enabled account that has a
       <property>RequestedPresence</property> other than
       <type>Connection_Presence_Type_Offline</type>.
      </para>
@@ -406,10 +431,25 @@
      </para>
 
      <para>
-      This is done by setting the current value for
-      <property>AutomaticPresence</property> as the
+      The Account Manager brings the account online by setting the current
+      value for <property>AutomaticPresence</property> as the
       <property>RequestedPresence</property>.
      </para>
+
+     <note>
+      <title>AutomaticPresence</title>
+      <para>
+       The <property>AutomaticPresence</property> property can be set on an
+       account to any type of user-requestable online presence (i.e.
+       not <type>Connection_Presence_Type_Offline</type>).
+      </para>
+      <para>
+       It is expected that this property will usually be set to Available,
+       but some other common mode, like Busy, is also acceptable. Like
+       <property>RequestedPresence</property>, clients should only update
+       this property in response to a request from the user.
+      </para>
+     </note>
     </sect3>
 
     <sect3 id="sect.accounts.presence.going-online.automatic">
@@ -418,14 +458,32 @@
      <para>
       Enabled accounts with the <property>ConnectAutomatically</property>
       property set are brought online automatically by the Account Manager
-      without any action required on the part of the user or other software.
+      without any action required on the part of the user or other software
+      whenever the Account Manager deems it possible to do so.
      </para>
 
      <para>
-      This is done by setting the current value for
-      <property>AutomaticPresence</property> as the
+      The Account Manager brings the account online by setting the current
+      value for <property>AutomaticPresence</property> as the
       <property>RequestedPresence</property>.
      </para>
+
+     <note>
+      <title>Connect When Possible</title>
+      <para>
+       The <property>ConnectAutomatically</property> property leaves
+       responsibility of determining when it is possible to establish a
+       connection up to the specific implementation of the Account Manager.
+      </para>
+      <para>
+       For example, an Account Manager that communicates with a hardware
+       information service, such as NetworkManager may only attempt to
+       establish connections when it knows the network is available. A
+       specific Account Manager implementation may choose only to establish
+       connections automatically on a specific type of network (e.g. one
+       that is uncharged).
+      </para>
+     </note>
     </sect3>
 
    </sect2>
