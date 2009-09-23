@@ -29,6 +29,15 @@ dump_children (GtkWidget *widget,
 }
 
 static void
+account_created (TpAccountManager *am,
+                 TpAccount        *acct,
+                 PresenceWindow   *window)
+{
+  GtkWidget *widget = presence_widget_new (acct);
+  presence_window_add_widget (window, PRESENCE_WIDGET (widget));
+}
+
+static void
 account_manager_ready (TpAccountManager *am,
                        PresenceWindow   *window)
 {
@@ -39,12 +48,12 @@ account_manager_ready (TpAccountManager *am,
 
       GtkWidget *widget = presence_widget_new (acct);
       presence_window_add_widget (window, PRESENCE_WIDGET (widget));
-
     }
 
   g_list_free (accounts);
 
-  // dump_children (GTK_WIDGET (window), "|-");
+  g_signal_connect (am, "account-created",
+      G_CALLBACK (account_created), window);
 }
 
 static void

@@ -154,6 +154,14 @@ _notify_status_message (PresenceWidget *self,
 }
 
 static void
+_account_removed (PresenceWidget *self,
+                  TpAccount      *account)
+{
+  /* this account has been removed, destroy ourselves */
+  gtk_widget_destroy (GTK_WIDGET (self));
+}
+
+static void
 presence_widget_constructed (GObject *self)
 {
   PresenceWidgetPrivate *priv = GET_PRIVATE (self);
@@ -167,10 +175,24 @@ presence_widget_constructed (GObject *self)
   g_signal_connect_swapped (priv->account, "notify::status-message",
       G_CALLBACK (_notify_status_message), self);
 
+  g_signal_connect_swapped (priv->account, "removed",
+      G_CALLBACK (_account_removed), self);
+
   _notify_enabled (PRESENCE_WIDGET (self), NULL, priv->account);
   _notify_display_name (PRESENCE_WIDGET (self), NULL, priv->account);
   _notify_presence (PRESENCE_WIDGET (self), NULL, priv->account);
   _notify_status_message (PRESENCE_WIDGET (self), NULL, priv->account);
+}
+
+static void
+presence_widget_dispose (GObject *self)
+{
+  PresenceWidgetPrivate *priv = GET_PRIVATE (self);
+
+  g_object_unref (priv->account);
+  priv->account = NULL;
+
+  G_OBJECT_CLASS (presence_widget_parent_class)->dispose (self);
 }
 
 static void
@@ -179,6 +201,7 @@ presence_widget_class_init (PresenceWidgetClass *class)
   GObjectClass *gobject_class = G_OBJECT_CLASS (class);
 
   gobject_class->constructed  = presence_widget_constructed;
+  gobject_class->dispose      = presence_widget_dispose;
   gobject_class->get_property = presence_widget_get_property;
   gobject_class->set_property = presence_widget_set_property;
 
