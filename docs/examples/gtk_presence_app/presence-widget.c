@@ -154,6 +154,27 @@ _notify_status_message (PresenceWidget *self,
 }
 
 static void
+_status_changed (PresenceWidget *self,
+                 guint           old_status,
+                 guint           new_status,
+                 guint           reason,
+                 TpAccount      *account)
+{
+  TpConnection *conn = tp_account_get_connection (account);
+
+  g_print ("conn = %p\n", conn);
+
+  if (conn == NULL) return;
+  else if (new_status == TP_CONNECTION_STATUS_CONNECTED ||
+           new_status == TP_CONNECTION_STATUS_DISCONNECTED)
+    {
+      g_print ("requesting Statuses\n");
+    }
+
+  g_print ("end\n");
+}
+
+static void
 _account_removed (PresenceWidget *self,
                   TpAccount      *account)
 {
@@ -175,6 +196,8 @@ presence_widget_constructed (GObject *self)
   g_signal_connect_swapped (priv->account, "notify::status-message",
       G_CALLBACK (_notify_status_message), self);
 
+  g_signal_connect_swapped (priv->account, "status-changed",
+      G_CALLBACK (_status_changed), self);
   g_signal_connect_swapped (priv->account, "removed",
       G_CALLBACK (_account_removed), self);
 
@@ -182,6 +205,10 @@ presence_widget_constructed (GObject *self)
   _notify_display_name (PRESENCE_WIDGET (self), NULL, priv->account);
   _notify_presence (PRESENCE_WIDGET (self), NULL, priv->account);
   _notify_status_message (PRESENCE_WIDGET (self), NULL, priv->account);
+
+  _status_changed (PRESENCE_WIDGET (self), 0,
+      tp_account_get_connection_status (priv->account),
+      0, priv->account);
 }
 
 static void
