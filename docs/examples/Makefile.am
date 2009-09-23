@@ -9,6 +9,7 @@ example_dirs = \
 	glib_stream_tube \
 	glib_mc5_connections \
 	glib_mc5_observer \
+	gtk_presence_app \
 	pygtk_chat_client \
 	python_get_parameters \
 	python_iface_messaging \
