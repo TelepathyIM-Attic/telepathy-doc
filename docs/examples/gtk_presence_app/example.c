@@ -57,15 +57,19 @@ account_manager_ready (TpAccountManager *am,
 }
 
 static void
-am_notify_ready (GObject    *am,
-                 GParamSpec *pspec,
-                 gpointer    user_data)
+_am_ready (GObject      *am,
+           GAsyncResult *res,
+           gpointer      window)
 {
-  if (tp_account_manager_is_ready (TP_ACCOUNT_MANAGER (am)))
+  GError *error = NULL;
+
+  if (!tp_account_manager_become_ready_finish (TP_ACCOUNT_MANAGER (am), res,
+      &error))
     {
-      account_manager_ready (TP_ACCOUNT_MANAGER (am),
-                             PRESENCE_WINDOW (user_data));
+      g_error ("ERROR: %s", error->message);
     }
+
+  account_manager_ready (TP_ACCOUNT_MANAGER (am), PRESENCE_WINDOW (window));
 }
 
 int
@@ -82,16 +86,10 @@ main (int argc, char **argv)
 
   TpAccountManager *am = tp_account_manager_dup ();
 
-  if (tp_account_manager_is_ready (TP_ACCOUNT_MANAGER (am)))
-    {
-      account_manager_ready (TP_ACCOUNT_MANAGER (am),
-                             PRESENCE_WINDOW (window));
-    }
-  else
-    {
-      g_signal_connect (am, "notify::ready",
-          G_CALLBACK (am_notify_ready), window);
-    }
+  /* we want to request some AM features */
+  GQuark features[] = { TP_ACCOUNT_MANAGER_FEATURE_CORE }; // FIXME const?
+  tp_account_manager_become_ready_async (am, features,
+      _am_ready, window);
 
   gtk_widget_show (window);
 
