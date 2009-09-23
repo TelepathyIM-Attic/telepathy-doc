@@ -28,12 +28,12 @@ typedef struct _PresenceWidgetClass PresenceWidgetClass;
 
 struct _PresenceWidget
 {
-  GtkTable parent;
+  GtkFrame parent;
 };
 
 struct _PresenceWidgetClass
 {
-  GtkTableClass parent_class;
+  GtkFrameClass parent_class;
 };
 
 GType presence_widget_get_type (void);
