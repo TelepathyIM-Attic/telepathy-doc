@@ -9,6 +9,9 @@
 
 #include <string.h>
 
+#include <telepathy-glib/interfaces.h>
+#include <telepathy-glib/gtypes.h>
+
 #include "presence-widget.h"
 
 #define GET_PRIVATE(obj)  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_PRESENCE_WIDGET, PresenceWidgetPrivate))
@@ -19,6 +22,7 @@ typedef struct _PresenceWidgetPrivate PresenceWidgetPrivate;
 struct _PresenceWidgetPrivate
 {
   TpAccount *account;
+  GHashTable *statuses;
 
   GtkWidget *enabled_check;
   GtkWidget *status_icon;
@@ -154,6 +158,55 @@ _notify_status_message (PresenceWidget *self,
 }
 
 static void
+_get_property_statuses (TpProxy      *conn,
+                        const GValue *value,
+                        const GError *error,
+                        gpointer      user_data,
+                        GObject      *self)
+{
+  PresenceWidgetPrivate *priv = GET_PRIVATE (self);
+
+  if (error != NULL)
+    {
+      g_warning ("%s", error->message);
+      return;
+    }
+
+  g_return_if_fail (G_VALUE_HOLDS (value, TP_HASH_TYPE_SIMPLE_STATUS_SPEC_MAP));
+
+  if (priv->statuses != NULL) g_hash_table_unref (priv->statuses);
+  priv->statuses = g_hash_table_ref (g_value_get_boxed (value));
+
+  // FIXME: do I need to hold onto this?
+}
+
+static void
+_connection_ready (TpConnection *conn,
+                   const GError *error,
+                   gpointer      user_data)
+{
+  PresenceWidget *self = PRESENCE_WIDGET (user_data);
+  PresenceWidgetPrivate *priv = GET_PRIVATE (self);
+
+  if (error != NULL)
+    {
+      g_warning ("%s", error->message);
+      return;
+    }
+
+  if (tp_proxy_has_interface (conn,
+        TP_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE))
+    {
+      /* request the Statuses property */
+      tp_cli_dbus_properties_call_get (conn, -1,
+          TP_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE,
+          "Statuses",
+          _get_property_statuses,
+          NULL, NULL, G_OBJECT (self));
+    }
+}
+
+static void
 _status_changed (PresenceWidget *self,
                  guint           old_status,
                  guint           new_status,
@@ -162,16 +215,12 @@ _status_changed (PresenceWidget *self,
 {
   TpConnection *conn = tp_account_get_connection (account);
 
-  g_print ("conn = %p\n", conn);
-
   if (conn == NULL) return;
   else if (new_status == TP_CONNECTION_STATUS_CONNECTED ||
            new_status == TP_CONNECTION_STATUS_DISCONNECTED)
     {
-      g_print ("requesting Statuses\n");
+      tp_connection_call_when_ready (conn, _connection_ready, self);
     }
-
-  g_print ("end\n");
 }
 
 static void
