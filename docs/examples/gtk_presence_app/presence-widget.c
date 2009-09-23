@@ -23,6 +23,8 @@ struct _PresenceWidgetPrivate
   GtkWidget *enabled_check;
   GtkWidget *status_icon;
   GtkWidget *status_message;
+
+  gint updating_ui_lock;
 };
 
 enum /* properties */
@@ -103,8 +105,10 @@ _notify_enabled (PresenceWidget *self,
 {
   PresenceWidgetPrivate *priv = GET_PRIVATE (self);
 
+  priv->updating_ui_lock++;
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->enabled_check),
       tp_account_is_enabled (account));
+  priv->updating_ui_lock--;
 }
 
 static void
@@ -190,6 +194,19 @@ presence_widget_class_init (PresenceWidgetClass *class)
 }
 
 static void
+_enabled_toggled (PresenceWidget  *self,
+                  GtkToggleButton *button)
+{
+  PresenceWidgetPrivate *priv = GET_PRIVATE (self);
+
+  if (priv->updating_ui_lock > 0) return;
+
+  tp_account_set_enabled_async (priv->account,
+      gtk_toggle_button_get_active (button),
+      NULL, NULL);
+}
+
+static void
 presence_widget_init (PresenceWidget *self)
 {
   PresenceWidgetPrivate *priv = GET_PRIVATE (self);
@@ -200,6 +217,8 @@ presence_widget_init (PresenceWidget *self)
   gtk_table_attach (GTK_TABLE (self), priv->enabled_check,
       0, 2, 0, 1,
       GTK_FILL, GTK_FILL, 0, 0);
+  g_signal_connect_swapped (priv->enabled_check, "toggled",
+      G_CALLBACK (_enabled_toggled), self);
 
   priv->status_icon = gtk_image_new ();
   gtk_table_attach (GTK_TABLE (self), priv->status_icon,
