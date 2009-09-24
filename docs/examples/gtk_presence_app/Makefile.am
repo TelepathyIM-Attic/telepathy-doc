@@ -6,6 +6,7 @@ noinst_PROGRAMS = example
 example_SOURCES = \
 	presence-window.c presence-window.h \
 	presence-widget.c presence-widget.h \
+	presence-chooser.c presence-chooser.h \
 	example.c
 
 include $(top_srcdir)/docs/rsync-dist.make

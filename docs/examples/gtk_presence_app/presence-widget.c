@@ -13,6 +13,7 @@
 #include <telepathy-glib/gtypes.h>
 
 #include "presence-widget.h"
+#include "presence-chooser.h"
 
 #define GET_PRIVATE(obj)  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_PRESENCE_WIDGET, PresenceWidgetPrivate))
 
@@ -27,6 +28,7 @@ struct _PresenceWidgetPrivate
   GtkWidget *enabled_check;
   GtkWidget *status_icon;
   GtkWidget *status_message;
+  GtkWidget *chooser;
 
   gint updating_ui_lock;
 };
@@ -38,7 +40,7 @@ enum /* properties */
 };
 
 /* presence icons */
-static const char *presence_icons[NUM_TP_CONNECTION_PRESENCE_TYPES] = {
+const char *presence_icons[NUM_TP_CONNECTION_PRESENCE_TYPES] = {
     "empathy-offline",
     "empathy-offline",
     "empathy-available",
@@ -48,18 +50,6 @@ static const char *presence_icons[NUM_TP_CONNECTION_PRESENCE_TYPES] = {
     "empathy-busy",
     "empathy-offline",
     "empathy-offline",
-};
-
-static const char *default_messages[NUM_TP_CONNECTION_PRESENCE_TYPES] = {
-    "Unset",
-    "Offline",
-    "Available",
-    "Away",
-    "Extended Away",
-    "Hidden",
-    "Busy",
-    "Unknown",
-    "Error"
 };
 
 static void
@@ -151,7 +141,7 @@ _notify_status_message (PresenceWidget *self,
   if (strlen (msg) == 0)
     {
       TpConnectionPresenceType presence = tp_account_get_presence (account);
-      msg = default_messages[presence];
+      msg = tp_account_get_status (account);
     }
 
   gtk_label_set_text (GTK_LABEL (priv->status_message), msg);
@@ -178,6 +168,8 @@ _get_property_statuses (TpProxy      *conn,
   priv->statuses = g_hash_table_ref (g_value_get_boxed (value));
 
   // FIXME: do I need to hold onto this?
+  presence_chooser_set_statuses (PRESENCE_CHOOSER (priv->chooser),
+                                 priv->statuses);
 }
 
 static void
@@ -319,6 +311,7 @@ presence_widget_init (PresenceWidget *self)
   gtk_container_add (GTK_CONTAINER (self), table);
   gtk_container_set_border_width (GTK_CONTAINER (table), 3);
   gtk_table_set_col_spacings (GTK_TABLE (table), 3);
+  gtk_table_set_row_spacings (GTK_TABLE (table), 3);
 
   priv->status_icon = gtk_image_new ();
   gtk_table_attach (GTK_TABLE (table), priv->status_icon,
@@ -326,8 +319,14 @@ presence_widget_init (PresenceWidget *self)
       GTK_FILL, GTK_FILL, 0, 0);
 
   priv->status_message = gtk_label_new ("");
+  gtk_misc_set_alignment (GTK_MISC (priv->status_message), 0., 0.5);
   gtk_table_attach (GTK_TABLE (table), priv->status_message,
       1, 2, 0, 1,
+      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 0, 0);
+
+  priv->chooser = presence_chooser_new ();
+  gtk_table_attach (GTK_TABLE (table), priv->chooser,
+      0, 2, 1, 2,
       GTK_FILL, GTK_FILL, 0, 0);
 
   gtk_widget_show (priv->enabled_check);
