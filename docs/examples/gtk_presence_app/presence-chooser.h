@@ -12,6 +12,8 @@
 
 #include <gtk/gtk.h>
 
+#include <telepathy-glib/account.h>
+
 G_BEGIN_DECLS
 
 #define TYPE_PRESENCE_CHOOSER	(presence_chooser_get_type ())
@@ -35,9 +37,7 @@ struct _PresenceChooserClass
 };
 
 GType presence_chooser_get_type (void);
-void presence_chooser_set_statuses (PresenceChooser *self,
-                                    GHashTable *statuses);
-GtkWidget *presence_chooser_new (void);
+GtkWidget *presence_chooser_new (TpAccount *account);
 
 G_END_DECLS
 

@@ -23,7 +23,6 @@ typedef struct _PresenceWidgetPrivate PresenceWidgetPrivate;
 struct _PresenceWidgetPrivate
 {
   TpAccount *account;
-  GHashTable *statuses;
 
   GtkWidget *enabled_check;
   GtkWidget *status_icon;
@@ -148,74 +147,6 @@ _notify_status_message (PresenceWidget *self,
 }
 
 static void
-_get_property_statuses (TpProxy      *conn,
-                        const GValue *value,
-                        const GError *error,
-                        gpointer      user_data,
-                        GObject      *self)
-{
-  PresenceWidgetPrivate *priv = GET_PRIVATE (self);
-
-  if (error != NULL)
-    {
-      g_warning ("%s", error->message);
-      return;
-    }
-
-  g_return_if_fail (G_VALUE_HOLDS (value, TP_HASH_TYPE_SIMPLE_STATUS_SPEC_MAP));
-
-  if (priv->statuses != NULL) g_hash_table_unref (priv->statuses);
-  priv->statuses = g_hash_table_ref (g_value_get_boxed (value));
-
-  // FIXME: do I need to hold onto this?
-  presence_chooser_set_statuses (PRESENCE_CHOOSER (priv->chooser),
-                                 priv->statuses);
-}
-
-static void
-_connection_ready (TpConnection *conn,
-                   const GError *error,
-                   gpointer      user_data)
-{
-  PresenceWidget *self = PRESENCE_WIDGET (user_data);
-  PresenceWidgetPrivate *priv = GET_PRIVATE (self);
-
-  if (error != NULL)
-    {
-      g_warning ("%s", error->message);
-      return;
-    }
-
-  if (tp_proxy_has_interface (conn,
-        TP_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE))
-    {
-      /* request the Statuses property */
-      tp_cli_dbus_properties_call_get (conn, -1,
-          TP_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE,
-          "Statuses",
-          _get_property_statuses,
-          NULL, NULL, G_OBJECT (self));
-    }
-}
-
-static void
-_status_changed (PresenceWidget *self,
-                 guint           old_status,
-                 guint           new_status,
-                 guint           reason,
-                 TpAccount      *account)
-{
-  TpConnection *conn = tp_account_get_connection (account);
-
-  if (conn == NULL) return;
-  else if (new_status == TP_CONNECTION_STATUS_CONNECTED ||
-           new_status == TP_CONNECTION_STATUS_DISCONNECTED)
-    {
-      tp_connection_call_when_ready (conn, _connection_ready, self);
-    }
-}
-
-static void
 _account_removed (PresenceWidget *self,
                   TpAccount      *account)
 {
@@ -228,6 +159,13 @@ presence_widget_constructed (GObject *self)
 {
   PresenceWidgetPrivate *priv = GET_PRIVATE (self);
 
+  priv->chooser = presence_chooser_new (priv->account);
+  gtk_table_attach (GTK_TABLE (gtk_bin_get_child (GTK_BIN (self))),
+      priv->chooser,
+      0, 2, 1, 2,
+      GTK_FILL, GTK_FILL, 0, 0);
+  gtk_widget_show (priv->chooser);
+
   g_signal_connect_swapped (priv->account, "notify::enabled",
       G_CALLBACK (_notify_enabled), self);
   g_signal_connect_swapped (priv->account, "notify::display-name",
@@ -237,8 +175,6 @@ presence_widget_constructed (GObject *self)
   g_signal_connect_swapped (priv->account, "notify::status-message",
       G_CALLBACK (_notify_status_message), self);
 
-  g_signal_connect_swapped (priv->account, "status-changed",
-      G_CALLBACK (_status_changed), self);
   g_signal_connect_swapped (priv->account, "removed",
       G_CALLBACK (_account_removed), self);
 
@@ -246,10 +182,6 @@ presence_widget_constructed (GObject *self)
   _notify_display_name (PRESENCE_WIDGET (self), NULL, priv->account);
   _notify_presence (PRESENCE_WIDGET (self), NULL, priv->account);
   _notify_status_message (PRESENCE_WIDGET (self), NULL, priv->account);
-
-  _status_changed (PRESENCE_WIDGET (self), 0,
-      tp_account_get_connection_status (priv->account),
-      0, priv->account);
 }
 
 static void
@@ -257,8 +189,11 @@ presence_widget_dispose (GObject *self)
 {
   PresenceWidgetPrivate *priv = GET_PRIVATE (self);
 
-  g_object_unref (priv->account);
-  priv->account = NULL;
+  if (priv->account != NULL)
+    {
+      g_object_unref (priv->account);
+      priv->account = NULL;
+    }
 
   G_OBJECT_CLASS (presence_widget_parent_class)->dispose (self);
 }
@@ -323,11 +258,6 @@ presence_widget_init (PresenceWidget *self)
   gtk_table_attach (GTK_TABLE (table), priv->status_message,
       1, 2, 0, 1,
       GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 0, 0);
-
-  priv->chooser = presence_chooser_new ();
-  gtk_table_attach (GTK_TABLE (table), priv->chooser,
-      0, 2, 1, 2,
-      GTK_FILL, GTK_FILL, 0, 0);
 
   gtk_widget_show (priv->enabled_check);
   gtk_widget_show_all (table);
