@@ -21,10 +21,21 @@
   <para>
    The Channel Dispatcher is responsible for discovering and launching
    Telepathy clients to handle incoming channels from accounts being managed
-   by the <link linkend="chapter.accounts">Account Manager</link>. Clients
-   register themselves and their capabilities with the Channel Dispatcher,
-   which then hands off incoming channels to the appropriate client. Clients
-   will be launched via D-Bus activation if required.
+   by the <link linkend="chapter.accounts">Account Manager</link> and
+   channels requested via the Channel Dispatcher (but not channels requested
+   directly from a <interfacename>Connection</interfacename>, see
+   <xref linkend="sect.channel.requesting"/>).
+  </para>
+
+  <para>
+   Clients register a well-known name on the D-Bus session bus in the
+   <literal>org.freedesktop.Telepathy.Client</literal> namespace. These are
+   then picked up by the Channel Dispatcher which queries the appropriate
+   properties to discover what manner of client it is.
+   Clients may be launched via D-Bus activation if desired. A
+   <filename>.client</filename> file is used to provide the D-Bus properties
+   the Channel Dispatcher queries, allowing the Channel Dispatcher to only
+   activate the client if required.
   </para>
 
   <para>
@@ -67,7 +78,8 @@
    <link linkend="chapter.connection">Connections</link> known to the
    <link linkend="chapter.accounts">Account Manager</link> and keeps track of
    what <link linkend="sect.channel-dispatcher.clients">Clients</link> are
-   available to handle incoming Channels from those Connections. When a new
+   available to handle incoming and requested Channels from those Connections.
+   When a new
    channel comes in, the Channel Dispatcher looks at the available clients, and
    the types of channels they handle and then selects clients to dispatch the
    channel to.
@@ -75,7 +87,8 @@
 
   <para>
    There are three types of Telepathy Clients: Observers, Approvers and
-   Handlers.
+   Handlers. These are described further in
+   <xref linkend="sect.channel-dispatcher.clients"/>.
   </para>
 
   <para>
@@ -134,6 +147,13 @@
      Telepathy clients can be activated by the Channel Dispatcher using
      D-Bus Activation. This is done in the regular way by registering a
      <filename>.service</filename> file with D-Bus.
+    </para>
+    <para>
+     An additional <filename>.client</filename>
+     file is used by the Channel Dispatcher to look up properties such as
+     what interfaces the client supports and what channels its interested
+     in (see <xref linkend="sect.channel-dispatcher.clients.clientfile"/>
+     below).
     </para>
     <para>
      An activatable client can be used by the Dispatcher to handle an
@@ -249,6 +269,48 @@
      are documented in <xref linkend="chapter.services"/>.
     </para>
 
+   </sect2>
+
+   <sect2 id="sect.channel-dispatcher.clients.clientfile">
+    <title>.client File</title>
+
+    <para>
+     A .client file is used by the Channel Dispatcher to pre-lookup
+     properties for D-Bus activatable Telepathy clients. Non-activatable
+     clients can also install a client file, but there is little point as
+     the Channel Dispatcher can read the properties directly.
+    </para>
+
+    <para>
+     The file is installed into
+     <filename>$XDG_DATA_DIRS/telepathy/clients/clientname.client</filename>
+     (e.g.
+     <filename>/usr/share/telepathy/clients/gnome-approver.client</filename>)
+    </para>
+
+    <para>
+     The file contains
+     keys for the immutable D-Bus properties the Channel Dispatcher is
+     interested in. For instance, an <interfacename>Observer</interfacename>
+     would provide the <property>Interfaces</property> and
+     <property>ObserverChannelFilter</property> properties.
+    </para>
+
+    <example id="ex.channel-dispatcher.clients.clientfile">
+     <title>Example .client File</title>
+     <programlisting><![CDATA[[org.freedesktop.Telepathy.Client]
+Interfaces=org.freedesktop.Telepathy.Client.Observer;
+
+[org.freedesktop.Telepathy.Client.Observer.ObserverChannelFilter 0]
+org.freedesktop.Telepathy.Channel.Type s=org.freedesktop.Telepathy.Channel.Type.Text
+org.freedesktop.Telepathy.Channel.TargetHandleType u=1
+org.freedesktop.Telepathy.Channel.Requested b=true
+
+[org.freedesktop.Telepathy.Client.Observer.ObserverChannelFilter 1]
+org.freedesktop.Telepathy.Channel.Type s=org.freedesktop.Telepathy.Channel.Type.Text
+org.freedesktop.Telepathy.Channel.TargetHandleType u=2
+org.freedesktop.Telepathy.Channel.Requested b=true]]></programlisting>
+    </example>
    </sect2>
   </sect1>
 </chapter>
