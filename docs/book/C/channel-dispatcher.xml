@@ -354,6 +354,11 @@
        <xref linkend="ex.channel-dispatcher.clients.impl.channel_class_list"/>
        gives some examples.
       </para>
+      <para>
+       If you require more complex channel matching,
+       you should install a more generic handlers and simply apply your
+       own filtering rules when the Dispatcher gives you the channel.
+      </para>
 
       <example id="ex.channel-dispatcher.clients.impl.channel_class_list">
        <title>Example Channel Filters</title>
@@ -413,10 +418,10 @@
     <title>.client File</title>
 
     <para>
-     A .client file is used by the Channel Dispatcher to pre-lookup
-     properties for D-Bus activatable Telepathy clients. Non-activatable
-     clients can also install a client file, but there is little point as
-     the Channel Dispatcher can read the properties directly.
+     A <filename>.client</filename> file is used by the Channel Dispatcher to
+     pre-lookup properties for D-Bus activatable Telepathy clients.
+     Non-activatable clients can also install a client file, but there is
+     little point as the Channel Dispatcher can read the properties directly.
     </para>
 
     <para>
