@@ -237,10 +237,9 @@
      <interfacename>Handler</interfacename>.
     </para>
     <para>
-     In some instances, the <interfacename>Approver</interfacename> and the
-     <interfacename>Handler</interfacename> will be the same client
-     implementing both interfaces. In other instances there will be a common
-     <interfacename>Approver</interfacename> provided by the desktop.
+     Often there will be a common <interfacename>Approver</interfacename>
+     provided by the desktop.
+     <!-- FIXME: we need some serious spec clarification here IMO -->
     </para>
    </note>
 
@@ -268,6 +267,145 @@
      for implementing a Telepathy service (such as a Client). These methods
      are documented in <xref linkend="chapter.services"/>.
     </para>
+
+    <sect3 id="sect.channel-dispatcher.clients.impl.observer">
+     <title>Implementing an Observer</title>
+
+     <para>
+      Observers need to implement the
+      <interfacename>Client</interfacename> and
+      <interfacename>Client.Observer</interfacename> interfaces. The
+      <property>Client.Interfaces</property> property should include
+      <interfacename>org.freedesktop.Telepathy.Client.Observer</interfacename>.
+     </para>
+
+     <para>
+      The <property>ObserverChannelFilter</property> property must be
+      implemented so that the Channel Dispatcher knows what types of
+      channels your observer is interested in.
+     </para>
+
+     <note id="note.channel-dispatcher.clients.impl.channel_class_list">
+      <title>Channel Filters and Channel_Class_List</title>
+      <para>
+       Channel filters (i.e. <property>ObserverChannelFilter</property>,
+       <property>ApproverChannelFilter</property> and
+       <property>HandlerChannelFilter</property> all take a value of
+       type <type>Channel_Class_List</type>. This is a list of key-value
+       pair maps of channel properties, like those used to request channels,
+       or provide information about incoming channels.
+      </para>
+      <para>
+       Channels have their properties matched against the maps listed in
+       the filter. Only certain D-Bus types have useful semantics for
+       matching. These are listed in
+       <xref linkend="table.channel-dispatcher.clients.impl.channel_class_list"/>.
+      </para>
+
+      <table id="table.channel-dispatcher.clients.impl.channel_class_list">
+       <tgroup cols="3">
+        <thead>
+	 <row>
+	  <entry>Type</entry>
+	  <entry>D-Bus Type</entry>
+	  <entry>Match rule</entry>
+	 </row>
+	</thead>
+	<tbody>
+	 <row>
+	  <entry>Integers</entry>
+	  <entry>y, n, q, i, u, x, t</entry>
+	  <entry>
+	   Matched for numeric equality, regardless of type. For
+	   example 42 as a 16-bit signed integer 'n' is considered equal to
+	   42 as a 32-bit unsigned integer 'u'.
+	  </entry>
+	 </row>
+	 <row>
+	  <entry>Booleans</entry>
+	  <entry>b</entry>
+	  <entry>
+	   Matched for equality. Not considered equal to any other type.
+	  </entry>
+	 </row>
+	 <row>
+	  <entry>Strings</entry>
+	  <entry>s</entry>
+	  <entry>
+	   Matched for equality. Not considered equal to any other type.
+	  </entry>
+	 </row>
+	 <row>
+	  <entry>Objects</entry>
+	  <entry>o</entry>
+	  <entry>
+	   Matched for equality. Not considered equal to any other type.
+	  </entry>
+	 </row>
+	</tbody>
+       </tgroup>
+      </table>
+
+      <para>
+       Specified properties are matched for equality, unspecified properties
+       will not be matched. Thus, a filter to match all channels is a list
+       containing an empty map. Only equality can be represented and the
+       matching of each map is an OR operation.
+       <xref linkend="ex.channel-dispatcher.clients.impl.channel_class_list"/>
+       gives some examples.
+      </para>
+
+      <example id="ex.channel-dispatcher.clients.impl.channel_class_list">
+       <title>Example Channel Filters</title>
+       <para>
+        This filter (a single empty map) matches all channels.
+       </para>
+       <programlisting language="python"><![CDATA[dbus.Array([
+    dbus.Dictionary({
+                    }, signature='sv'),
+           ], signature='a{sv}')]]></programlisting>
+       <para>
+        This filter matches requested text channels that have a target
+	handle which is either a contact or a chat room. This is
+	semantically the same example as
+	<xref linkend="ex.channel-dispatcher.clients.clientfile"/> below.
+       </para>
+       <programlisting language="python"><![CDATA[dbus.Array([
+    dbus.Dictionary({
+        'org.freedesktop.Telepathy.Channel.ChannelType':      'org.freedesktop.Telepathy.Channel.Type.Text',
+	'org.freedesktop.Telepathy.Channel.TargetHandleType': HANDLE_TYPE_CONTACT,
+	'org.freedesktop.Telepathy.Channel.Requested':        True,
+                    }, signature='sv'),
+    dbus.Dictionary({
+        'org.freedesktop.Telepathy.Channel.ChannelType':      'org.freedesktop.Telepathy.Channel.Type.Text',
+	'org.freedesktop.Telepathy.Channel.TargetHandleType': HANDLE_TYPE_ROOM,
+	'org.freedesktop.Telepathy.Channel.Requested':        True,
+                    }, signature='sv'),
+           ], signature='a{sv}')]]></programlisting>
+      </example>
+
+     </note>
+
+     <para>
+      Finally the <methodname>ObserveChannels</methodname> method must be
+      implemented. This method is called by the Channel Dispatcher whenever
+      a new channel matching your filter arrives.
+     </para>
+    </sect3>
+
+    <sect3 id="sect.channel-dispatcher.clients.impl.approver">
+     <title>Implementing an Approver</title>
+
+     <important><para>
+      It is very rare that you will need to implement an
+      <interfacename>Approver</interfacename>, in general the Approver will
+      be provided by your desktop environment.
+     </para></important>
+    </sect3>
+
+    <sect3 id="sect.channel-dispatcher.clients.impl.handler">
+     <title>Implementing a Handler</title>
+    </sect3>
 
    </sect2>
 
@@ -298,6 +436,11 @@
 
     <example id="ex.channel-dispatcher.clients.clientfile">
      <title>Example .client File</title>
+     <para>
+      This example is semantically the same as part 2 of
+      <xref linkend="ex.channel-dispatcher.clients.impl.channel_class_list"/>
+      above.
+     </para>
      <programlisting><![CDATA[[org.freedesktop.Telepathy.Client]
 Interfaces=org.freedesktop.Telepathy.Client.Observer;
 
