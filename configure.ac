@@ -43,7 +43,7 @@ AC_OUTPUT([
       docs/examples/python_get_parameters/Makefile
       docs/examples/python_iface_messaging/Makefile
       docs/examples/python_irc_roomlist/Makefile
-      docs/examples/python_mc5_observer/Makefile
+      docs/examples/python_mc5_clients/Makefile
       docs/examples/python_simple_presence/Makefile
 
     docs/book/Makefile

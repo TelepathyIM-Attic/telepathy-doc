@@ -15,7 +15,7 @@ example_dirs = \
 	python_get_parameters \
 	python_iface_messaging \
 	python_irc_roomlist \
-	python_mc5_observer \
+	python_mc5_clients \
 	python_simple_presence
 
 SUBDIRS = $(example_dirs)
