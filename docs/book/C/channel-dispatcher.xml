@@ -282,7 +282,7 @@
      <para>
       The <property>ObserverChannelFilter</property> property must be
       implemented so that the Channel Dispatcher knows what types of
-      channels your observer is interested in.
+      channels your Observer is interested in.
      </para>
 
      <note id="note.channel-dispatcher.clients.impl.channel_class_list">
@@ -406,6 +406,157 @@
       <interfacename>Approver</interfacename>, in general the Approver will
       be provided by your desktop environment.
      </para></important>
+
+     <para>
+      Approvers are very similar to Observers. Approvers need to implement
+      the <interfacename>Client</interfacename> and
+      <interfacename>Client.Approver</interfacename> interfaces. The
+      <property>Client.Interfaces</property> property must include
+      <interfacename>org.freedesktop.Telepathy.Client.Approver</interfacename>.
+     </para>
+
+     <para>
+      The <property>ApproverChannelFilter</property> property must be
+      implemented so that the Channel Dispatcher knows what types of
+      channels your Approver is interested in. This property has the
+      <link linkend="note.channel-dispatcher.clients.impl.channel_class_list">same
+      form</link> as for Observers.
+     </para>
+
+     <para>
+      Finally the <methodname>AddDispatchOperation</methodname> method must
+      be implemented. This method is called by the Channel Dispatcher
+      whenever a new channel matching your filter arrives. This method has
+      three parameters:
+     </para>
+
+     <informaltable>
+      <tgroup cols="3">
+       <thead>
+        <row>
+	 <entry>Parameter</entry>
+	 <entry>Type</entry>
+	 <entry>Description</entry>
+	</row>
+       </thead>
+       <tbody>
+        <row>
+	 <entry>Channels</entry>
+	 <entry>
+	  <type>Channel_Details_List</type> &mdash;
+	  <literal>a(oa{sv})</literal>
+	 </entry>
+	 <entry>
+	  The intial value of the <property>Channels</property> property for
+	  the dispatch operation. Provided so that it doesn't need to be
+	  requested.
+	 </entry>
+	</row>
+	<row>
+	 <entry>Dispatch Operation</entry>
+	 <entry><literal>o</literal></entry>
+	 <entry>
+	  The <interfacename>ChannelDispatchOperation</interfacename> for
+	  this dispatch. This object is provided by the Channel Dispatcher
+	  (<literal>org.freedesktop.Telepathy.ChannelDispatcher</literal>).
+	 </entry>
+	</row>
+	<row>
+	 <entry>Properties</entry>
+	 <entry><literal>a{sv}</literal></entry>
+	 <entry>
+	  The immutable properties for the dispatch operation, including the
+	  <property>Account</property>, <property>Connection</property> and
+	  <property>PossibleHandlers</property> properties. Provided so that
+	  they needn't be requested.
+	 </entry>
+	</row>
+       </tbody>
+      </tgroup>
+     </informaltable>
+
+     <para>
+      Each Approver should connect to the dispatch operation's
+      <methodname>Finished</methodname> and
+      <methodname>ChannelLost</methodname> signals. The
+      <methodname>Finished</methodname> signal indicates that some Approver
+      has handled the dispatch, and this dispatch object is no longer valid.
+      The <methodname>ChannelLost</methodname> indicates that one of the
+      original channels making up this dispatch has been closed for the
+      reason given.
+     </para>
+
+     <para>
+      If an Approver returns from
+      <methodname>AddDispatchOperation</methodname> with no error, the
+      Channel Dispatcher will assume the Approver accepts the dispatch and
+      is offering it to the user, and thus will wait for the Approver to
+      handle the dispatch operation by calling
+      <methodname>Claim</methodname> or <methodname>HandleWith</methodname>
+      methods. If you return from this method without error, you must intend
+      to call one of these two functions, else the channel may never be
+      dispatched to a Handler.
+     </para>
+     <para>
+      To indicate you're not interested in approving a channel, return a D-Bus
+      error from <methodname>AddDispatchOperation</methodname>.
+     </para>
+     <para>
+      Otherwise call the <methodname>HandleWith</methodname> or
+      <methodname>Claim</methodname> method on the dispatch operation.
+     </para>
+     <para>
+      The <methodname>HandleWith</methodname> method tells the Channel
+      Dispatcher to pass the dispatch to a Handler by calling
+      <methodname>HandleChannels</methodname> on that Handler. You must
+      either provide the name of a Handler from the list of possible Handlers
+      provided in the <property>PossibleHandlers</property> property or an
+      empty string if you wish to use the Channel Dispatcher's preferred
+      Handler.
+     </para>
+     <para>
+      <methodname>HandleWith</methodname> may return one of several errors,
+      for instance raising <errorname>NotYours</errorname> if the dispatch has
+      already been approved; or possibly even some error returned from
+      <methodname>HandleChannels</methodname>.
+     </para>
+     <para>
+      The <methodname>Claim</methodname> method tells the Channel Dispatcher
+      that you are claiming the dispatch for yourself. Assuming the method
+      returns without error (i.e. the dispatch wasn't already handled),
+      the dispatch belongs to your client. The Channel
+      Dispatcher will not call <methodname>HandleChannels</methodname> in
+      this instance. Clients that claim a dispatch, but do not immediately
+      reject it should also implement the
+      <interfacename>Handler</interfacename> interface, specifically
+      <property>HandledChannels</property>.
+     </para>
+
+     <note>
+      <title>Rejecting Incoming Channels</title>
+      <para>
+       The <methodname>Claim</methodname> method is also used to reject an
+       incoming dispatch.
+      </para>
+      <para>
+       The Channel Dispatcher does not know how to politely close or reject
+       the various types of different channels, and instead makes this the
+       responsibility of the Telepathy Clients.
+      </para>
+      <para>
+       To reject a dispatch, first <methodname>Claim</methodname> it. If
+       this method returns without error (i.e. you have successfully claimed
+       the dispatch), you can then close the channels in a way that is
+       specific to the channel type (e.g. acknowledging the messages and
+       calling <methodname>Close</methodname> or calling
+       <methodname>Destroy</methodname>).
+      </para>
+      <para>
+       Approvers that claim channels only to reject them do not need to
+       present as Handlers.
+      </para>
+     </note>
+
     </sect3>
 
     <sect3 id="sect.channel-dispatcher.clients.impl.handler">
