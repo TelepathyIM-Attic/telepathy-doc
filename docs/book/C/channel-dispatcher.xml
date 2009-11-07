@@ -606,7 +606,7 @@
       Client objects registered by the client.
      </para>
      <para>
-      The <methodname>HandleChannels</methodname> interface must be
+      The <methodname>HandleChannels</methodname> method must be
       implemented. This is the method the Channel Dispatcher will call to
       dispatch channels to a Handler, either because it chose a Handler or
       in response to an Approver calling
