@@ -561,6 +561,120 @@
 
     <sect3 id="sect.channel-dispatcher.clients.impl.handler">
      <title>Implementing a Handler</title>
+     <para>
+      Handlers are the most commonly implemented class of Telepathy
+      Client. Handlers need to implement the
+      <interfacename>Client</interfacename> and
+      <interfacename>Client.Handler</interfacename> interfaces. They may
+      also optionally implement the
+      <interfacename>Client.Interface.Requests</interfacename> interface.
+     </para>
+     <para>
+      The <property>Client.Interfaces</property> property must include
+      <interfacename>org.freedesktop.Telepathy.Client.Handler</interfacename>
+      and optionally
+      <interfacename>org.freedesktop.Telepathy.Client.Interface.Requests</interfacename>.
+     </para>
+     <para>
+      The <property>HandlerChannelFilter</property> property must be
+      implemented so that the Channel Dispatcher knows what types of
+      channels your Handler is interested in. This property has the
+      <link linkend="note.channel-dispatcher.clients.impl.channel_class_list">same
+      form</link> as for Observers.
+     </para>
+     <para>
+      The <property>Capabilities</property> property is the list of
+      additional Telepathy capabilities this Handler supports.
+      <!-- FIXME: link to section on Telepathy Capabilities -->
+      These capabilities can also be listed in the
+      <link linkend="sect.channel-dispatcher.clients.clientfile">.client
+      file</link>.
+     </para>
+     <para>
+      The <property>BypassApproval</property> property indicates that
+      channels in your <property>HandlerChannelFilter</property>. This
+      property is normally used when a Client registers a second Client
+      object with channels that its expecting.
+      <!-- FIXME: write more about this -->
+     </para>
+     <para>
+      The <property>HandledChannels</property> property is a list of D-Bus
+      object paths for Channels this Client is handling. This property only
+      exists to recover state in the event of a Channel Dispatcher crash, so
+      there is no need to emit a signal when the property is updated. This
+      property should include the channels for any temporary transient
+      Client objects registered by the client.
+     </para>
+     <para>
+      The <methodname>HandleChannels</methodname> interface must be
+      implemented. This is the method the Channel Dispatcher will call to
+      dispatch channels to a Handler, either because it chose a Handler or
+      in response to an Approver calling
+      <methodname>HandleWith</methodname> (this method is
+      <emphasis>not</emphasis> called is an Approver calls
+      <methodname>Claim</methodname>). The method takes six parameters:
+     </para>
+     <informaltable>
+      <tgroup cols="3">
+       <thead>
+        <row>
+	 <entry>Parameter</entry>
+	 <entry>Type</entry>
+	 <entry>Description</entry>
+	</row>
+       </thead>
+       <tbody>
+        <row>
+	 <entry>Account</entry>
+	 <entry>o</entry>
+	 <entry>the <interfacename>Account</interfacename></entry>
+	</row>
+	<row>
+	 <entry>Connection</entry>
+	 <entry>o</entry>
+	 <entry>the <interfacename>Connection</interfacename></entry>
+	</row>
+	<row>
+	 <entry>Channels</entry>
+	 <entry>
+	  <type>Channel_Details_List</type> &mdash;
+	  <literal>a(oa{sv})</literal>
+	 </entry>
+	 <entry>
+	  the Channels to be handled, as well as their immutable properties.
+	 </entry>
+	</row>
+	<row>
+	 <entry>Requests Satisfied</entry>
+	 <entry>ao</entry>
+	 <entry>
+	  the Channel Requests that are handled by this dispatch
+	 </entry>
+	</row>
+	<row>
+	 <entry>User Action Time</entry>
+	 <entry>t</entry>
+	 <entry>
+	  the time at which this user action occured (or 0 if
+	  unknown) &mdash; used for focus stealing prevention
+	 </entry>
+	</row>
+	<row>
+	 <entry>Handler Info</entry>
+	 <entry>a{sv}</entry>
+	 <entry>
+	  Additional information about this dispatch.
+	 </entry>
+	</row>
+       </tbody>
+      </tgroup>
+     </informaltable>
+     <para>
+      Returning an error from <methodname>HandleChannels</methodname> causes
+      the Channel Dispatcher to assume the Handler has failed or crashed,
+      what happens in this circumstance is left up to the Channel
+      Dispatcher. <!-- FIXME: need a lot of clarification here -->
+     </para>
     </sect3>
 
    </sect2>
@@ -587,7 +701,15 @@
      keys for the immutable D-Bus properties the Channel Dispatcher is
      interested in. For instance, an <interfacename>Observer</interfacename>
      would provide the <property>Interfaces</property> and
-     <property>ObserverChannelFilter</property> properties.
+     <property>ObserverChannelFilter</property> properties. Other properties
+     that might appear include <property>ApproverChannelFilter</property>,
+     <property>HandlerChannelFilter</property> and
+     <property>Capabilities</property>.
+    </para>
+
+    <para>
+     <xref linkend="ex.channel-dispatcher.clients.clientfile"/> includes
+     some <filename>.client</filename> file examples.
     </para>
 
     <example id="ex.channel-dispatcher.clients.clientfile">
@@ -609,6 +731,11 @@ org.freedesktop.Telepathy.Channel.Requested b=true
 org.freedesktop.Telepathy.Channel.Type s=org.freedesktop.Telepathy.Channel.Type.Text
 org.freedesktop.Telepathy.Channel.TargetHandleType u=2
 org.freedesktop.Telepathy.Channel.Requested b=true]]></programlisting>
+<programlisting><![CDATA[[org.freedesktop.Telepathy.Client.Handler.Capabilities]
+org.freedesktop.Telepathy.Channel.Interface.MediaSignalling/ice-udp=true
+org.freedesktop.Telepathy.Channel.Interface.MediaSignalling/audio/speex=true
+org.freedesktop.Telepathy.Channel.Interface.MediaSignalling/video/theora=true
+org.freedesktop.Telepathy.Channel.Interface.MediaSignalling/video/h264=true]]></programlisting>
     </example>
    </sect2>
   </sect1>
