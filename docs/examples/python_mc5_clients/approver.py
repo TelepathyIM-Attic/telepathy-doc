@@ -2,14 +2,15 @@ import dbus.glib
 import gobject
 import telepathy
 
-from telepathy.constants import CONNECTION_HANDLE_TYPE_CONTACT
+from telepathy._generated.Client_Approver import ClientApprover
+from telepathy.server.properties import DBusProperties
 from telepathy.interfaces import CLIENT, \
                                  CLIENT_APPROVER, \
                                  CHANNEL
 
 DBUS_PROPERTIES = "org.freedesktop.DBus.Properties"
 
-class ExampleApprover(dbus.service.Object):
+class ExampleApprover(ClientApprover, DBusProperties):
     properties = {
         CLIENT: {
             'Interfaces': [ CLIENT_APPROVER ],
@@ -27,12 +28,8 @@ class ExampleApprover(dbus.service.Object):
         object_path = '/' + bus_name.replace('.', '/')
 
         bus_name = dbus.service.BusName(bus_name, bus=dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, object_path)
-        self.nameref = bus_name
+        ClientApprover.__init__(self, bus_name, object_path)
 
-    @dbus.service.method(dbus_interface=DBUS_PROPERTIES,
-                         in_signature='s',
-                         out_signature='a{sv}')
     def GetAll(self, interface):
         print "GetAll", interface
         if interface in self.properties:
@@ -40,9 +37,6 @@ class ExampleApprover(dbus.service.Object):
         else:
             return {}
 
-    @dbus.service.method(dbus_interface=DBUS_PROPERTIES,
-                         in_signature='ss',
-                         out_signature='v')
     def Get(self, interface, property):
         print "Get", interface, property
         if interface in self.properties and \
@@ -51,11 +45,7 @@ class ExampleApprover(dbus.service.Object):
         else:
             return 0
 
-    @dbus.service.method(dbus_interface=CLIENT_APPROVER,
-                         in_signature='a(oa{sv})oa{sv}',
-                         out_signature='')
     def AddDispatchOperation(self, channels, dispatch, properties):
-
         print "Incoming channels:"
         for object, props in channels:
             print " - %s :: %s" % (props[CHANNEL + '.ChannelType'],
