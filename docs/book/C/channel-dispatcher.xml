@@ -394,8 +394,78 @@
      <para>
       Finally the <methodname>ObserveChannels</methodname> method must be
       implemented. This method is called by the Channel Dispatcher whenever
-      a new channel matching your filter arrives.
+      a new channel matching your filter arrives. It takes six parameters:
      </para>
+     <informaltable>
+      <tgroup cols="3">
+       <thead>
+        <row>
+	 <entry>Parameter</entry>
+	 <entry>Type</entry>
+	 <entry>Description</entry>
+	</row>
+       </thead>
+       <tbody>
+	<row>
+	 <entry>Account</entry>
+	 <entry>o</entry>
+	 <entry>
+	  The path to the <interfacename>Account</interfacename> object.
+	  Look this up on the Account Manager
+	  (<literal>org.freedesktop.Telepathy.AccountManager</literal>).
+	 </entry>
+	</row>
+	<row>
+	 <entry>Connection</entry>
+	 <entry>o</entry>
+	 <entry>
+	  The path to the <interfacename>Connection</interfacename> object.
+	  Look this up with the Connection (remove the leading
+	  <literal>/</literal> and replace all subsequent
+	  <literal>/</literal>s with <literal>.</literal>s).
+	 </entry>
+	</row>
+	<row>
+	 <entry>Channels</entry>
+	 <entry>
+	  <type>Channel_Details_List</type> &mdash;
+	  <literal>a(oa{sv})</literal>
+	 </entry>
+	 <entry>
+	  The Channels to observe. Look these up using the well-known bus
+	  name of the Connection.
+	 </entry>
+	</row>
+	<row>
+	 <entry>Dispatch Operation</entry>
+	 <entry>o</entry>
+	 <entry>
+	  The path to the
+	  <interfacename>ChannelDispatchOperation</interfacename>, or
+	  <literal>/</literal> if there is no dispatch operation for this
+	  dispatch. Look this
+	  up on the Channel Dispatcher
+	  (<literal>org.freedesktop.Telepathy.AccountManager</literal>).
+	 </entry>
+	</row>
+	<row>
+	 <entry>Requests Satisfied</entry>
+	 <entry>ao</entry>
+	 <entry>
+	  Outgoing <interfacename>ChannelRequest</interfacename> objects
+	  satisfied for this dispatch. Look these up on the Channel
+	  Dispatcher
+	  (<literal>org.freedesktop.Telepathy.AccountManager</literal>).
+	 </entry>
+	</row>
+	<row>
+	 <entry>Observer Info</entry>
+	 <entry>a{sv}</entry>
+	 <entry>Additional information for Observers.</entry>
+	</row>
+       </tbody>
+      </tgroup>
+     </informaltable>
     </sect3>
 
     <sect3 id="sect.channel-dispatcher.clients.impl.approver">
@@ -449,7 +519,8 @@
 	 <entry>
 	  The intial value of the <property>Channels</property> property for
 	  the dispatch operation. Provided so that it doesn't need to be
-	  requested.
+	  requested. Look these up using the well-known bus name of the
+	  Connection.
 	 </entry>
 	</row>
 	<row>
@@ -627,12 +698,18 @@
         <row>
 	 <entry>Account</entry>
 	 <entry>o</entry>
-	 <entry>The <interfacename>Account</interfacename>.</entry>
+	 <entry>
+	  The path to the <interfacename>Account</interfacename> object.
+	  Look this up with the Account Manager
+	  (<literal>org.freedesktop.Telepathy.AccountManager</literal>).
+	 </entry>
 	</row>
 	<row>
 	 <entry>Connection</entry>
 	 <entry>o</entry>
-	 <entry>The <interfacename>Connection</interfacename>.</entry>
+	 <entry>
+	  The path to the <interfacename>Connection</interfacename> object.
+	 </entry>
 	</row>
 	<row>
 	 <entry>Channels</entry>
@@ -650,6 +727,8 @@
 	 <entry>
 	  The Channel Requests that are handled by this dispatch (see
 	  <link linkend="sect.channel-dispatcher.clients.impl.handler.requests">below</link>).
+	  Look these up with the Channel Dispatcher
+	  (<literal>org.freedesktop.Telepathy.Channel Dispatcher</literal>).
 	 </entry>
 	</row>
 	<row>
