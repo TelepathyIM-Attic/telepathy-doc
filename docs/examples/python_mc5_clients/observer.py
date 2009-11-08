@@ -2,14 +2,13 @@ import dbus.glib
 import gobject
 import telepathy
 
-from telepathy.constants import CONNECTION_HANDLE_TYPE_CONTACT
+from telepathy._generated.Client_Observer import ClientObserver
+from telepathy.server.properties import DBusProperties
 from telepathy.interfaces import CLIENT, \
                                  CLIENT_OBSERVER, \
                                  CHANNEL
 
-DBUS_PROPERTIES = "org.freedesktop.DBus.Properties"
-
-class ExampleObserver(dbus.service.Object):
+class ExampleObserver(ClientObserver, DBusProperties):
     properties = {
         CLIENT: {
             'Interfaces': [ CLIENT_OBSERVER ],
@@ -27,12 +26,8 @@ class ExampleObserver(dbus.service.Object):
         object_path = '/' + bus_name.replace('.', '/')
 
         bus_name = dbus.service.BusName(bus_name, bus=dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, object_path)
-        self.nameref = bus_name
+        ClientObserver.__init__(self, bus_name, object_path)
 
-    @dbus.service.method(dbus_interface=DBUS_PROPERTIES,
-                         in_signature='s',
-                         out_signature='a{sv}')
     def GetAll(self, interface):
         print "GetAll", interface
         if interface in self.properties:
@@ -40,9 +35,6 @@ class ExampleObserver(dbus.service.Object):
         else:
             return {}
 
-    @dbus.service.method(dbus_interface=DBUS_PROPERTIES,
-                         in_signature='ss',
-                         out_signature='v')
     def Get(self, interface, property):
         print "Get", interface, property
         if interface in self.properties and \
@@ -51,9 +43,6 @@ class ExampleObserver(dbus.service.Object):
         else:
             return 0
 
-    @dbus.service.method(dbus_interface=CLIENT_OBSERVER,
-                         in_signature='ooa(oa{sv})oaoa{sv}',
-                         out_signature='')
     def ObserveChannels(self, account, connection, channels, dispatch_operation,
                         requests_satisfied, observer_info):
 
