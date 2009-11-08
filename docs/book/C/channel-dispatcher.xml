@@ -182,9 +182,9 @@
     There are three types of Telepathy clients:
    </para>
    <itemizedlist>
-    <listitem><para><interfacename>Observer</interfacename>s;</para></listitem>
-    <listitem><para><interfacename>Approver</interfacename>s; and</para></listitem>
-    <listitem><para><interfacename>Handler</interfacename>s.</para></listitem>
+    <listitem><para><link linkend="sect.channel-dispatcher.clients.impl.observer">Observers</link>;</para></listitem>
+    <listitem><para><link linkend="sect.channel-dispatcher.clients.impl.approvers">Approvers</link>; and</para></listitem>
+    <listitem><para><link linkend="sect.channel-dispatcher.clients.impl.handlers">Handlers</link>.</para></listitem>
    </itemizedlist>
 
    <para>
@@ -627,12 +627,12 @@
         <row>
 	 <entry>Account</entry>
 	 <entry>o</entry>
-	 <entry>the <interfacename>Account</interfacename></entry>
+	 <entry>The <interfacename>Account</interfacename>.</entry>
 	</row>
 	<row>
 	 <entry>Connection</entry>
 	 <entry>o</entry>
-	 <entry>the <interfacename>Connection</interfacename></entry>
+	 <entry>The <interfacename>Connection</interfacename>.</entry>
 	</row>
 	<row>
 	 <entry>Channels</entry>
@@ -641,22 +641,23 @@
 	  <literal>a(oa{sv})</literal>
 	 </entry>
 	 <entry>
-	  the Channels to be handled, as well as their immutable properties.
+	  The Channels to be handled, as well as their immutable properties.
 	 </entry>
 	</row>
 	<row>
 	 <entry>Requests Satisfied</entry>
 	 <entry>ao</entry>
 	 <entry>
-	  the Channel Requests that are handled by this dispatch
+	  The Channel Requests that are handled by this dispatch (see
+	  <link linkend="sect.channel-dispatcher.clients.impl.handler.requests">below</link>).
 	 </entry>
 	</row>
 	<row>
 	 <entry>User Action Time</entry>
 	 <entry>t</entry>
 	 <entry>
-	  the time at which this user action occured (or 0 if
-	  unknown) &mdash; used for focus stealing prevention
+	  The time at which this user action occured (or 0 if
+	  unknown). Used for focus stealing prevention.
 	 </entry>
 	</row>
 	<row>
@@ -675,6 +676,124 @@
       what happens in this circumstance is left up to the Channel
       Dispatcher. <!-- FIXME: need a lot of clarification here -->
      </para>
+
+     <note id="sect.channel-dispatcher.clients.impl.handler.requests">
+      <title>Client.Interface.Requests</title>
+      <para>
+       Handlers may also implement the optional
+       <interfacename>Requests</interfacename> interface. This interface
+       allows the Channel Dispatcher to notify a Handler of outgoing requests
+       it is likely to be asked to handle
+       (i.e. <link linkend="sect.channel.requesting">channels requested via
+       the Channel Dispatcher</link>).
+       This is <emphasis>not</emphasis> the
+       same as being asked to handle the channels, and is only to be used
+       for notifying the user (e.g. displaying an "In progress" dialog).
+      </para>
+      <para>
+       There are two methods making up this interface:
+       <methodname>AddRequest</methodname> and
+       <methodname>RemoveRequest</methodname>.
+      </para>
+      <para>
+       <methodname>AddRequest</methodname> notifies the Handler of a request
+       that has been made. It takes two parameters:
+      </para>
+      <informaltable>
+       <tgroup cols="3">
+        <thead>
+	 <row>
+	  <entry>Parameter</entry>
+	  <entry>Type</entry>
+	  <entry>Description</entry>
+	 </row>
+	</thead>
+	<tbody>
+	 <row>
+	  <entry>Request</entry>
+	  <entry>o</entry>
+	  <entry>
+	   Path to the <interfacename>ChannelRequest</interfacename> object
+	   for this request, provided by the Channel Dispatcher
+	   (<literal>org.freedesktop.Telepathy.ChannelDispatcher</literal>).
+	  </entry>
+	 </row>
+	 <row>
+	  <entry>Properties</entry>
+	  <entry>a{sv}</entry>
+	  <entry>
+	   The immutable properties of the
+	   <interfacename>ChannelRequest</interfacename> object. It includes
+	   the <property>Requests</property> property, an array of
+	   requested channel property maps.
+	  </entry>
+	 </row>
+	</tbody>
+       </tgroup>
+      </informaltable>
+      <para>
+       One of the <parameter>properties</parameter>,
+       <property>UserActionTime</property>, can be used for focus stealing
+       prevention.
+      </para>
+      <para>
+       <methodname>RemoveRequest</methodname> notifies the Handler that a
+       request has been cancelled, or passed off to a different Handler. It
+       takes three parameters:
+      </para>
+      <informaltable>
+       <tgroup cols="3">
+        <thead>
+	 <row>
+	  <entry>Parameter</entry>
+	  <entry>Type</entry>
+	  <entry>Description</entry>
+	 </row>
+	</thead>
+	<tbody>
+	 <row>
+	  <entry>Request</entry>
+	  <entry>o</entry>
+	  <entry>
+	   Path to the <interfacename>ChannelRequest</interfacename> object
+	   for this request, provided by the Channel Dispatcher
+	   (<literal>org.freedesktop.Telepathy.ChannelDispatcher</literal>).
+	  </entry>
+	 </row>
+	 <row>
+	  <entry>Error</entry>
+	  <entry>s</entry>
+	  <entry>
+	   The name of a D-Bus error saying why the request failed.
+	  </entry>
+	 </row>
+	 <row>
+	  <entry>Message</entry>
+	  <entry>s</entry>
+	  <entry>
+	   A more detailed error message.
+	  </entry>
+	 </row>
+	</tbody>
+       </tgroup>
+      </informaltable>
+      <para>
+       The error <errorname>org.freedesktop.Telepathy.NotYours</errorname>
+       indicates that the request <emphasis>was</emphasis> successful, but
+       another Handler was chosen to handle the request.
+      </para>
+      <para>
+       <methodname>RemoveRequest</methodname> is not called if your Handler
+       <emphasis>is</emphasis> chosen to handle the request, instead this
+       request will be included in the <parameter>Requests
+       Satisfied</parameter> parameter in
+       <methodname>HandleChannels</methodname>.
+      </para>
+      <para>
+       <interfacename>ChannelRequest</interfacename> objects are documented
+       in <xref linkend="sect.channel.requesting.requestobjects"/>.
+      </para>
+     </note>
     </sect3>
 
    </sect2>
