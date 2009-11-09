@@ -10,10 +10,12 @@
 
   <para>
    Occasionally you may wish to implement your own Telepathy service, a
-   program that implements a Telepathy API interface (most commonly this
-   will be <interfacename>org.freedesktop.Telepathy.Client</interfacename>,
-   but maybe you will be implement a Connection Manager, or some other
-   Telepathy interface).
+   program that implements a Telepathy API interface. Most commonly this
+   will be <interfacename>org.freedesktop.Telepathy.Client</interfacename>
+   (see <xref linkend="sect.channel-dispatcher.clients"/> for the high-level
+   details on implementing Telepathy Clients),
+   but equally you could implement a Connection Manager, or some other
+   Telepathy interface.
   </para>
   <para>
    This is done by implementing the D-Bus API for each interface as
@@ -274,5 +276,120 @@ observer_iface_init (gpointer g_iface, gpointer iface_data)
 
    </sect2>
 
+  </sect1>
+
+  <sect1 id="sect.services.python">
+   <title>telepathy-python</title>
+   <para>
+    Services in <application>telepathy-python</application> are built off
+    the service publishing built into
+    <ulink url="http://dbus.freedesktop.org/doc/dbus-python/doc/tutorial.html#exporting-objects">dbus-python</ulink>.
+    However, to make implementing services easier,
+    <application>telepathy-python</application> already provides interfaces and
+    abstract base classes with all of the method decoration required already
+    supplied.
+   </para>
+
+   <sect2 id="sect.services.python.object">
+    <title>Implementing a D-Bus Object</title>
+    <para>
+     <application>telepathy-python</application> provides interfaces and
+     abstract base classes for most Telepathy services you need to implement
+     in the <literal>telepathy.server</literal> namespace.
+     To implement a D-Bus object which can be published on the bus, you just
+     need to subclass as many of these classes as required for the
+     interfaces provided by your particular object.
+    </para>
+
+    <para>
+     <xref linkend="ex.services.python.object"/> demonstrates publishing an
+     <link linkend="sect.channel-dispatcher.clients.impl.observer">Observer</link>
+     on the bus that implements
+     <interfacename>Client.Observer</interfacename> and
+     <interfacename>DBus.Properties</interfacename>.
+    </para>
+
+    <example id="ex.services.python.object"
+             file="python_mc5_clients/observer.py">
+     <title>Implementing Client.Observer and D-Bus Properties</title>
+    </example>
+
+    <para>
+     The <methodname>ObserveChannels</methodname> method is already
+     decorated with <methodname>dbus.service.method</methodname> by the
+     <classname>telepathy.server.ClientObserver</classname> parent
+     class, so doesn't need to be decorated in your subclass.
+     However, we can redecorate
+     the method if we want to change any of the parameters to
+     <methodname>dbus.service.method</methodname> (e.g. using
+     <parameter>async_callbacks</parameter>, which is useful when you need
+     to emit a signal after returning from a D-Bus call). When doing this,
+     the input and output signatures need to be provided again. See
+     <xref linkend="ex.services.python.method.redecorate"/>.
+    </para>
+
+    <tip>
+     <title>Emitting Signals after 'Returning'</title>
+     <para>
+      Many times, the Telepathy specification requires a service to return
+      from a method call before emitting any signals. The
+      <parameter>async_callbacks</parameter> parameter to the
+      <methodname>dbus.service.method</methodname> decorator is how to
+      implement this.
+     </para>
+     <para>
+      See <xref linkend="ex.services.python.method.redecorate"/> for an
+      example.
+     </para>
+    </tip>
+
+    <example id="ex.services.python.method.redecorate">
+     <title>Redecorating a Method Call</title>
+     <programlisting language="python"><![CDATA[@dbus.service.method(CONNECTION_INTERFACE_REQUESTS,
+    in_signature='a{sv}', out_signature='boa{sv}',
+    async_callbacks=('_success', '_error'))
+def EnsureChannel(self, request, _success, _error):
+
+    # code goes here
+
+    # return success over D-Bus
+    _success(yours, channel._object_path, props)
+
+    # emit a signal
+    self.signal_new_channels([channel])]]></programlisting>
+    </example>
+   </sect2>
+
+   <sect2 id="sect.services.python.publishing">
+    <title>Publishing an Object on the Bus</title>
+    <para>
+     Publishing a Telepathy object on the bus is just like publishing any
+     other object with <application>dbus-python</application>.
+     <xref linkend="ex.services.python.publishing"/> shows publishing our
+     example Observer on the session bus.
+    </para>
+
+    <example id="ex.services.python.publishing"
+             file="python_mc5_clients/observer.py">
+     <title>Publishing a Client on the Bus</title>
+    </example>
+   </sect2>
+
+   <sect2 id="sect.services.python.dbusproperties">
+    <title>D-Bus Properties</title>
+
+    <para>
+     D-Bus properties are handled via the
+     <classname>telepathy.server.DBusProperties</classname> base class,
+     which your class should inherit from.
+    </para>
+    <para>
+     Call the method <methodname>_implement_property_get</methodname> to
+     provide a dictionary of the properties for a given interface.
+     Properties are provided as Python callables, so static properties can
+     be defined using <methodname>lambda</methodname>. See
+     <xref linkend="ex.services.python.object"/> for an example.
+    </para>
+   </sect2>
   </sect1>
 </chapter>
