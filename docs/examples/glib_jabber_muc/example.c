@@ -139,6 +139,68 @@ list_properties_cb (TpProxy		*channel,
 }
 
 static void
+get_capabilities (TpConnection    *connection,
+		  const GPtrArray *capabilities,
+		  const GError    *error,
+		  gpointer         user_data,
+		  GObject         *weak_obj)
+{
+	if (error)
+	{
+		g_print ("ERROR: %s\n", error->message);
+		return;
+	}
+
+	g_print ("get capabilities\n");
+
+	int i;
+	for (i = 0; i < capabilities->len; i++)
+	{
+		GValueArray *values = g_ptr_array_index (capabilities, i);
+
+		g_print (" - %u :: %s\n",
+			g_value_get_uint (g_value_array_get_nth (values, 0)),
+			g_value_get_string (g_value_array_get_nth (values, 1)));
+	}
+}
+
+static void
+get_contact_capabilities (TpConnection *connection,
+			  GHashTable   *capabilities,
+			  const GError *error,
+			  gpointer      user_data,
+			  GObject      *weak_obj)
+{
+	if (error)
+	{
+		g_print ("ERROR: %s\n", error->message);
+		return;
+	}
+
+	g_print ("get contact capabilities\n");
+
+	GHashTableIter iter;
+	gpointer k;
+	GPtrArray *v;
+	g_hash_table_iter_init (&iter, capabilities);
+	while (g_hash_table_iter_next (&iter, &k, (gpointer) &v))
+	{
+		int handle = GPOINTER_TO_INT (k);
+		int i;
+
+		g_print ("h = %i\n", handle);
+
+		for (i = 0; i < v->len; i++)
+		{
+			g_print (" - Requestable channel type %i\n", i + 1);
+
+			GValueArray *values = g_ptr_array_index (v, i);
+			tp_asv_dump (g_value_get_boxed (g_value_array_get_nth (values, 0)));
+		}
+	}
+}
+
+static void
 muc_channel_ready (TpChannel	*channel,
 		   const GError	*in_error,
 		   gpointer	 user_data)
@@ -152,6 +214,21 @@ muc_channel_ready (TpChannel	*channel,
 	 * First we need to get a list of available properties */
 	tp_cli_properties_interface_call_list_properties (channel, -1,
 			list_properties_cb, NULL, NULL, NULL);
+
+	const TpIntSet *members = tp_channel_group_get_members (channel);
+	GArray *handles = tp_intset_to_array (members);
+
+	tp_cli_connection_interface_contact_capabilities_call_get_contact_capabilities (tp_channel_borrow_connection (channel),
+			-1, handles,
+			get_contact_capabilities,
+			NULL, NULL, NULL);
+
+	tp_cli_connection_interface_capabilities_call_get_capabilities (tp_channel_borrow_connection (channel),
+			-1, handles,
+			get_capabilities,
+			NULL, NULL, NULL);
+
+	g_array_free (handles, TRUE);
 }
 
 static void
