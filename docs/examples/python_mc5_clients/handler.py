@@ -7,6 +7,8 @@ from telepathy.interfaces import CLIENT, \
                                  CLIENT_HANDLER, \
                                  CHANNEL, \
                                  CHANNEL_TYPE_DBUS_TUBE
+from telepathy.constants import HANDLE_TYPE_ROOM, \
+                                SOCKET_ACCESS_CONTROL_LOCALHOST
 
 class ExampleObserver(telepathy.server.ClientObserver,
                       telepathy.server.ClientHandler,
@@ -29,6 +31,8 @@ class ExampleObserver(telepathy.server.ClientObserver,
             'HandlerChannelFilter': lambda: dbus.Array([
                     dbus.Dictionary({
               CHANNEL + '.ChannelType': CHANNEL_TYPE_DBUS_TUBE,
+              CHANNEL + '.TargetHandleType': HANDLE_TYPE_ROOM,
+              CHANNEL + '.Requested': False,
               CHANNEL_TYPE_DBUS_TUBE + '.ServiceName': 'org.freedesktop.Telepathy.Examples.TubeClient',
                     }, signature='sv')
                 ], signature='a{sv}'),
@@ -58,8 +62,19 @@ class ExampleObserver(telepathy.server.ClientObserver,
                                    props[CHANNEL + '.TargetID'])
 
     def HandleChannels(self, account, connection, channels, requests_satisfied,
-                       user_Action_time, handler_info):
-        print "handle channels"
+                       user_action_time, handler_info):
+
+        service_name = connection.replace('/', '.')[1:]
+
+        for object_path, props in channels:
+            if props[CHANNEL + '.ChannelType'] != CHANNEL_TYPE_DBUS_TUBE or \
+               props[CHANNEL_TYPE_DBUS_TUBE + '.ServiceName'] != 'org.freedesktop.Telepathy.Examples.TubeClient':
+                continue
+
+            print 'Got Tube'
+            channel = telepathy.client.Channel(service_name, object_path)
+            channel[CHANNEL_TYPE_DBUS_TUBE].Accept(SOCKET_ACCESS_CONTROL_LOCALHOST)
+
 
 def publish(client_name):
     bus_name = '.'.join ([CLIENT, client_name])
