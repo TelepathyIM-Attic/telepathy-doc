@@ -78,11 +78,12 @@ class ExampleHandler(telepathy.server.ClientObserver,
             channel = telepathy.client.Channel(service_name, object_path)
             self._channels.append(channel)
             channel[CHANNEL_TYPE_DBUS_TUBE].Accept(SOCKET_ACCESS_CONTROL_LOCALHOST)
-            channel[CHANNEL].connect_to_signal('Closed', self.channel_closed)
+            channel[CHANNEL].connect_to_signal('Closed',
+                lambda: self.channel_closed(channel))
 
-    def channel_closed(self):
-        # FIXME: remove from self._channels
-        pass
+    def channel_closed(self, channel):
+        print "Remove channel", channel.object_path
+        self._channels.remove(channel)
 
 
 def publish(client_name):
