@@ -10,13 +10,15 @@ from telepathy.interfaces import CLIENT, \
 from telepathy.constants import HANDLE_TYPE_ROOM, \
                                 SOCKET_ACCESS_CONTROL_LOCALHOST
 
-class ExampleObserver(telepathy.server.ClientObserver,
-                      telepathy.server.ClientHandler,
-                      telepathy.server.DBusProperties):
+class ExampleHandler(telepathy.server.ClientObserver,
+                     telepathy.server.ClientHandler,
+                     telepathy.server.DBusProperties):
 
     def __init__(self, *args):
         dbus.service.Object.__init__(self, *args)
         telepathy.server.DBusProperties.__init__(self)
+
+        self._channels = []
 
         self._implement_property_get(CLIENT, {
             'Interfaces': lambda: [ CLIENT_OBSERVER, CLIENT_HANDLER ],
@@ -52,7 +54,8 @@ class ExampleObserver(telepathy.server.ClientObserver,
         return v
 
     def get_handled_channels(self):
-        return dbus.Array([], signature='o')
+        return dbus.Array([ c.object_path for c in self._channels ],
+            signature='o')
 
     def ObserveChannels(self, account, connection, channels, dispatch_operation,
                         requests_satisfied, observer_info):
@@ -73,7 +76,13 @@ class ExampleObserver(telepathy.server.ClientObserver,
 
             print 'Got Tube'
             channel = telepathy.client.Channel(service_name, object_path)
+            self._channels.append(channel)
             channel[CHANNEL_TYPE_DBUS_TUBE].Accept(SOCKET_ACCESS_CONTROL_LOCALHOST)
+            channel[CHANNEL].connect_to_signal('Closed', self.channel_closed)
+
+    def channel_closed(self):
+        # FIXME: remove from self._channels
+        pass
 
 
 def publish(client_name):
@@ -82,7 +91,7 @@ def publish(client_name):
 
     bus_name = dbus.service.BusName(bus_name, bus=dbus.SessionBus())
 
-    ExampleObserver(bus_name, object_path)
+    ExampleHandler(bus_name, object_path)
     return False
 
 if __name__ == '__main__':
