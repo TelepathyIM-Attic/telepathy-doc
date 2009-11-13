@@ -183,8 +183,8 @@
    </para>
    <itemizedlist>
     <listitem><para><link linkend="sect.channel-dispatcher.clients.impl.observer">Observers</link>;</para></listitem>
-    <listitem><para><link linkend="sect.channel-dispatcher.clients.impl.approvers">Approvers</link>; and</para></listitem>
-    <listitem><para><link linkend="sect.channel-dispatcher.clients.impl.handlers">Handlers</link>.</para></listitem>
+    <listitem><para><link linkend="sect.channel-dispatcher.clients.impl.approver">Approvers</link>; and</para></listitem>
+    <listitem><para><link linkend="sect.channel-dispatcher.clients.impl.handler">Handlers</link>.</para></listitem>
    </itemizedlist>
 
    <para>
