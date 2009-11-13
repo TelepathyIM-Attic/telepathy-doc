@@ -1,0 +1,17 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec/">
+]>
+
+<chapter id="chapter.tube-example">
+  <title>Example: Implementing a Telepathy Tube Client</title>
+  <para>
+   This chapter provides a worked example of how to implement a Telepathy
+   Tube client. Before launching into this chapter, you should at least have
+   read <xref linkend="chapter.basics"/> and skim-read
+   <xref linkend="chapter.tubes"/> and <xref linkend="chapter.services"/>.
+  </para>
+</chapter>
