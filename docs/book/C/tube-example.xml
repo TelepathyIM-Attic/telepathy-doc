@@ -12,6 +12,126 @@
    This chapter provides a worked example of how to implement a Telepathy
    Tube client. Before launching into this chapter, you should at least have
    read <xref linkend="chapter.basics"/> and skim-read
-   <xref linkend="chapter.tubes"/> and <xref linkend="chapter.services"/>.
+   <xref linkend="chapter.tubes"/>, <xref linkend="chapter.services"/>
+   and <xref linkend="sect.channel-dispatcher.clients.impl.handler"/>.
   </para>
+
+  <para>
+   This example is presented in Python, because it is the most illustrative
+   of the low-level Telepathy API. Other Telepathy bindings will provide
+   convienience methods and short-cuts for implementing this example.
+  </para>
+
+  <sect1 id="chapter.tube-example.handler">
+   <title>Implementing the Handler</title>
+   <para>
+    Tube clients are Telepathy
+    <link linkend="sect.channel-dispatcher.clients.impl.handler">Handlers</link>.
+   </para>
+
+   <table id="table.tube-example.handler.properties">
+    <title>Properties the Handler Requires</title>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>Property</entry>
+       <entry>Value</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry><property>Client.Interfaces</property></entry>
+       <entry>
+        <literal>[ "org.freedesktop.Telepathy.Client.Handler" ]</literal>
+       </entry>
+      </row>
+      <row>
+       <entry><property>Client.Handler.HandlerChannelFilter</property></entry>
+       <entry>See Below.</entry>
+      </row>
+      <row>
+       <entry><property>Client.Handler.BypassApproval</property></entry>
+       <entry><literal>False</literal></entry>
+      </row>
+      <row>
+       <entry><property>Client.Handler.Capabilities</property></entry>
+       <entry><literal>[]</literal> (Empty List)</entry>
+      </row>
+      <row>
+       <entry><property>Client.Handler.HandledChannels</property></entry>
+       <entry>See Below.</entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </table>
+
+   <sect2 id="table.tube-example.handler.filter">
+    <title>HandlerChannelFilter</title>
+    <para>
+     The Channel Filter is used to inform the Channel Dispatcher what sort
+     of channels you are interested in handling and is
+     <link linkend="note.channel-dispatcher.clients.impl.channel_class_list">in-depth</link>
+     in <xref linkend="sect.channel-dispatcher.clients.impl"/>.
+    </para>
+
+    <para>
+     In general, for a Tube client, it will have three or four properties
+     for the filter:
+    </para>
+    <informaltable>
+     <tgroup cols="3">
+      <thead>
+       <row>
+        <entry>Property</entry>
+        <entry>Description</entry>
+        <entry>Example Value</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry><property>Channel.ChannelType</property></entry>
+        <entry>
+         The type of Channel you're interested in. This is either going to
+         be a D-Bus Tube or a Stream Tube.
+        </entry>
+        <entry>
+         <literal>org.freedesktop.Telepathy.Channel.Type.DBusTube</literal>
+         or
+         <literal>org.freedesktop.Telepathy.Channel.Type.StreamTube</literal>
+        </entry>
+       </row>
+       <row>
+        <entry><property>Channel.TargetHandleType</property></entry>
+        <entry>
+         Whether you're interested in a one-to-one Tube or a MUC Tube.
+        </entry>
+        <entry>
+         <literal>TARGET_HANDLE_CONTACT</literal> or
+         <literal>TARGET_HANDLE_ROOM</literal>
+        </entry>
+       </row>
+       <row>
+        <entry><property>Channel.Requested</property></entry>
+        <entry>
+         Whether you're interested in incoming or outgoing channels.
+        </entry>
+        <entry><literal>False</literal></entry>
+       </row>
+       <row>
+        <entry>
+         <property>Channel.Type.DBusTube.ServiceName</property> or
+         <property>Channel.Type.StreamTube.Service</property>
+        </entry>
+        <entry>
+         A name for the service your Tube is offering.
+        </entry>
+        <entry>
+         <literal>com.example.ExampleApplication</literal>
+        </entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </sect2>
+  </sect1>
 </chapter>
