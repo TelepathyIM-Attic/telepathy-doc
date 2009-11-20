@@ -41,6 +41,8 @@ enum
 typedef struct _ExampleHandlerPrivate ExampleHandlerPrivate;
 struct _ExampleHandlerPrivate
 {
+  GList *channels;
+
   TpTubeState state;
   char *address;
 };
@@ -122,6 +124,7 @@ tube_channel_ready (TpChannel    *channel,
                     gpointer      user_data)
 {
   ExampleHandler *self = EXAMPLE_HANDLER (user_data);
+  ExampleHandlerPrivate *priv = GET_PRIVATE (self);
 
   if (in_error != NULL)
     {
@@ -131,6 +134,9 @@ tube_channel_ready (TpChannel    *channel,
   GError *error = NULL;
 
   g_print ("Channel ready\n");
+
+  /* add the channel to the list */
+  priv->channels = g_list_prepend (priv->channels, channel);
 
   tp_cli_channel_interface_tube_connect_to_tube_channel_state_changed (
       channel, tube_state_changed_callback,
@@ -215,10 +221,12 @@ example_handler_handle_channels (TpSvcClientHandler   *self,
 
 static void
 example_handler_get_property (GObject    *self,
-                               guint       property_id,
-                               GValue     *value,
-                               GParamSpec *pspec)
+                              guint       property_id,
+                              GValue     *value,
+                              GParamSpec *pspec)
 {
+  ExampleHandlerPrivate *priv = GET_PRIVATE (self);
+
   switch (property_id)
     {
       case PROP_INTERFACES:
@@ -257,6 +265,14 @@ example_handler_get_property (GObject    *self,
 
           {
             GPtrArray *array = g_ptr_array_new ();
+            GList *ptr;
+
+            for (ptr = priv->channels; ptr; ptr = ptr->next)
+              {
+                g_ptr_array_add (array,
+                    g_strdup (tp_proxy_get_object_path (TP_PROXY (ptr->data))));
+              }
+
             g_value_take_boxed (value, array);
           }
 
