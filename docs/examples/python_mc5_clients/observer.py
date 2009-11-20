@@ -7,11 +7,11 @@ from telepathy.interfaces import CLIENT, \
                                  CHANNEL
 
 # begin ex.services.python.object
-class ExampleObserver(telepathy.server.ClientObserver,
+class ExampleObserver(telepathy.server.Observer,
                       telepathy.server.DBusProperties):
 
     def __init__(self, *args):
-        telepathy.server.ClientObserver.__init__(self, *args)
+        telepathy.server.Observer.__init__(self, *args)
         telepathy.server.DBusProperties.__init__(self)
 
         self._implement_property_get(CLIENT, {

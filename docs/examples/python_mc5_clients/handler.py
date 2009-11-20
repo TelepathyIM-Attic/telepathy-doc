@@ -10,8 +10,8 @@ from telepathy.interfaces import CLIENT, \
 from telepathy.constants import HANDLE_TYPE_ROOM, \
                                 SOCKET_ACCESS_CONTROL_LOCALHOST
 
-class ExampleHandler(telepathy.server.ClientObserver,
-                     telepathy.server.ClientHandler,
+class ExampleHandler(telepathy.server.Observer,
+                     telepathy.server.Handler,
                      telepathy.server.DBusProperties):
 
     def __init__(self, *args):
