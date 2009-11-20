@@ -36,6 +36,7 @@ AC_OUTPUT([
       docs/examples/glib_dbus_tube/Makefile
       docs/examples/glib_stream_tube/Makefile
       docs/examples/glib_mc5_connections/Makefile
+      docs/examples/glib_mc5_dbus_tube_handler/Makefile
       docs/examples/glib_mc5_observer/Makefile
       docs/examples/glib_mc5_ft_handler/Makefile
       docs/examples/gtk_presence_app/Makefile
