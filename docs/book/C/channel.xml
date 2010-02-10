@@ -973,6 +973,145 @@
      </variablelist>
     </sect2>
 
+    <sect2 id="sect.channel.contactlist.subscribe">
+      <title>Subscription</title>
+
+      <para>
+        Subscription to and from another user's presence is handled via the
+        the <emphasis>subscribe</emphasis> and <emphasis>publish</emphasis>
+        contact lists.
+      </para>
+      <para>
+       The <emphasis>subscribe</emphasis> list is the list of contacts for
+       whom you receive, or would like to receive, presence information. This
+       list is split into two sub-lists: <emphasis>members</emphasis>,
+       contacts who's presence you receive; and
+       <emphasis>remote pending</emphasis>, contacts who's presence you've
+       requested but is pending approval.
+      </para>
+      <para>
+       The <emphasis>publish</emphasis> list is the list of contacts for
+       whom you make available, or are requesting, presence information.
+       This list is also split into two sub-lists:
+       <emphasis>members</emphasis>, contacts to whom you show your presence;
+       and <emphasis>local pending</emphasis>, contacts who are requesting
+       your presence, pending your approval.
+      </para>
+      <para>
+       <xref linkend="table.channel.contactlist.subscribe.lists"/> summarises
+       these lists.
+      </para>
+
+      <table id="table.channel.contactlist.subscribe.lists">
+       <title>Summary of Subscription Lists</title>
+       <tgroup cols="3">
+        <thead>
+         <row>
+          <entry>Contact List</entry>
+          <entry>Sub List</entry>
+          <entry>Description</entry>
+         </row>
+        </thead>
+        <tbody>
+         <row>
+          <entry valign="middle" morerows="1">subscribe</entry>
+          <entry>members</entry>
+          <entry>
+           Contacts who provide you their presence. You will receive valid
+           presence information for these contacts.
+          </entry>
+         </row>
+         <row rowsep="1">
+          <entry>remote pending</entry>
+          <entry>
+           Contacts who's presence you've requested, but subscription is
+           pending their approval.
+          </entry>
+         </row>
+         <row>
+          <entry valign="middle" morerows="1">publish</entry>
+          <entry>members</entry>
+          <entry>
+           Contacts to whom you provide your presence. These contacts will
+           receive your presence information.
+          </entry>
+         </row>
+         <row>
+          <entry>local pending</entry>
+          <entry>
+           Contacts who have requested your presence, but are pending your
+           approval.
+          </entry>
+         </row>
+        </tbody>
+       </tgroup>
+      </table>
+
+      <sect3 id="sect.channel.contactlist.subscribe.subscribe">
+       <title>Subscribing a Contact</title>
+
+       <para>
+        To subscribe a contact, you call <methodname>AddMembers</methodname>
+        on the <emphasis>subscribe</emphasis> contact list, giving the
+        Handles of the contacts you wish to subscribe.
+        <methodname>MembersChanged</methodname> will then by signalled with
+        these Handles appearing in <emphasis>remote-pending-added</emphasis>.
+       </para>
+       <para>
+        When the remote user accepts or declines your request
+        <methodname>MembersChanged</methodname> will be emitted again. If your
+        request is accepted, their handle will appear in
+        <emphasis>added</emphasis>; if your request is declined, their handle
+        will appear in <emphasis>removed</emphasis>.
+       </para>
+       <para>
+        If the remove user accepts your request, their client will likely make a
+        subscription request back to you,
+        <link linkend="sect.channel.contactlist.subscribe.publish">see
+        below</link>.
+       </para>
+      </sect3>
+
+      <sect3 id="sect.channel.contactlist.subscribe.publish">
+       <title>Handling a Subscription Request</title>
+
+       <para>
+        Incoming subscription requests are notified by the
+        <methodname>MembersChanged</methodname> signal on the
+        <emphasis>publish</emphasis> contact list, with Handles appearing in
+        <emphasis>local-pending-added</emphasis>.
+       </para>
+
+       <para>
+        The client can then present this subscription request to the user to
+        accept or decline (alternatively, many clients will auto-accept who is
+        already a member of the <emphasis>subscribe</emphasis> list).
+       </para>
+       <para>
+        If the user accepts the request, call
+        <methodname>AddMembers</methodname> with the remote contact's Handle.
+        If the user declines the request, call
+        <methodname>RemoveMembers</methodname>.
+       </para>
+       <para>
+        When you, or another Telepathy client, accepts or declines the
+        subscription request <methodname>MembersChanged</methodname> will be
+        emitted. If the request has been accepted, the contact will appear in
+        <emphasis>added</emphasis>; if the request has been declined, the
+        contact will appear in <emphasis>removed</emphasis>. It is important
+        to watch for another client handling the request before yours does and
+        to cancel your question to the user.
+       </para>
+       <para>
+        If your client accepts the subscription, and the remote contact isn't a
+        member of <emphasis>subscribe</emphasis>, you probably want to add
+        them, <link linkend="sect.channel.contactlist.subscribe.subscribe">see
+        above</link>.
+       </para>
+      </sect3>
+
+    </sect2>
+
     <sect2 id="sect.channel.contactlist.user-defined">
      <title>User Defined Groups</title>
 
@@ -1014,7 +1153,7 @@
       <title>Filtering NewChannels</title>
      </example>
     </sect2>
-  
+
   </sect1>
 
   <sect1 id="sect.channel.groups">
