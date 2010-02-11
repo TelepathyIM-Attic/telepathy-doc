@@ -2,15 +2,14 @@ import dbus.glib
 import gobject
 import telepathy
 
-from telepathy._generated.Client_Approver import ClientApprover
-from telepathy.server.properties import DBusProperties
+from telepathy.server import Approver, DBusProperties
 from telepathy.interfaces import CLIENT, \
                                  CLIENT_APPROVER, \
                                  CHANNEL
 
 DBUS_PROPERTIES = "org.freedesktop.DBus.Properties"
 
-class ExampleApprover(ClientApprover, DBusProperties):
+class ExampleApprover(Approver, DBusProperties):
     properties = {
         CLIENT: {
             'Interfaces': [ CLIENT_APPROVER ],
@@ -28,7 +27,7 @@ class ExampleApprover(ClientApprover, DBusProperties):
         object_path = '/' + bus_name.replace('.', '/')
 
         bus_name = dbus.service.BusName(bus_name, bus=dbus.SessionBus())
-        ClientApprover.__init__(self, bus_name, object_path)
+        Approver.__init__(self, bus_name, object_path)
 
     def GetAll(self, interface):
         print "GetAll", interface
