@@ -54,7 +54,7 @@ accept_file_cb (TpChannel	*channel,
 	handle_error (in_error);
 
 	ftstate->address = tp_g_socket_address_from_variant (ftstate->type,
-			addressv);
+			addressv, NULL);
 }
 
 static void

@@ -29,6 +29,14 @@ dump_children (GtkWidget *widget,
 }
 
 static void
+account_removed (TpAccountManager *am,
+                 TpAccount        *acct,
+                 GtkWidget        *widget)
+{
+  gtk_widget_destroy (widget);
+}
+
+static void
 account_created (TpAccountManager *am,
                  TpAccount        *acct,
                  PresenceWindow   *window)
@@ -41,18 +49,21 @@ static void
 account_manager_ready (TpAccountManager *am,
                        PresenceWindow   *window)
 {
-  GList *l, *accounts = tp_account_manager_get_accounts (am);
+  GList *l, *accounts = tp_account_manager_get_valid_accounts (am);
   for (l = accounts; l != NULL; l = l->next)
     {
       TpAccount *acct = TP_ACCOUNT (l->data);
 
       GtkWidget *widget = presence_widget_new (acct);
       presence_window_add_widget (window, PRESENCE_WIDGET (widget));
+
+      g_signal_connect (am, "account-removed",
+          G_CALLBACK (account_removed), widget);
     }
 
   g_list_free (accounts);
 
-  g_signal_connect (am, "account-created",
+  g_signal_connect (am, "account-enabled",
       G_CALLBACK (account_created), window);
 }
 
@@ -63,7 +74,7 @@ _am_ready (GObject      *am,
 {
   GError *error = NULL;
 
-  if (!tp_account_manager_become_ready_finish (TP_ACCOUNT_MANAGER (am), res,
+  if (!tp_account_manager_prepare_finish (TP_ACCOUNT_MANAGER (am), res,
       &error))
     {
       g_error ("ERROR: %s", error->message);
@@ -88,8 +99,7 @@ main (int argc, char **argv)
 
   /* we want to request some AM features */
   GQuark features[] = { TP_ACCOUNT_MANAGER_FEATURE_CORE }; // FIXME const?
-  tp_account_manager_become_ready_async (am, features,
-      _am_ready, window);
+  tp_account_manager_prepare_async (am, features, _am_ready, window);
 
   gtk_widget_show (window);
 

@@ -72,7 +72,7 @@ channel_ready (TpChannel	*channel,
 			NULL);
 
 	GValue *value = tp_address_variant_from_g_socket_address (
-			server_sockaddr, NULL);
+			server_sockaddr, NULL, NULL);
 
 	tp_cli_channel_type_stream_tube_call_offer (channel, -1,
 			TP_SOCKET_ADDRESS_TYPE_IPV4, value,

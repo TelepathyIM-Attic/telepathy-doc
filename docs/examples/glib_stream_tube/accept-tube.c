@@ -58,7 +58,7 @@ tube_accept_cb (TpChannel	*channel,
 	g_print ("variant type = %s\n", G_VALUE_TYPE_NAME (address));
 	sockaddr = tp_g_socket_address_from_variant (
 			TP_SOCKET_ADDRESS_TYPE_IPV4,
-			address);
+			address, NULL);
 
 	/* FIXME: I _think_ the spec says you need to wait for state Open and 
 	 * this callback -- seeking spec clarification */

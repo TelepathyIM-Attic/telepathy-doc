@@ -189,7 +189,7 @@ presence_chooser_constructed (GObject *self)
       G_CALLBACK (_status_changed), self);
 
   _status_changed (PRESENCE_CHOOSER (self), 0,
-      tp_account_get_connection_status (priv->account),
+      tp_account_get_connection_status (priv->account, NULL),
       0, priv->account);
 }
 

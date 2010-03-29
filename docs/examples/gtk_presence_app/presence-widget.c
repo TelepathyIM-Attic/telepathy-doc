@@ -121,7 +121,8 @@ _notify_presence (PresenceWidget *self,
                   TpAccount      *account)
 {
   PresenceWidgetPrivate *priv = GET_PRIVATE (self);
-  TpConnectionPresenceType presence = tp_account_get_presence (account);
+  TpConnectionPresenceType presence = tp_account_get_current_presence (account,
+      NULL, NULL);
 
   const char *icon_name = presence_icons[presence];
 
@@ -135,23 +136,16 @@ _notify_status_message (PresenceWidget *self,
                         TpAccount      *account)
 {
   PresenceWidgetPrivate *priv = GET_PRIVATE (self);
-  const char *msg = tp_account_get_status_message (account);
+  const char *msg;
+
+  tp_account_get_current_presence (account, NULL, &msg);
 
   if (strlen (msg) == 0)
     {
-      TpConnectionPresenceType presence = tp_account_get_presence (account);
-      msg = tp_account_get_status (account);
+      tp_account_get_current_presence (account, &msg, NULL);
     }
 
   gtk_label_set_text (GTK_LABEL (priv->status_message), msg);
-}
-
-static void
-_account_removed (PresenceWidget *self,
-                  TpAccount      *account)
-{
-  /* this account has been removed, destroy ourselves */
-  gtk_widget_destroy (GTK_WIDGET (self));
 }
 
 static void
@@ -174,9 +168,6 @@ presence_widget_constructed (GObject *self)
       G_CALLBACK (_notify_presence), self);
   g_signal_connect_swapped (priv->account, "notify::status-message",
       G_CALLBACK (_notify_status_message), self);
-
-  g_signal_connect_swapped (priv->account, "removed",
-      G_CALLBACK (_account_removed), self);
 
   _notify_enabled (PRESENCE_WIDGET (self), NULL, priv->account);
   _notify_display_name (PRESENCE_WIDGET (self), NULL, priv->account);
