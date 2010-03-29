@@ -1160,7 +1160,8 @@ get_channels_cb (TpProxy        *proxy,
         <listitem><para>
          Structures (e.g. <literal>(oa{sv})</literal>) are stored as a
          <classname>GValueArray</classname> where each member of the
-         structure is a GValue in the array in the respective order.
+         structure is a GValue in the array in the respective order
+	 (see <xref linkend="sect.basics.language-bindings.telepathy-glib.structs"/>).
         </para></listitem>
         <listitem><para>
          Maps (e.g. <literal>a{sv}</literal>) are stored as a
@@ -1176,7 +1177,7 @@ get_channels_cb (TpProxy        *proxy,
         <listitem><para>
          Variant types (<literal>v</literal>) are stored as
          <classname>GValue</classname>s of type specified by the spec
-         (see <xref linkend="note.basics.language-bindings.telepathy-glib.variant"/>).
+         (see <xref linkend="sect.basics.language-bindings.telepathy-glib.variant"/>).
         </para></listitem>
        </itemizedlist>
 
@@ -1196,28 +1197,6 @@ get_channels_cb (TpProxy        *proxy,
         </imageobject></mediaobject>
        </figure>
 
-       <example id="ex.basics.language-bindings.telepathy-glib.types">
-        <title>Decoding a GValue containing a Channel_Details_List</title>
-        <programlisting language="c">
-<![CDATA[g_return_if_fail (G_VALUE_HOLDS (value, TP_ARRAY_TYPE_CHANNEL_DETAILS_LIST));
-
-GPtrArray *channels = g_value_get_boxed (value);
-
-int i;
-for (i = 0; i < channels->len; i++)
-{
-        GValueArray *channel = g_ptr_array_index (channels, i);
-
-        char *object_path = g_value_get_boxed (g_value_array_get_nth (channel, 0));
-        GHashTable *map = g_value_get_boxed (g_value_array_get_nth (channel, 1));
-
-        const char *type = tp_asv_get_string (map, TP_IFACE_CHANNEL ".ChannelType");
-
-        g_print ("Path: %s\n", object_path);
-        g_print ("Type: %s\n", type);
-}]]></programlisting>
-       </example>
-
        <tip>
         <title>G_VALUE_TYPE_NAME()</title>
         <para>
@@ -1230,68 +1209,6 @@ for (i = 0; i < channels->len; i++)
          <literal>GPtrArray_GValueArray_DBusGObjectPath+GHashTable_gchararray+GValue___</literal>.
         </para>
        </tip>
-
-       <note id="note.basics.language-bindings.telepathy-glib.variant">
-        <title>Variant Types</title>
-	<para>
-         Variant types are stored as a <classname>GValue</classname> of type
-         given by the specification. For example,
-         <xref linkend="ex.basics.language-bindings.telepathy-glib.variant-unpack"/>
-         shows how to unpack the type <literal>a(uv)</literal>.
-        </para>
-
-        <example id="ex.basics.language-bindings.telepathy-glib.variant-unpack">
-         <title>Unpacking Type a(uv)</title>
-	 <programlisting language="c">
-<![CDATA[
-int i;
-for (i = 0; i < properties->len; i++)
-{
-        GValueArray *property = g_ptr_array_index (properties, i);
-        /* the id is a GValue<UINT>
-         * the variant is a GValue<GValue<??> */
-        guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
-        GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
-
-        /* get a string representation of value */
-        char *str = g_strdup_value_contents (value);
-        g_print ("Property %i: %s\n", id, str);
-        g_free (str);
-}]]></programlisting>
-        </example>
-
-        <example id="ex.basics.language-bindings.telepathy-glib.variant-pack">
-         <title>Packing Type a(uv)</title>
-         <programlisting language="c">
-<![CDATA[GPtrArray *array = g_ptr_array_new ();
-
-/* pack structs into array */
-GValueArray *values = g_value_array_new (2);
-GValue box = { 0, }, value = { 0, };
-
-g_value_init (&value, G_TYPE_UINT);
-g_value_set_uint (&value, id);
-g_value_array_append (values, &value);
-g_value_unset (&value);
-
-g_value_init (&box, G_TYPE_VALUE);
-g_value_init (&value, G_TYPE_STRING);
-g_value_set_static_string (&value, "Test Subject");
-g_value_set_boxed (&box, &value);
-g_value_array_append (values, &box);
-g_value_unset (&value);
-g_value_unset (&box);
-
-g_ptr_array_add (array, values);
-
-...
-
-/* free array */
-g_ptr_array_foreach (array, (GFunc) g_value_array_free, NULL);
-g_ptr_array_free (array, TRUE);]]></programlisting>
-        </example>
-
-       </note>
 
       </sect3>
 
@@ -1368,6 +1285,150 @@ g_ptr_array_free (array, TRUE);]]></programlisting>
 	</para>
        </tip>
 
+      </sect3>
+
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.structs">
+      	<title>Structs</title>
+
+	<para>
+	  Structs (e.g. <literal>ussu</literal>) are stored as a
+	  <classname>GValueArray</classname>.
+	  To make these easier to create use the utility function
+	  <function>tp_value_array_build</function>. This function requires
+	  a number of struct entries, followed by (GType, value) pairs, and
+	  terminated with the type <type>G_TYPE_INVALID</type>, as shown in
+	  <xref linkend="ex.basics.language-bindings.telepathy-glib.tp_value_array_build"/>.
+	</para>
+
+        <example id="ex.basics.language-bindings.telepathy-glib.tp_value_array_build">
+         <title>Creating an (ussu) struct with tp_value_array_build()</title>
+         <!-- FIXME: pull from source example? -->
+         <programlisting language="c">
+<![CDATA[GValueArray *entry = tp_value_array_build (4,
+         G_TYPE_UINT, 12,
+         G_TYPE_STRING, "subject",
+	 G_TYPE_STRING, "Building a GValueArray",
+	 G_TYPE_UINT, 0,
+	 G_TYPE_INVALID);]]></programlisting>
+        </example>
+
+	<para>
+	  <function>tp_value_array_build</function> takes copies/references
+	  of all of the supplied data, which can be freed immediately. These
+	  copies/references are released when the
+	  <classname>GValueArray</classname>
+	  is freed.
+	</para>
+
+	<para>
+	  Structs can be unpacked using the utility function
+	  <function>tp_value_array_unpack</function>. This function takes a
+	  number of values to unpack (may be less than the number of values
+	  in the array) followed by that number of pointers to appropriate
+	  variables (NULL may be passed to skip a value you're not interested
+	  in). <xref linkend="ex.basics.language-bindings.telepathy-glib.types"/>
+	  shows unpacking the object path, and properties for an array of
+	  channels.
+	</para>
+
+	<para>
+	  Values are not copied out of the array, and these pointers will
+	  become invalid when the array is freed. If you want to keep a copy
+	  of a value you should copy/reference it explicitly.
+	</para>
+
+       <example id="ex.basics.language-bindings.telepathy-glib.types">
+        <title>Decoding a GValue containing a Channel_Details_List</title>
+        <programlisting language="c">
+<![CDATA[g_return_if_fail (G_VALUE_HOLDS (value, TP_ARRAY_TYPE_CHANNEL_DETAILS_LIST));
+
+GPtrArray *channels = g_value_get_boxed (value);
+
+int i;
+for (i = 0; i < channels->len; i++)
+{
+        GValueArray *channel = g_ptr_array_index (channels, i);
+
+        char *object_path;
+        GHashTable *map;
+
+	tp_value_unpack (channel, 2,
+		&object_path,
+		&map);
+
+        const char *type = tp_asv_get_string (map, TP_IFACE_CHANNEL ".ChannelType");
+
+        g_print ("Path: %s\n", object_path);
+        g_print ("Type: %s\n", type);
+}]]></programlisting>
+       </example>
+
+       <para>
+         Individual values can be retrieved from a structure using
+	 <function>g_value_array_get_nth</function> plus the appropriate
+	 <function>g_value_get_...</function> function for the returned
+	 <classname>GValue</classname>.
+	 <xref linkend="ex.basics.language-bindings.telepathy-glib.variant-unpack"/>
+	 in the next section shows how this is done. Similar to using
+	 <function>tp_value_array_unpack</function>, this value is not
+	 copied or referenced, however GLib provides several
+	 <function>g_value_dup_...</function> functions that do make copies.
+       </para>
+
+      </sect3>
+
+      <sect3 id="sect.basics.language-bindings.telepathy-glib.variant">
+       <title>Variant Types</title>
+       <para>
+        Variant types are stored as a <classname>GValue</classname> of type
+        given by the specification. For example,
+        <xref linkend="ex.basics.language-bindings.telepathy-glib.variant-unpack"/>
+        shows how to unpack the type <literal>a(uv)</literal>.
+       </para>
+
+       <example id="ex.basics.language-bindings.telepathy-glib.variant-unpack">
+        <title>Unpacking Type a(uv)</title>
+	 <programlisting language="c">
+<![CDATA[
+int i;
+for (i = 0; i < properties->len; i++)
+{
+        GValueArray *property = g_ptr_array_index (properties, i);
+        /* the id is a GValue<UINT>
+         * the variant is a GValue<GValue<??> */
+        guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
+        GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
+
+        /* get a string representation of value */
+        char *str = g_strdup_value_contents (value);
+        g_print ("Property %i: %s\n", id, str);
+        g_free (str);
+}]]></programlisting>
+        </example>
+
+        <example id="ex.basics.language-bindings.telepathy-glib.variant-pack">
+         <title>Packing Type a(uv)</title>
+         <programlisting language="c">
+<![CDATA[GPtrArray *array = g_ptr_array_new_with_free_func ((GDestroyNotify) g_value_array_free);
+
+/* pack structs into array */
+GValue value = { 0, };
+
+g_value_init (&value, G_TYPE_STRING);
+g_value_set_static_string (&value, "Test Subject");
+
+g_ptr_array_add (array, tp_value_array_build (2,
+	G_TYPE_UINT, id,
+	G_TYPE_VALUE, value,
+	G_TYPE_INVALID);
+
+g_value_unset (&value);
+
+...
+
+/* free array */
+g_ptr_array_free (array, TRUE);]]></programlisting>
+       </example>
       </sect3>
 
       <sect3 id="sect.basics.language-bindings.telepathy-glib.linking">
