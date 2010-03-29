@@ -257,35 +257,27 @@ tpproperties_ready (TpChannel	*channel)
 
 	{ /* set some properties */
 		/* begin ex.basics.tpproperties.set */
-		GPtrArray *array = g_ptr_array_new ();
+		GPtrArray *array = g_ptr_array_new_with_free_func (
+				(GDestroyNotify) g_value_array_free);
+		GValue value = { 0, };
 
 		/* FIXME we're assuming this property exists, we should check */
 		guint id = tp_property_get_id (TP_PROXY (channel), "subject");
 
-		GValueArray *values = g_value_array_new (2);
-		GValue box = { 0, }, value = { 0, };
-
-		g_value_init (&value, G_TYPE_UINT);
-		g_value_set_uint (&value, id);
-		g_value_array_append (values, &value);
-		g_value_unset (&value);
-
-		g_value_init (&box, G_TYPE_VALUE);
 		g_value_init (&value, G_TYPE_STRING);
 		g_value_set_static_string (&value, "Test Subject");
-		g_value_set_boxed (&box, &value);
-		g_value_array_append (values, &box);
-		g_value_unset (&value);
-		g_value_unset (&box);
 
-		g_ptr_array_add (array, values);
+		g_ptr_array_add (array, tp_value_array_build (2,
+				G_TYPE_UINT, id,
+				G_TYPE_VALUE, &value,
+				G_TYPE_INVALID));
+
+		g_value_unset (&value);
 
 		g_print ("Setting properties...\n");
 		tp_cli_properties_interface_call_set_properties (channel, -1,
 				array, NULL, NULL, NULL, NULL);
 
-		/* we need to unset array */
-		g_ptr_array_foreach (array, (GFunc) g_value_array_free, NULL);
 		g_ptr_array_free (array, TRUE);
 		/* end ex.basics.tpproperties.set */
 	}
