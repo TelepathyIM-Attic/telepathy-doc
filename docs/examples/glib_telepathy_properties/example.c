@@ -117,8 +117,13 @@ tp_properties_changed_cb (TpProxy	  *channel,
 		GValueArray *property = g_ptr_array_index (properties, i);
 		/* the id is a GValue<UINT>
 		 * the variant is a GValue<GValue<??> */
-		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
-		GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
+		guint id;
+		GValue *value;
+
+		tp_value_array_unpack (property, 2,
+				&id,
+				&value);
+
 		TpProperty *tpproperty = tp_property_from_id (TP_PROXY (channel), id);
 
 		/* get a string representation of value */
@@ -142,12 +147,16 @@ tp_property_flags_changed_cb (TpProxy		*channel,
 	for (i = 0; i < properties->len; i++)
 	{
 		GValueArray *property = g_ptr_array_index (properties, i);
-		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
+		guint id, flags;
+
+		tp_value_array_unpack (property, 2,
+				&id,
+				&flags);
+
 		TpProperty *tpproperty = tp_property_from_id (TP_PROXY (channel), id);
 
 		g_print ("Property %s (%i): %x\n",
-			tpproperty->name, id,
-			g_value_get_uint (g_value_array_get_nth (property, 1)));
+			tpproperty->name, id, flags);
 	}
 }
 /* end ex.basics.tpproperties.flagchangecb */
@@ -170,8 +179,13 @@ tp_properties_get_cb (TpProxy		*channel,
 		GValueArray *property = g_ptr_array_index (properties, i);
 		/* the id is a GValue<UINT>
 		 * the variant is a GValue<GValue<??> */
-		guint id = g_value_get_uint (g_value_array_get_nth (property, 0));
-		GValue *value = g_value_get_boxed (g_value_array_get_nth (property, 1));
+		guint id;
+		GValue *value;
+
+		tp_value_array_unpack (property, 2,
+				&id,
+				&value);
+
 		TpProperty *tpproperty = tp_property_from_id (TP_PROXY (channel), id);
 
 		/* get a string representation of value */
@@ -201,10 +215,14 @@ list_properties_cb (TpProxy		*channel,
 	{
 		GValueArray *prop = g_ptr_array_index (available_properties, i);
 
-		guint id = g_value_get_uint (g_value_array_get_nth (prop, 0));
-		const char *name = g_value_get_string (g_value_array_get_nth (prop, 1));
-		const char *sig = g_value_get_string (g_value_array_get_nth (prop, 2));
-		guint flags = g_value_get_uint (g_value_array_get_nth (prop, 3));
+		guint id, flags;
+		const char *name, *sig;
+
+		tp_value_array_unpack (prop, 4,
+				&id,
+				&name,
+				&sig,
+				&flags);
 
 		g_print ("%u %s (%s) %x\n", id, name, sig, flags);
 

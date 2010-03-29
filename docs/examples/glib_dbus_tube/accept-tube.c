@@ -117,10 +117,12 @@ new_channels_cb (TpConnection		*conn,
 	for (i = 0; i < channels->len; i++)
 	{
 		GValueArray *channel = g_ptr_array_index (channels, i);
-		char *object_path = g_value_get_boxed (
-				g_value_array_get_nth (channel, 0));
-		GHashTable *map = g_value_get_boxed (
-				g_value_array_get_nth (channel, 1));
+		char *object_path;
+		GHashTable *map;
+
+		tp_value_array_unpack (channel, 2,
+				&object_path,
+				&map);
 
 		const char *type = tp_asv_get_string (map,
 				TP_IFACE_CHANNEL ".ChannelType");

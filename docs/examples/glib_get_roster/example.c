@@ -125,10 +125,12 @@ new_channels_cb (TpConnection		*conn,
 	for (i = 0; i < channels->len; i++)
 	{
 		GValueArray *channel = g_ptr_array_index (channels, i);
-		char *object_path = g_value_get_boxed (
-				g_value_array_get_nth (channel, 0));
-		GHashTable *map = g_value_get_boxed (
-				g_value_array_get_nth (channel, 1));
+		char *object_path;
+		GHashTable *map;
+
+		tp_value_array_unpack (channel, 2,
+				&object_path,
+				&map);
 
 		/* begin ex.channel.requesting.glib.tpchannel */
 		const char *type = tp_asv_get_string (map,
@@ -187,10 +189,12 @@ presences_changed_cb (TpConnection	*conn,
 		int contact = GPOINTER_TO_UINT (key);
 		GValueArray *spresence = (GValueArray *) value;
 
-		const char *status = g_value_get_string (
-				g_value_array_get_nth (spresence, 1));
-		const char *status_message = g_value_get_string (
-				g_value_array_get_nth (spresence, 2));
+		const char *status, *status_message;
+
+		tp_value_array_unpack (spresence, 3,
+				NULL,
+				&status,
+				&status_message);
 
 		g_print ("Contact handle %i -> %s - %s\n",
 				contact, status, status_message);

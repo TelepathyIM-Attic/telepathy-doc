@@ -103,11 +103,11 @@ presence_chooser_set_statuses (PresenceChooser *self,
       char *status = k;
       GValueArray *array = v;
 
-      guint type = g_value_get_uint (g_value_array_get_nth (array, 0));
-      gboolean set_on_self = g_value_get_boolean (
-          g_value_array_get_nth (array, 1));
-      gboolean can_have_message = g_value_get_boolean (
-          g_value_array_get_nth (array, 2));
+      guint type;
+      gboolean set_on_self, can_have_message;
+
+      tp_value_array_unpack (array, 3,
+          &type, &set_on_self, &can_have_message);
 
       if (!set_on_self) continue;
 

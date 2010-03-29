@@ -57,9 +57,11 @@ example_observer_observe_channels (TpSvcClientObserver   *self,
   for (i = 0; i < channels->len; i++)
     {
       GValueArray *channel = g_ptr_array_index (channels, i);
+      char *path;
+      GHashTable *map;
 
-      char *path = g_value_get_boxed (g_value_array_get_nth (channel, 0));
-      GHashTable *map = g_value_get_boxed (g_value_array_get_nth (channel, 1));
+      tp_value_array_unpack (channel, 2,
+          &path, &map);
 
       g_print ("     channel    = %s\n", path);
     }

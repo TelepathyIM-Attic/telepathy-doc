@@ -58,8 +58,11 @@ example_handler_handle_channels (TpSvcClientHandler   *self,
     {
       GValueArray *channel = g_ptr_array_index (channels, i);
 
-      char *path = g_value_get_boxed (g_value_array_get_nth (channel, 0));
-      GHashTable *map = g_value_get_boxed (g_value_array_get_nth (channel, 1));
+      char *path;
+      GHashTable *map;
+
+      tp_value_array_unpack (channel, 2,
+          &path, &map);
 
       g_print ("     channel    = %s\n", path);
     }
