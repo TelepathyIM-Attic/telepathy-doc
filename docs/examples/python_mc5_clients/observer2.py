@@ -203,7 +203,7 @@ class EObserver(telepathy.server.Observer,
             pending_channels.remove(chan)
             chan.connect('closed', channel_closed)
 
-            if len(pending_channels) == 0:
+            if not pending_channels:
                 print 'All channels ready'
 
                 _success()
