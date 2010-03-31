@@ -10,7 +10,8 @@
 # are prepared, this gives the Observer time to investigate the pending message
 # queue before any Handlers can acknowledge it.
 #
-# Author: Danielle Madeley <danielle.madeley@collabora.co.uk>
+# Authors: Danielle Madeley <danielle.madeley@collabora.co.uk>
+#          Morten Mjelva <morten.mjelva@gmail.com>
 #
 import dbus, dbus.glib
 import gobject
