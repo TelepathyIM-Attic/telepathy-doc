@@ -1368,12 +1368,24 @@ for (i = 0; i < channels->len; i++)
 	 <function>g_value_array_get_nth</function> plus the appropriate
 	 <function>g_value_get_...</function> function for the returned
 	 <classname>GValue</classname>.
-	 <xref linkend="ex.basics.language-bindings.telepathy-glib.variant-unpack"/>
-	 in the next section shows how this is done. Similar to using
+	 <xref linkend="ex.basics.language-bindings.telepathy-glib.unpacking-us"/>
+	 shows how this is done. Similar to using
 	 <function>tp_value_array_unpack</function>, this value is not
 	 copied or referenced, however GLib provides several
 	 <function>g_value_dup_...</function> functions that do make copies.
        </para>
+       <example id="ex.basics.language-bindings.telepathy-glib.unpacking-us">
+        <title>Unpacking oa{sv}</title>
+        <programlisting language="c">
+<![CDATA[GValueArray *channel = ...; /* contains a struct of type (oa{sv}) */
+
+char *object_path;
+GHashTable *map;
+
+object_path = g_value_get_boxed (g_value_array_get_nth (channel, 0));
+map = g_value_get_boxed (g_value_array_get_nth (channel, 1));]]></programlisting>
+       </example>
+
 
       </sect3>
 
