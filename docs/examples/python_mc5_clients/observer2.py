@@ -1,8 +1,23 @@
-import dbus.glib
+#
+# This example Telepathy Observe tracks the lifetimes of text conversations.
+#
+# For each incoming channel it creates an EChannel object, and records the
+# timestamp of the first and last message received by this channel.
+#
+# EConnections and EChannels are tracked by the EObserver, their invalidation
+# is signalled by GObject signals. EObserver.ObserveChannels uses asynchronous
+# return functions to only return from the D-Bus method once all of the channels
+# are prepared, this gives the Observer time to investigate the pending message
+# queue before any Handlers can acknowledge it.
+#
+# Author: Danielle Madeley <danielle.madeley@collabora.co.uk>
+#
+import dbus, dbus.glib
 import gobject
 
 import telepathy
 from telepathy.interfaces import *
+from telepathy.constants import *
 
 DBUS_PROPERTIES = 'org.freedesktop.DBus.Properties'
 
@@ -78,7 +93,7 @@ class EChannel(gobject.GObject,
     def __repr__(self):
         return 'EChannel(%s)' % self.object_path
 
-    def _handle_message(self, id, timestamp, sender, type, flags, text):
+    def _handle_message(self, timestamp):
         if self._first_timestamp is None:
             self._first_timestamp = timestamp
 
@@ -86,6 +101,12 @@ class EChannel(gobject.GObject,
 
         print '%s: %u -> %u' % (
             self._target_alias, self._first_timestamp, self._last_timestamp)
+
+    def _received_message(self, id, timestamp, sender, type, flags, text):
+        self._handle_message(timestamp)
+
+    def _sent_message(self, timestamp, type, text):
+        self._handle_message(timestamp)
 
     def _channel_closed(self):
         for signal in self.signals:
@@ -99,7 +120,7 @@ class EChannel(gobject.GObject,
         def pending_messages_reply(messages):
             # handle these messages
             for message in messages:
-                self._handle_message(*message)
+                self._received_message(*message)
 
             # we're ready
             self.ready_handler(self)
@@ -130,7 +151,9 @@ class EChannel(gobject.GObject,
         self.signals.append(self[CHANNEL].connect_to_signal(
             'Closed', self._channel_closed))
         self.signals.append(self[CHANNEL_TYPE_TEXT].connect_to_signal(
-            'Received', self._handle_message))
+            'Received', self._received_message))
+        self.signals.append(self[CHANNEL_TYPE_TEXT].connect_to_signal(
+            'Sent', self._sent_message))
 
     def do_closed(self):
         # required so that we don't transmit this over D-Bus
