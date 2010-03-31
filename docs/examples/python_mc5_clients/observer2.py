@@ -19,6 +19,7 @@ class EConnection(gobject.GObject,
         service_name = path.replace('/', '.')[1:]
 
         self.ready_handler = ready_handler
+        self.signals = []
 
         gobject.GObject.__init__(self)
         telepathy.client.Connection.__init__(self, service_name, path,
@@ -29,6 +30,9 @@ class EConnection(gobject.GObject,
 
     def _status_changed(self, status, reason):
         if status == CONNECTION_STATUS_DISCONNECTED:
+            for signal in self.signals:
+                signal.remove()
+
             self.emit('disconnected')
 
     def _connection_ready(self, conn):
@@ -42,8 +46,8 @@ class EConnection(gobject.GObject,
             'ContactAttributeInterfaces',
             reply_handler=reply, error_handler=error)
 
-        self[CONNECTION].connect_to_signal('StatusChanged',
-            self._status_changed)
+        self.signals.append(self[CONNECTION].connect_to_signal(
+            'StatusChanged', self._status_changed))
 
     def do_disconnect(self):
         # required so that we don't transmit this over D-Bus
@@ -62,6 +66,7 @@ class EChannel(gobject.GObject,
         self.account_path = account_path
         self.conn = conn
         self.properties = properties
+        self.signals = []
 
         gobject.GObject.__init__(self)
         telepathy.client.Channel.__init__(self, conn.service_name, path,
@@ -69,8 +74,6 @@ class EChannel(gobject.GObject,
 
         self._first_timestamp = None
         self._last_timestamp = None
-
-        self.signals = []
 
     def __repr__(self):
         return 'EChannel(%s)' % self.object_path
