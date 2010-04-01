@@ -10,6 +10,7 @@ example_dirs = \
 	glib_mc5_connections \
 	glib_mc5_dbus_tube_handler \
 	glib_mc5_observer \
+	glib_blinkenlight_observer \
 	glib_mc5_ft_handler \
 	gtk_presence_app \
 	pygtk_chat_client \
