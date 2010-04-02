@@ -1,3 +1,27 @@
+/*
+ * observer.c - a Telepathy Observer, observes text channels to count their
+ *              unread messages
+ *
+ * Copyright (C) 2010 Collabora Ltd. <http://www.collabora.co.uk/>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Authors:
+ *   Danielle Madeley <danielle.madeley@collabora.co.uk>
+ */
+
 #include <telepathy-glib/telepathy-glib.h>
 #include <telepathy-glib/svc-generic.h>
 #include <telepathy-glib/svc-client.h>
@@ -59,6 +83,7 @@ _update_count (Observer *self)
       total += unread;
     }
 
+  /* this is where code to interface with the blinking light/whatever goes */
   g_print ("TOTAL UNREAD MESSAGES: %u\n", total);
 }
 
@@ -79,8 +104,9 @@ _channel_closed (TpProxy *channel,
 {
   ObserverPrivate *priv = GET_PRIVATE (self);
 
-  g_print ("Channel closed: %s\n", tp_proxy_get_object_path (channel));
+  g_debug ("Channel closed: %s", tp_proxy_get_object_path (channel));
 
+  /* remove this channel from the list of active channels */
   priv->channels = g_list_remove (priv->channels, channel);
   _update_count (self);
 
@@ -96,12 +122,14 @@ _channel_ready (TpChannel *channel,
   Observer *self = data->self;
   ObserverPrivate *priv = GET_PRIVATE (self);
 
+  /* remove the channel from the pending list */
   data->pending = g_list_remove (data->pending, channel);
 
   if (error == NULL)
     {
-      g_print ("Channel ready: %s\n", tp_proxy_get_object_path (channel));
+      g_debug ("Channel ready: %s", tp_proxy_get_object_path (channel));
 
+      /* put this channel in the list of active channels */
       priv->channels = g_list_prepend (priv->channels, channel);
 
       tp_g_signal_connect_object (channel, "notify::unread",
@@ -113,14 +141,19 @@ _channel_ready (TpChannel *channel,
     }
   else
     {
+      g_warning ("Channel ready failed: %s",
+          tp_proxy_get_object_path (channel));
+
       /* drop the ref, this channel is dead */
       g_object_unref (channel);
     }
 
   if (data->pending == NULL)
     {
-      g_print ("All channels ready\n");
+      g_debug ("All channels ready");
 
+      /* if all channels for this dispatch are ready, we can return from
+       * ObserveChannels */
       tp_svc_client_observer_return_from_observe_channels (data->context);
 
       g_slice_free (ReadyCallbackData, data);
@@ -151,6 +184,10 @@ observer_observe_channels (TpSvcClientObserver *self,
   if (error != NULL)
     goto error;
 
+  /* returning from the D-Bus method ObserveChannels passes the channels
+   * onwards towards the Handler. We want to have the chance to read the
+   * initial pending message queue before it gets acknowledged, so we defer
+   * returning from ObserveChannels until all the channels are ready */
   data = g_slice_new0 (ReadyCallbackData);
   data->self = OBSERVER (self);
   data->context = context;
@@ -170,6 +207,8 @@ observer_observe_channels (TpSvcClientObserver *self,
       if (error != NULL)
         continue;
 
+      /* place this channel in the list of channels pending preparation
+       * for this dispatch */
       data->pending = g_list_prepend (data->pending, chan);
       channel_call_when_ready (chan, _channel_ready, data);
     }
@@ -205,6 +244,7 @@ observer_get_property (GObject *self,
         {
           GPtrArray *array = g_ptr_array_new ();
 
+          /* Observe all text channels */
           g_ptr_array_add (array, tp_asv_new (
                 TP_IFACE_CHANNEL ".ChannelType",
                 G_TYPE_STRING,
@@ -240,6 +280,8 @@ observer_class_init (ObserverClass *klass)
   /* properties on the Client.Observer interface */
   static TpDBusPropertiesMixinPropImpl client_observer_props[] = {
         { "ObserverChannelFilter", "channel-filter", NULL },
+        /* NB: eventually we'll want to support the Recover property:
+         *     https://bugs.freedesktop.org/show_bug.cgi?id=24768 */
         { NULL }
   };
 

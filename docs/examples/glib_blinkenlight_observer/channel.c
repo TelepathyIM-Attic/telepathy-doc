@@ -1,3 +1,27 @@
+/*
+ * channel.c - wraps TpChannel to do preparation and unread message counting
+ *             for a single channel we're observing
+ *
+ * Copyright (C) 2010 Collabora Ltd. <http://www.collabora.co.uk/>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Authors:
+ *   Danielle Madeley <danielle.madeley@collabora.co.uk>
+ */
+
 #include <telepathy-glib/telepathy-glib.h>
 
 #include "channel.h"
@@ -28,7 +52,7 @@ _channel_update_pending_msgs (Channel *self)
 {
   ChannelPrivate *priv = GET_PRIVATE (self);
 
-  g_print ("%s: pending messages %u\n",
+  g_debug ("%s: pending messages %u",
       tp_proxy_get_object_path (self),
       tp_intset_size (priv->pending));
 
@@ -48,6 +72,15 @@ _channel_msg_received (TpChannel *self,
 {
   ChannelPrivate *priv = GET_PRIVATE (self);
 
+  /* The id is a number assigned to each message in the channel that is used
+   * to acknowledge the message. Messages are acknowledged by the Handler when
+   * it is sure that the user has seen them. When the client acknowledges a
+   * message, we will receive the signal PendingMessageRemoved, and we can
+   * remove this id from our pending list.
+   *
+   * For this to work it requires a well-behaved client that doesn't just
+   * acknowledge messages immediately. For instance, recent Empathy */
+
   if (type == TP_CHANNEL_TEXT_MESSAGE_TYPE_NORMAL)
     {
       tp_intset_add (priv->pending, id);
@@ -64,6 +97,9 @@ _channel_pending_msg_removed (TpChannel *self,
 {
   ChannelPrivate *priv = GET_PRIVATE (self);
   guint i;
+
+  /* The client has acknowledged @ids, and we can remove them from the list
+   * of messages we know the user hasn't seen */
 
   for (i = 0; i < ids->len; i++)
     {
@@ -88,6 +124,7 @@ _channel_list_pending_messages (TpChannel *self,
     {
       guint i;
 
+      /* Iterate the pending messages */
       for (i = 0; i < messages->len; i++)
         {
           guint id, timestamp, sender, type, flags;
@@ -101,7 +138,12 @@ _channel_list_pending_messages (TpChannel *self,
               NULL, NULL);
         }
     }
+  else
+    {
+      g_warning ("Failed to get pending messages: %s", error->message);
+    }
 
+  /* call the readiness callback */
   data->callback (self, error, data->user_data);
   g_slice_free (ReadyCallbackData, data);
 }
@@ -114,11 +156,19 @@ _channel_ready (TpChannel *self,
   ReadyCallbackData *data = user_data;
   GError *lerror = NULL;
 
+  if (error != NULL)
+    {
+      data->callback (self, error, data->user_data);
+      g_slice_free (ReadyCallbackData, data);
+      return;
+    }
+
   /* get the pending messages on the channel */
   tp_cli_channel_type_text_call_list_pending_messages (self, -1, FALSE,
       _channel_list_pending_messages,
       data, NULL, NULL);
 
+  /* connect to the signals we need to listen to */
   tp_cli_channel_type_text_connect_to_received (self,
       _channel_msg_received,
       NULL, NULL, NULL, &lerror);
@@ -140,6 +190,7 @@ channel_call_when_ready (Channel *self,
   data->callback = callback;
   data->user_data = user_data;
 
+  /* prepare the TpChannel */
   tp_channel_call_when_ready (TP_CHANNEL (self), _channel_ready, data);
 }
 
@@ -209,6 +260,8 @@ channel_new (TpConnection *conn,
     const GHashTable *properties,
     GError **error)
 {
+  /* this function is copied from
+   * telepathy-glib/channel.c:tp_channel_new_from_properties */
   Channel *self = NULL;
 
   g_return_val_if_fail (TP_IS_CONNECTION (conn), NULL);
