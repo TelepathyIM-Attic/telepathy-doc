@@ -78,7 +78,7 @@ html/index.html: $(MAIN) Makefile.am $(DOCBOOK_STYLESHEET) $(DOC_FIGURES) figure
 	mv ../examples/dist html/examples
 	cp -r C/figures html/
 	$(mkinstalldirs) html/icons
-	cp $(ICONS_DIR)/* html/icons/
+	cp $(ICONS_DIR)/status/* html/icons/
 	$(XSLTPROC) \
 		--param db.chunk.chunk_top 0 \
 		--stringparam db.chunk.basename "index" \
