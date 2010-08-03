@@ -57,6 +57,16 @@
 
     <abstract role="description">
       <para>Software development manual for Telepathy.</para>
+
+      <para>This manual is written using <ulink
+        url="http://www.docbook.org/">DocBook</ulink>, and its source is kept
+        <ulink url="http://git.collabora.co.uk/?p=telepathy-doc.git">on
+        git.collabora.co.uk</ulink>. Contributions and fixes are welcome on the
+        <ulink
+        url="http://lists.freedesktop.org/mailman/listinfo/telepathy">Telepathy
+        mailing list</ulink> or attached to bugs on <ulink
+        url="https://bugs.freedesktop.org/enter_bug.cgi?product=Telepathy&component=tp-doc">bugs.freedesktop.org
+        (in the “Telepathy” product and “tp-doc” component)</ulink>.</para>
     </abstract>
 
   <xi:include href="legal.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
