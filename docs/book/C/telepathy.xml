@@ -65,7 +65,7 @@
         <ulink
         url="http://lists.freedesktop.org/mailman/listinfo/telepathy">Telepathy
         mailing list</ulink> or attached to bugs on <ulink
-        url="https://bugs.freedesktop.org/enter_bug.cgi?product=Telepathy&component=tp-doc">bugs.freedesktop.org
+        url="https://bugs.freedesktop.org/enter_bug.cgi?product=Telepathy&amp;component=tp-doc">bugs.freedesktop.org
         (in the “Telepathy” product and “tp-doc” component)</ulink>.</para>
     </abstract>
 
