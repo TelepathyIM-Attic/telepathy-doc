@@ -2,241 +2,190 @@
 
 #include <glib.h>
 
-#include <telepathy-glib/connection-manager.h>
-#include <telepathy-glib/connection.h>
-#include <telepathy-glib/interfaces.h>
-#include <telepathy-glib/gtypes.h>
-#include <telepathy-glib/util.h>
-#include <telepathy-glib/enums.h>
-#include <telepathy-glib/debug.h>
+#include <telepathy-glib/telepathy-glib.h>
 
 static GMainLoop *loop = NULL;
-static TpDBusDaemon *bus_daemon = NULL;
-static TpConnection *conn = NULL;
 
 static void
 handle_error (const GError *error)
 {
-	if (error)
-	{
-		g_print ("ERROR: %s\n", error->message);
-		tp_cli_connection_call_disconnect (conn, -1, NULL,
-				NULL, NULL, NULL);
-	}
+  if (error != NULL)
+    {
+      g_print ("ERROR: %s\n", error->message);
+      g_main_loop_quit (loop);
+    }
 }
+
 
 /* begin ex.channel.contactlist.user-defined.glib */
 static void
-new_channels_cb (TpConnection		*conn,
-                 const GPtrArray	*channels,
-		 gpointer		 user_data,
-		 GObject		*weak_obj)
+new_channels_cb (TpConnection *conn,
+    const GPtrArray *channels,
+    gpointer user_data,
+    GObject *weak_obj)
 {
-	GError *error = NULL;
+  int i;
+  GError *error = NULL;
 
-	/* channels has the D-Bus type a(oa{sv}), which decomposes to:
-	 *  - a GPtrArray containing a GValueArray for each channel
-	 *  - each GValueArray contains
-	 *     - an object path
-	 *     - an a{sv} map
-	 */
+  /* @channels has the D-Bus type a(oa{sv}), which decomposes to:
+   *  - a GPtrArray containing a GValueArray for each channel
+   *  - each GValueArray contains
+   *     - an object path
+   *     - an a{sv} map
+   */
+  for (i = 0; i < channels->len; i++)
+    {
+      GValueArray *channel = g_ptr_array_index (channels, i);
+      char *object_path;
+      GHashTable *map;
 
-	int i;
-	for (i = 0; i < channels->len; i++)
-	{
-		GValueArray *channel = g_ptr_array_index (channels, i);
-		char *object_path;
-		GHashTable *map;
+      const char *channel_type, *target_id;
+      int handle_type;
 
-		tp_value_array_unpack (channel, 2,
-				&object_path,
-				&map);
+      tp_value_array_unpack (channel, 2,
+          &object_path,
+          &map);
 
-		const char *type = tp_asv_get_string (map,
-				TP_IFACE_CHANNEL ".ChannelType");
-		int handle_type = tp_asv_get_uint32 (map,
-				TP_IFACE_CHANNEL ".TargetHandleType", NULL);
-		const char *id = tp_asv_get_string (map,
-				TP_IFACE_CHANNEL ".TargetID");
+      channel_type = tp_asv_get_string (map, TP_PROP_CHANNEL_CHANNEL_TYPE);
+      handle_type = tp_asv_get_uint32 (map, TP_PROP_CHANNEL_TARGET_HANDLE_TYPE,
+          NULL);
+      target_id = tp_asv_get_string (map, TP_PROP_CHANNEL_TARGET_ID);
 
-		if (!strcmp (type, TP_IFACE_CHANNEL_TYPE_CONTACT_LIST) &&
-		    handle_type == TP_HANDLE_TYPE_GROUP)
-		{
-			g_print ("Got user-defined contact group: %s\n", id);
-		}
-	}
+      /* ensure this channel is a contact group */
+      if (!tp_strdiff (channel_type, TP_IFACE_CHANNEL_TYPE_CONTACT_LIST) &&
+          handle_type == TP_HANDLE_TYPE_GROUP)
+        {
+          g_print ("Got user-defined contact group: %s\n", target_id);
+        }
+    }
 }
 /* end ex.channel.contactlist.user-defined.glib */
 
-static void
-get_channels_cb (TpProxy	*proxy,
-		 const GValue	*value,
-		 const GError	*in_error,
-		 gpointer	 user_data,
-		 GObject	*weak_obj)
-{
-	handle_error (in_error);
-
-	g_return_if_fail (G_VALUE_HOLDS (value,
-				TP_ARRAY_TYPE_CHANNEL_DETAILS_LIST));
-
-	GPtrArray *channels = g_value_get_boxed (value);
-
-	new_channels_cb (conn, channels, user_data, weak_obj);
-}
 
 static void
-conn_ready (TpConnection	*conn,
-            const GError	*in_error,
-	    gpointer		 user_data)
+get_channels_cb (TpProxy *conn,
+    const GValue *value,
+    const GError *in_error,
+    gpointer user_data,
+    GObject *weak_obj)
 {
-	GError *error = NULL;
+  handle_error (in_error);
 
-	g_print (" > conn_ready\n");
+  g_return_if_fail (G_VALUE_HOLDS (value,
+        TP_ARRAY_TYPE_CHANNEL_DETAILS_LIST));
 
-	handle_error (in_error);
+  GPtrArray *channels = g_value_get_boxed (value);
 
-	/* check if the Requests interface is available */
-	if (tp_proxy_has_interface_by_id (conn,
-		TP_IFACE_QUARK_CONNECTION_INTERFACE_REQUESTS))
-	{
-		/* request the current channels */
-		tp_cli_dbus_properties_call_get (conn, -1,
-				TP_IFACE_CONNECTION_INTERFACE_REQUESTS,
-				"Channels",
-				get_channels_cb,
-				NULL, NULL, NULL);
-
-		/* notify of all new channels */
-		tp_cli_connection_interface_requests_connect_to_new_channels (
-				conn, new_channels_cb,
-				NULL, NULL, NULL, &error);
-		handle_error (error);
-	}
+  new_channels_cb (TP_CONNECTION (conn), channels, user_data, weak_obj);
 }
+
 
 static void
-status_changed_cb (TpConnection	*conn,
-                   guint	 status,
-		   guint	 reason,
-		   gpointer	 user_data,
-		   GObject	*weak_object)
+_conn_ready (GObject *conn,
+    GAsyncResult *res,
+    gpointer user_data)
 {
-	if (status == TP_CONNECTION_STATUS_DISCONNECTED)
-	{
-		g_print ("Disconnected\n");
-		g_main_loop_quit (loop);
-	}
-	else if (status == TP_CONNECTION_STATUS_CONNECTED)
-	{
-		g_print ("Connected\n");
-	}
+  GError *error = NULL;
+
+  if (!tp_proxy_prepare_finish (conn, res, &error))
+    {
+      handle_error (error);
+    }
+
+  g_print (" > conn ready\n");
+
+  /* check if the Requests interface is available */
+  if (tp_proxy_has_interface_by_id (conn,
+        TP_IFACE_QUARK_CONNECTION_INTERFACE_REQUESTS))
+    {
+      /* request the current channels */
+      tp_cli_dbus_properties_call_get (conn, -1,
+          TP_IFACE_CONNECTION_INTERFACE_REQUESTS,
+          "Channels",
+          get_channels_cb,
+          NULL, NULL, NULL);
+
+      /* notify of all new channels */
+      tp_cli_connection_interface_requests_connect_to_new_channels (
+          TP_CONNECTION (conn), new_channels_cb,
+          NULL, NULL, NULL, &error);
+      handle_error (error);
+    }
+  else
+    {
+      g_error ("No requests interface, antique CM?");
+    }
 }
+
 
 static void
-request_connection_cb (TpConnectionManager	*cm,
-                       const char		*bus_name,
-		       const char		*object_path,
-		       const GError		*in_error,
-		       gpointer			 user_data,
-		       GObject			*weak_object)
+_account_ready (GObject *account,
+    GAsyncResult *res,
+    gpointer user_data)
 {
-	GError *error = NULL;
+  TpConnection *conn;
+  GError *error = NULL;
 
-	if (in_error) g_error ("%s", in_error->message);
+  if (!tp_proxy_prepare_finish (account, res, &error))
+    {
+      handle_error (error);
+    }
 
-	conn = tp_connection_new (bus_daemon, bus_name, object_path, &error);
-	if (error) g_error ("%s", error->message);
+  g_print (" > account ready\n");
 
-	tp_connection_call_when_ready (conn, conn_ready, NULL);
+  /* get the connection */
+  conn = tp_account_get_connection (TP_ACCOUNT (account));
 
-	tp_cli_connection_connect_to_status_changed (conn, status_changed_cb,
-			NULL, NULL, NULL, &error);
-	handle_error (error);
-
-	/* initiate the connection */
-	tp_cli_connection_call_connect (conn, -1, NULL, NULL, NULL, NULL);
+  /* prepare the connection */
+  tp_proxy_prepare_async (conn, NULL, _conn_ready, NULL);
 }
 
-static void
-cm_ready (TpConnectionManager	*cm,
-	  const GError		*in_error,
-	  gpointer		 user_data,
-	  GObject		*weak_obj)
-{
-	char *username = (char *) user_data;
-
-	g_print (" > cm_ready\n");
-
-	if (in_error) g_error ("%s", in_error->message);
-
-	const TpConnectionManagerProtocol *prot = tp_connection_manager_get_protocol (cm, "jabber");
-	if (!prot) g_error ("Protocol is not supported");
-
-	char *password = getpass ("Password: ");
-
-	/* request a new connection */
-	GHashTable *parameters = tp_asv_new (
-			"account", G_TYPE_STRING, username,
-			"password", G_TYPE_STRING, password,
-			NULL);
-
-	tp_cli_connection_manager_call_request_connection (cm, -1,
-			"jabber",
-			parameters,
-			request_connection_cb,
-			NULL, NULL, NULL);
-
-	g_hash_table_destroy (parameters);
-}
-
-static void
-interrupt_cb (int signal)
-{
-	g_print ("Interrupt\n");
-	/* disconnect */
-	tp_cli_connection_call_disconnect (conn, -1, NULL, NULL, NULL, NULL);
-}
 
 int
-main (int argc, char **argv)
+main (int argc,
+    char **argv)
 {
-	GError *error = NULL;
+  TpDBusDaemon *dbus;
+  TpAccount *account;
+  char *account_path;
+  GError *error = NULL;
 
-	g_type_init ();
+  g_type_init ();
 
-	if (argc != 2)
-	{
-		g_error ("Must provide username!");
-	}
-	char *username = argv[1];
+  if (argc != 2)
+    {
+      g_error ("Must provide an account!");
+    }
 
-	/* create a main loop */
-	loop = g_main_loop_new (NULL, FALSE);
+  /* create a main loop */
+  loop = g_main_loop_new (NULL, FALSE);
 
-	/* acquire a connection to the D-Bus daemon */
-	bus_daemon = tp_dbus_daemon_dup (&error);
-	if (bus_daemon == NULL)
-	{
-		g_error ("%s", error->message);
-	}
+  /* acquire a connection to the D-Bus daemon */
+  dbus = tp_dbus_daemon_dup (&error);
+  if (dbus == NULL)
+    {
+      handle_error (error);
+    }
 
-	/* we want to request the gabble CM */
-	TpConnectionManager *cm = tp_connection_manager_new (bus_daemon,
-			"gabble", NULL, &error);
-	if (error) g_error ("%s", error->message);
+  /* get the complete path of the account */
+  account_path = g_strconcat (TP_ACCOUNT_OBJECT_PATH_BASE, argv[1], NULL);
 
-	tp_connection_manager_call_when_ready (cm, cm_ready,
-			username, NULL, NULL);
+  /* get the account */
+  account = tp_account_new (dbus, account_path, &error);
+  if (account == NULL)
+    {
+      handle_error (error);
+    }
 
-	/* set up a signal handler */
-	struct sigaction sa = { 0 };
-	sa.sa_handler = interrupt_cb;
-	sigaction (SIGINT, &sa, NULL);
+  g_free (account_path);
 
-	g_main_loop_run (loop);
+  /* prepare the account */
+  tp_proxy_prepare_async (account, NULL, _account_ready, NULL);
 
-	g_object_unref (bus_daemon);
+  g_main_loop_run (loop);
 
-	return 0;
+  g_object_unref (dbus);
+  g_object_unref (account);
+
+  return 0;
 }
