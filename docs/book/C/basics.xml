@@ -747,44 +747,85 @@ channel = telepathy.client.Channel(connection.service_name, object_path)]]></pro
        </para>
 
        <para>
-        There are several <classname>TpProxy</classname> subclasses that you
-	will use when programming with
+        There are several common <classname>TpProxy</classname> subclasses
+	that you will use when programming with
 	<application>telepathy-glib</application>:
+	<classname>TpAccount</classname>,
+	<classname>TpAccountManager</classname>,
 	<classname>TpConnectionManager</classname>,
 	<classname>TpConnection</classname> and
 	<classname>TpChannel</classname>.
        </para>
 
        <!-- FIXME: mention tp_proxy_has_interface_by_id() somewhere -->
-        
         <para>
-	 Some proxy objects, such as
-	 <classname>TpConnection</classname> and
-	 <classname>TpChannel</classname>,
-	 make additional D-Bus method calls to acquire additional information
-	 (e.g. available interfaces) to populate the properties and structures
+	 Proxy objects need to make D-Bus method calls to acquire additional
+	 information (e.g. available interfaces) to populate the properties
+	 and structures
 	 of the object. When they have received this information
 	 they are considered &quot;ready&quot;.
-	 Each proxy object provides a method to register a callback for when
-	 the object is ready, e.g.
-	 <function>tp_connection_call_when_ready</function>
-	 for a <classname>TpConnection</classname>, or
-	 <function>tp_channel_call_when_ready</function>
-	 for a <classname>TpChannel</classname>. See
-         <xref linkend="ex.basics.language-bindings.telepathy-glib.ready"/>.
+	 You can prepare a proxy using the method call
+	 <function>tp_proxy_prepare_async</function>.
+	 This method call takes a <literal>NULL</literal>-terminated array of
+	 features to prepare on the proxy
+	 (you can pass <literal>NULL</literal> to indicate you would like
+	 just the core features prepared); and a callback to call when
+	 preparation has succeeded or failed.
+	</para>
+	<para>
+	 Proxy preparation may potentially fail.
+	 In the callback you
+	 must use <function>tp_proxy_prepare_finish</function> to check
+	 whether preparation was successful.
+	 See
+         <xref linkend="ex.basics.language-bindings.telepathy-glib.ready"/>
+	 and
+	 <xref linkend="ex.basics.language-bindings.telepathy-glib.ready-callback"/>.
+	</para>
+
+	<para>
+	 Features have names such as
+	 <constant>TP_CONNECTION_FEATURE_CONNECTED</constant> and
+	 <constant>TP_CHANNEL_FEATURE_GROUP</constant>.
 	</para>
 
         <example id="ex.basics.language-bindings.telepathy-glib.ready"
-                 file="glib_get_roster/example.c">
-         <title>Readiness Callback</title>
+                 file="glib_dbus_tube/offer-tube.c">
+         <title>Preparing a TpProxy</title>
+        </example>
+
+	<example id="ex.basics.language-bindings.telepathy-glib.ready-callback">
+         <title>Preparation Callback</title>
+<programlisting language="c"><![CDATA[static void
+_account_ready (GObject *account,
+    GAsyncResult *res,
+    gpointer user_data)
+{
+  GError *error = NULL;
+
+  if (!tp_proxy_prepare_finish (account, res, &error))
+    handle_error (error);
+
+  ...
+}]]></programlisting>
+        </example>
+
+	<example id="ex.basics.language-bindings.telepathy-glib.ready-quarks">
+         <title>Preparing extra features</title>
+<programlisting language="c"><![CDATA[TpChannel *channel = ...;
+GQuark features[] = { TP_CHANNEL_FEATURE_CORE, TP_CHANNEL_FEATURE_GROUP, 0 };
+
+tp_proxy_prepare_async (channel, features, callback, user_data);]]></programlisting>
         </example>
 
 	<tip>
 	 <title>TpConnection Readiness</title>
 	 <para>
-	  A <classname>TpConnection</classname> is not considered
-	  &quot;ready&quot; until it has been connected (you cannot retrieve
-	  all of the available interfaces until connection is complete).
+	  If <constant>TP_CONNECTION_FEATURE_CONNECTED</constant> is
+	  requested on a <classname>TpConnection</classname>, you still
+	  have to call the <methodname>Connect</methodname> method. This
+	  feature will block preparation until the connection has entered
+	  the CONNECTED state.
 	 </para>
 	 <para>
 	  See <xref linkend="sect.connection.obtaining"/> for more details
