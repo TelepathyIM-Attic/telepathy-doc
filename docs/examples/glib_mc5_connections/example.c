@@ -4,15 +4,10 @@
 
 #include <glib.h>
 
-#include <telepathy-glib/interfaces.h>
-#include <telepathy-glib/gtypes.h>
-
-#include <telepathy-glib/account-manager.h>
-#include <telepathy-glib/account.h>
-#include <telepathy-glib/connection.h>
+#include <telepathy-glib/telepathy-glib.h>
 
 static GMainLoop *loop = NULL;
-static TpDBusDaemon *bus_daemon = NULL;
+static guint pending_requests = 0;
 
 static void
 get_statuses_cb (TpProxy      *conn,
@@ -21,6 +16,10 @@ get_statuses_cb (TpProxy      *conn,
                  gpointer      user_data,
                  GObject      *weak_obj)
 {
+  GHashTable *map;
+  GHashTableIter iter;
+  const char *k;
+  GValueArray *v;
   GError *error = NULL;
 
   if (in_error) g_error ("%s", in_error->message);
@@ -29,53 +28,43 @@ get_statuses_cb (TpProxy      *conn,
 
   g_print ("%s\n", tp_proxy_get_object_path (conn));
 
-  GHashTable *map = g_value_get_boxed (value);
-  GHashTableIter iter;
-  gpointer k, v;
+  map = g_value_get_boxed (value);
 
   g_hash_table_iter_init (&iter, map);
-  while (g_hash_table_iter_next (&iter, &k, &v))
+  while (g_hash_table_iter_next (&iter, (gpointer) &k, (gpointer) &v))
     {
-      char *status = k, *str;
-      GValueArray *array = v;
+      char *str;
 
-      g_print ("%s -> (", status);
+      g_print ("%s -> (", k);
 
-      str = g_strdup_value_contents (g_value_array_get_nth (array, 0));
+      str = g_strdup_value_contents (g_value_array_get_nth (v, 0));
       g_print ("%s, ", str);
       g_free (str);
 
-      str = g_strdup_value_contents (g_value_array_get_nth (array, 1));
+      str = g_strdup_value_contents (g_value_array_get_nth (v, 1));
       g_print ("%s, ", str);
       g_free (str);
 
-      str = g_strdup_value_contents (g_value_array_get_nth (array, 2));
+      str = g_strdup_value_contents (g_value_array_get_nth (v, 2));
       g_print ("%s)\n", str);
       g_free (str);
     }
+
+  pending_requests--;
+  if (pending_requests == 0)
+    g_main_loop_quit (loop);
 }
 
+
 static void
-get_connection_cb (TpProxy      *account,
-                   const GValue *value,
-                   const GError *in_error,
-                   gpointer      user_data,
-                   GObject      *weak_obj)
+_conn_ready (GObject *conn,
+    GAsyncResult *res,
+    gpointer user_data)
 {
   GError *error = NULL;
 
-  if (in_error) g_error ("%s", in_error->message);
-
-  g_return_if_fail (G_VALUE_HOLDS (value, DBUS_TYPE_G_OBJECT_PATH));
-
-  const char *path = g_value_get_boxed (value);
-
-  if (!tp_strdiff (path, "/")) goto out;
-
-  g_print ("Connection Path = %s\n", path);
-
-  TpConnection *conn = tp_connection_new (bus_daemon, NULL, path, &error);
-  if (error) g_error ("%s", error->message);
+  if (!tp_proxy_prepare_finish (conn, res, &error))
+    g_error ("%s", error->message);
 
   /* request the Statuses property */
   tp_cli_dbus_properties_call_get (conn, -1,
@@ -83,68 +72,86 @@ get_connection_cb (TpProxy      *account,
       "Statuses",
       get_statuses_cb,
       NULL, NULL, NULL);
-
-out:
-  /* we're done with the Account */
-  g_object_unref (account);
 }
+
 
 static void
-get_valid_accounts_cb (TpProxy      *am,
-                       const GValue *value,
-                       const GError *in_error,
-                       gpointer      user_data,
-                       GObject      *weak_obj)
+_account_ready (GObject *account,
+    GAsyncResult *res,
+    gpointer user_data)
 {
+  TpConnection *conn;
   GError *error = NULL;
 
-  if (in_error) g_error ("%s", in_error->message);
+  if (!tp_proxy_prepare_finish (account, res, &error))
+    g_error ("%s", error->message);
 
-  /* value is an (ao), which is a GPtrArray of allocated strings */
-  g_return_if_fail (G_VALUE_HOLDS (value, TP_ARRAY_TYPE_OBJECT_PATH_LIST));
-
-  GPtrArray *array = g_value_get_boxed (value);
-  int i;
-  for (i = 0; i < array->len; i++)
+  conn = tp_account_get_connection (TP_ACCOUNT (account));
+  if (conn == NULL)
     {
-      const char *path = g_ptr_array_index (array, i);
+      g_print ("Account %s not connected\n",
+          tp_account_get_display_name (TP_ACCOUNT (account)));
 
-      g_print ("Account Path = %s\n", path);
-
-      /* set up a TpAccount for each account */
-      TpAccount *account = tp_account_new (bus_daemon, path, &error);
-      if (error) g_error ("%s", error->message);
-
-      /* request the Connection for each account */
-      tp_cli_dbus_properties_call_get (account, -1,
-          TP_IFACE_ACCOUNT,
-          "Connection",
-          get_connection_cb,
-          NULL, NULL, NULL);
+      pending_requests--;
+      return;
     }
+
+  g_print ("Account %s: connection path = %s\n",
+      tp_account_get_display_name (TP_ACCOUNT (account)),
+      tp_proxy_get_object_path (conn));
+
+  /* prepare the connection */
+  tp_proxy_prepare_async (conn, NULL, _conn_ready, NULL);
 }
 
-int
-main (int argc, char **argv)
+
+static void
+_am_ready (GObject *am,
+    GAsyncResult *res,
+    gpointer user_data)
 {
+  GList *accounts, *l;
   GError *error = NULL;
+
+  if (!tp_proxy_prepare_finish (am, res, &error))
+    g_error ("%s", error->message);
+
+  /* the list of valid accounts (the ValidAccounts property) */
+  accounts = tp_account_manager_get_valid_accounts (TP_ACCOUNT_MANAGER (am));
+
+  for (l = accounts; l != NULL; l = l->next)
+    {
+      TpAccount *account = TP_ACCOUNT (l->data);
+
+      /* prepare each account */
+      tp_proxy_prepare_async (account, NULL, _account_ready, NULL);
+
+      pending_requests++;
+    }
+
+  g_list_free (accounts);
+}
+
+
+int
+main (int argc,
+    char **argv)
+{
+  TpAccountManager *am;
 
   g_type_init ();
 
   loop = g_main_loop_new (NULL, FALSE);
 
-  bus_daemon = tp_dbus_daemon_dup (&error);
-  if (error) g_error ("%s", error->message);
+  /* get the Account Manager */
+  am = tp_account_manager_dup ();
+  if (am == NULL)
+    g_error ("Couldn't not connect to Account Manager");
 
-  /* establish a connection to the Account Manager */
-  TpAccountManager *am = tp_account_manager_new (bus_daemon);
-
-  /* get the list of ValidAccounts */
-  tp_cli_dbus_properties_call_get (am, -1,
-      TP_IFACE_ACCOUNT_MANAGER,
-      "ValidAccounts",
-      get_valid_accounts_cb,
-      NULL, NULL, NULL);
+  /* prepare the AM */
+  tp_proxy_prepare_async (am, NULL, _am_ready, NULL);
 
   g_main_loop_run (loop);
+
+  g_object_unref (am);
 }
