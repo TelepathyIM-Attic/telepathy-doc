@@ -129,7 +129,7 @@ _muc_channel_ready (GObject *request,
   GError *error = NULL;
 
   if (!tp_account_channel_request_ensure_channel_finish (
-      TP_ACCOUNT_CHANNEL_REQUEST (request), res, &error))
+        TP_ACCOUNT_CHANNEL_REQUEST (request), res, &error))
     handle_error (error);
 
   g_print ("MUC channel ensured\n");
