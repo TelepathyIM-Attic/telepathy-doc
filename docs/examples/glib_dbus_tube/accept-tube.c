@@ -176,7 +176,7 @@ _account_ready (GObject *account,
       NULL);
 
   request = tp_account_channel_request_new (TP_ACCOUNT (account),
-      props, G_MAXINT64 /* current time */);
+      props, TP_USER_ACTION_TIME_CURRENT_TIME);
 
   tp_account_channel_request_ensure_channel_async (request,
       NULL, NULL, _muc_channel_ready, NULL);

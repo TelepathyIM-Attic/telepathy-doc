@@ -148,7 +148,7 @@ _muc_channel_ready (GObject *request,
   request2 = tp_account_channel_request_new (
       tp_account_channel_request_get_account (
         TP_ACCOUNT_CHANNEL_REQUEST (request)),
-      props, G_MAXINT64 /* current time */);
+      props, TP_USER_ACTION_TIME_CURRENT_TIME);
 
   tp_account_channel_request_create_and_handle_channel_async (request2,
       NULL, _tube_channel_ready, NULL);
@@ -171,6 +171,7 @@ _account_ready (GObject *account,
   if (!tp_proxy_prepare_finish (account, res, &error))
     handle_error (error);
 
+  /* begin ex.channel.requesting.glib.cd.ensure */
   props = tp_asv_new (
       TP_PROP_CHANNEL_CHANNEL_TYPE, G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_TEXT,
       TP_PROP_CHANNEL_TARGET_HANDLE_TYPE, TP_TYPE_HANDLE, TP_HANDLE_TYPE_ROOM,
@@ -178,7 +179,7 @@ _account_ready (GObject *account,
       NULL);
 
   request = tp_account_channel_request_new (TP_ACCOUNT (account),
-      props, G_MAXINT64 /* current time */);
+      props, TP_USER_ACTION_TIME_CURRENT_TIME);
 
   /* ensure this channel, but let the default handler handle it */
   tp_account_channel_request_ensure_channel_async (request,
@@ -186,6 +187,7 @@ _account_ready (GObject *account,
 
   g_hash_table_destroy (props);
   g_object_unref (request);
+  /* end ex.channel.requesting.glib.cd.ensure */
 }
 
 
