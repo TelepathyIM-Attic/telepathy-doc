@@ -262,11 +262,11 @@
      <interfacename>org.freedesktop.Telepathy.Client.Handler</interfacename>.
     </para>
 
-    <para>
+    <!-- FIXME para>
      The various Telepathy binding APIs provide straightforward procedures
      for implementing a Telepathy service (such as a Client). These methods
      are documented in <xref linkend="chapter.services"/>.
-    </para>
+    </para -->
 
     <sect3 id="sect.channel-dispatcher.clients.impl.observer">
      <title>Implementing an Observer</title>
@@ -653,6 +653,18 @@
       <link linkend="note.channel-dispatcher.clients.impl.channel_class_list">same
       form</link> as for Observers.
      </para>
+
+     <!-- FIXME: is this correct? <tip>
+      <title>Empty Filter</title>
+      <para>
+       An empty channel filter (containing no dictionary entries) is used
+       for a Handler that only handles channels specifically designated to
+       it.
+      </para>
+       <programlisting language="python"><![CDATA[dbus.Array([
+           ], signature='a{sv}')]]></programlisting>
+     </tip -->
+
      <para>
       The <property>Capabilities</property> property is the list of
       additional Telepathy capabilities this Handler supports.
@@ -873,6 +885,58 @@
        in <xref linkend="sect.channel.requesting.requestobjects"/>.
       </para>
      </note>
+    </sect3>
+
+    <sect3 id="sect.channel-dispatcher.clients.impl.tp-glib">
+     <title>telepathy-glib and TpBaseClient</title>
+
+     <para>
+      telepathy-glib provides a class, <classname>TpBaseClient</classname>,
+      that simplifies implementing Telepathy clients by providing the client
+      service on the D-Bus.
+      <classname>TpBaseClient</classname> is an abstract base class that can
+      be inherited to create any mixture of client types. telepathy-glib
+      also provides three basic implementations concrete classes, one for
+      each client type:
+      <classname>TpSimpleObserver</classname>,
+      <classname>TpSimpleApprover</classname> and
+      <classname>TpSimpleHandler</classname>.
+     </para>
+
+     <para>
+      <xref linkend="ex.channel-dispatcher.clients.impl.tpsimplehandler"/>
+      provides an example of creating a <classname>TpSimpleHandler</classname>
+      to handle file transfer channels.
+     </para>
+
+     <example id="ex.channel-dispatcher.clients.impl.tpsimplehandler"
+              file="glib_mc5_ft_handler/example.c">
+      <title>Creating a TpSimpleHandler</title>
+     </example>
+
+     <para>
+      The <classname>TpAccount</classname>,
+      <classname>TpConnection</classname> and
+      <classname>TpChannel</classname> objects passed to the callback are all
+      prepared with the <literal>core</literal> feature. You must hold a
+      reference to the object to access it outside the callback.
+     </para>
+
+     <para>
+      Each callback is passed a context object; one of
+      <classname>TpObserveChannelsContext</classname>,
+      <classname>TpAddDispatchOperationContext</classname>, or
+      <classname>TpHandleChannelsContext</classname>; named after the D-Bus
+      method that triggers the callback. Each context object provides three
+      methods: accept, fail and delay; one of which must be called before
+      the end of the callback. The Delay method is used if you have further
+      preparation to carry out before ultimately calling either Accept or
+      Fail. You must reference the context object to hold it outside the
+      callback.
+     </para>
+
+     <!-- FIXME: example of Delay -->
+
     </sect3>
 
    </sect2>

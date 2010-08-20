@@ -60,6 +60,7 @@ main (int argc,
   if (dbus == NULL)
     g_error ("%s", error->message);
 
+  /* begin ex.channel-dispatcher.clients.impl.tpsimplehandler */
   /* create a new Handler */
   handler = tp_simple_handler_new (dbus, FALSE, FALSE, CLIENT_NAME, FALSE,
       handle_channels, NULL, NULL);
@@ -81,6 +82,7 @@ main (int argc,
   /* register the Handler on the D-Bus */
   if (!tp_base_client_register (handler, &error))
     g_error ("%s", error->message);
+  /* end ex.channel-dispatcher.clients.impl.tpsimplehandler */
 
   g_main_loop_run (loop);
 
