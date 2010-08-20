@@ -929,13 +929,28 @@
       <classname>TpHandleChannelsContext</classname>; named after the D-Bus
       method that triggers the callback. Each context object provides three
       methods: accept, fail and delay; one of which must be called before
-      the end of the callback. The Delay method is used if you have further
+      the end of the callback.
+     </para>
+     <para>
+      The Accept and Fail methods are used to return from the
+      <methodname>ObserveChannels</methodname> D-Bus method, either
+      successfully or with an error condition.
+     </para>
+     <para>
+      The Delay method is used if you have further
       preparation to carry out before ultimately calling either Accept or
-      Fail. You must reference the context object to hold it outside the
+      Fail. This is often used for things that need to be done before the
+      Handler is given the channel, like inspecting the pending message
+      queue. You must reference the context object to hold it outside the
       callback.
+      <xref linkend="ex.channel-dispatcher.clients.impl.tpsimpleobserver"/>
+      shows an example of using the delay method.
      </para>
 
-     <!-- FIXME: example of Delay -->
+     <example id="ex.channel-dispatcher.clients.impl.tpsimpleobserver"
+              file="glib_mc5_observer/example2.c">
+      <title>Delaying Response to the Context Object</title>
+     </example>
 
     </sect3>
 

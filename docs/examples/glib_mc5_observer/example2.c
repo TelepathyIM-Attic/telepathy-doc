@@ -82,6 +82,19 @@ channel_group_prepared (GObject *channel,
 
 
 static void
+channel_invalided (TpProxy *channel,
+    guint domain,
+    guint code,
+    const char *message,
+    gpointer user_data)
+{
+  /* release our reference to this channel proxy */
+  g_object_unref (channel);
+}
+
+
+/* begin ex.channel-dispatcher.clients.impl.tpsimpleobserver */
+static void
 observe_channels (TpSimpleObserver *observer,
     TpAccount *account,
     TpConnection *connection,
@@ -116,6 +129,11 @@ observe_channels (TpSimpleObserver *observer,
               context);
           increment_pending (context);
         }
+
+      /* hold a reference to the channel, that we release on invalidation */
+      g_object_ref (channel);
+      g_signal_connect (channel, "invalidated",
+          G_CALLBACK (channel_invalided), NULL);
     }
 
   /* hold a reference to @context */
@@ -123,6 +141,7 @@ observe_channels (TpSimpleObserver *observer,
   /* delay responding to @context until our callbacks have finished */
   tp_observe_channels_context_delay (context);
 }
+/* end ex.channel-dispatcher.clients.impl.tpsimpleobserver */
 
 
 int
