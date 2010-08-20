@@ -7,6 +7,7 @@ example_dirs = \
 	glib_telepathy_properties \
 	glib_dbus_tube \
 	glib_stream_tube \
+	glib_text_channel \
 	glib_mc5_connections \
 	glib_mc5_dbus_tube_handler \
 	glib_mc5_observer \
@@ -19,7 +20,8 @@ example_dirs = \
 	python_irc_channel \
 	python_irc_roomlist \
 	python_mc5_clients \
-	python_simple_presence
+	python_simple_presence \
+	$(NULL)
 
 SUBDIRS = $(example_dirs)
 
