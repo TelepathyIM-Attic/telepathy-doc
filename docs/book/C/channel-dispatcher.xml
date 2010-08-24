@@ -896,8 +896,7 @@
       service on the D-Bus.
       <classname>TpBaseClient</classname> is an abstract base class that can
       be inherited to create any mixture of client types. telepathy-glib
-      also provides three basic implementations concrete classes, one for
-      each client type:
+      also provides three basic concrete classes, one for each client type:
       <classname>TpSimpleObserver</classname>,
       <classname>TpSimpleApprover</classname> and
       <classname>TpSimpleHandler</classname>.
@@ -933,16 +932,18 @@
      </para>
      <para>
       The Accept and Fail methods are used to return from the
-      <methodname>ObserveChannels</methodname> D-Bus method, either
+      <methodname>ObserveChannels</methodname>,
+      <methodname>AddDispatchOperation</methodname> and
+      <methodname>HandleChannels</methodname> D-Bus methods, either
       successfully or with an error condition.
      </para>
      <para>
       The Delay method is used if you have further
       preparation to carry out before ultimately calling either Accept or
-      Fail. This is often used for things that need to be done before the
-      Handler is given the channel, like inspecting the pending message
-      queue. You must reference the context object to hold it outside the
-      callback.
+      Fail. This is often used for things that Observers or Approvers need to
+      do before the Handler is given the channel, like inspecting the pending
+      message queue. You must reference the context object to hold it outside
+      the callback.
       <xref linkend="ex.channel-dispatcher.clients.impl.tpsimpleobserver"/>
       shows an example of using the delay method.
      </para>
