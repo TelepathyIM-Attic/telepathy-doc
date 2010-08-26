@@ -11,7 +11,8 @@
    A <interfacename>Connection</interfacename> object in Telepathy
    represents an active (or activatable) protocol session. Connections are
    created by the appropriate
-   <link linkend="sect.connection.connection-manager">Connection Manager</link>.
+   <link linkend="sect.connection.connection-manager">Connection Manager</link>
+   (usually in response to a request by the Account Manager).
   </para>
 
   <para>
@@ -23,13 +24,13 @@
    The connection object can then be retrieved from the path
    <literal>/org/freedesktop/Telepathy/Connection/cm/proto/account</literal>.
   </para>
-     
+
   <para>
    Depending on what features are supported by the protocol, a given
    connection will implement more interfaces than just
    <interfacename>Connection</interfacename>. The interfaces supported by
    a given connection can be retreived using the
-   <methodname>GetInterfaces</methodname> method once the connection is in
+   <property>Interfaces</property> property once the connection is in
    the <literal>CONNECTED</literal> state. The supported list of interfaces
    doesn't change during the life on a connection, so it is expected that a
    client will retreive this once the connection is
@@ -37,7 +38,81 @@
   </para>
 
   <para>
-   Interfaces that a connection might support are:
+   Interfaces that a connection might support include:
+  </para>
+  <itemizedlist>
+   <listitem>
+    <para><interfacename>Contacts</interfacename></para>
+    <para>
+     The <interfacename>Contacts</interfacename> interface is a sort of
+     proxy to other interfaces on the connection. It is used to gather as
+     much information about a contact as required in a single D-Bus
+     roundtrip. It is documented in <xref linkend="sect.contactinfo.contacts"/>.
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>Aliasing</interfacename></para>
+    <para>
+     Used to retrieve and watch for changes to the aliases (screen names)
+     that contacts set for themselves. Also allows the user to set their own
+     aliases for contacts on supported protocols.
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>Avatars</interfacename></para>
+    <para>
+     Used to request and watch for changes to contacts' avatars. Also used
+     by the Account Manager to set your own avatar.
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>ContactCapabilities</interfacename></para>
+    <para>
+     Used to determine what types of channels you can request to another
+     contact (e.g. text channels, VoIP calls, file transfer, Tubes). Also
+     used by the Channel Dispatcher to update your own capabilities.
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>ContactInfo</interfacename></para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>Location</interfacename></para>
+    <para>
+     Allows you to publish information about your physical location as well
+     as retrieve the location of contacts on your roster.
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>Balance</interfacename></para>
+    <para>
+     Provides access to any monetary balance, e.g. call credit for making
+     PSTN calls on protocols that support it.
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>Anonymity</interfacename></para>
+    <para>
+     Describe me
+    </para>
+   </listitem>
+   <listitem>
+    <para><interfacename>Renaming</interfacename></para>
+    <para>
+     <interfacename>Renaming</interfacename> is implemented for protocols
+     that can allow handles to be renamed (e.g. IRC). It is documented in
+     <xref linkend="sect.connection.renaming"/>.
+    </para>
+   </listitem>
+  </itemizedlist>
+
+  <para>
+   The following interfaces should be present on a connection, but in
+   general are only used by the Account Manager and Channel Dispatcher and
+   should not be accessed directly:
   </para>
   <itemizedlist>
    <listitem>
@@ -50,15 +125,6 @@
     </para>
    </listitem>
    <listitem>
-    <para><interfacename>Contacts</interfacename></para>
-    <para>
-     The <interfacename>Contacts</interfacename> interface is a sort of
-     proxy to other interfaces on the connection. It is used to gather as
-     much information about a contact as required in a single D-Bus
-     roundtrip. It is documented in <xref linkend="sect.contactinfo.contacts"/>.
-    </para>
-   </listitem>
-   <listitem>
     <para><interfacename>SimplePresence</interfacename></para>
     <para>
      The <interfacename>SimplePresence</interfacename> interface is used to
@@ -67,86 +133,42 @@
      <xref linkend="sect.contactinfo.presence"/>.
     </para>
    </listitem>
-   <listitem>
-    <para>Avatars</para>
-    <para>
-     Describe me
-    </para>
-   </listitem>
-   <listitem>
-    <para>Capabilities</para>
-    <para>
-     Describe me
-    </para>
-   </listitem>
-   <!--
-   <listitem>
-    <para>ContactCapabilities</para>
-    <para>
-     Draft
-    </para>
-   </listitem>
-    -->
-   <!--
-   <listitem>
-    <para>ContactInfo</para>
-    <para>
-     Draft
-    </para>
-   </listitem>
-    -->
-   <!--
-   <listitem>
-    <para>Location</para>
-    <para>
-     Draft
-    </para>
-   </listitem>
-    -->
-   <!--
-   <listitem>
-    <para>Presence</para>
-    <para>
-     Deprecated with extreme prejudice.
-    </para>
-   </listitem>
-    -->
-   <listitem>
-    <para><interfacename>Renaming</interfacename></para>
-    <para>
-     <interfacename>Renaming</interfacename> is implemented for protocols
-     that can allow handles to be renamed (e.g. IRC). It is documented in
-     <xref linkend="sect.connection.renaming"/>.
-    </para>
-   </listitem>
   </itemizedlist>
 
   <sect1 id="sect.connection.connection-manager">
     <title>Connection Managers</title>
-  
+
+    <note><para>
+     In general, there is little need for a client to interact directly with
+     the Connection Managers. In
+     general, the work to obtaining and manage connections should be
+     handled by the <link linkend="chapter.accounts">Account Manager</link>.
+    </para></note>
+
     <para>
      Support for the various communication protocols is provided by several
-     <literal>Connection Managers</literal>. For instance, the
+     Connection Managers. For instance, the
      <literal>telepathy-gabble</literal> Connection Manager provides support
      for the <acronym>XMPP</acronym> protocol, also known as
      <literal>Jabber</literal>.
     </para>
-    
+
     <para>
      There is no central Telepathy D-Bus service in Telepathy. Instead there are
      several connection manager services, activated on demand. Each
      connection manager implements the Telepathy specification, allowing a
      Telepathy client to utilise any messaging protocol.
     </para>
-  
+
     <para>
-     All Telepathy Connection Managers have <literal>bus name</literal>s that
-     begin with &quot;org.freedesktop.Telepathy.ConnectionManager&quot;.
+     All Telepathy Connection Managers have bus names that
+     begin with
+     <literal>org.freedesktop.Telepathy.ConnectionManager</literal>.
      You can discover all available connection managers by calling the D-Bus
      <methodname>ListActivatableNames</methodname> method and then comparing
      the names with that prefix.
     </para>
-    
+
     <para>
      A Connection Manager may implement more than one protocol (e.g.
      <application>telepathy-haze</application> is a connection manager using
@@ -156,12 +178,24 @@
      <methodname>ListProtocols</methodname> method.
     </para>
 
-    <para>
-     In general, there is little need for a client to interact much with
-     the <interfacename>ConnectionManager</interfacename> interface. Most of
-     the work in obtaining and managing connections should be done via
-     Mission Control.
-    </para>
+    <tip>
+     <title>Account Object Paths</title>
+     <para>
+      Account object paths are of the form
+      <literal>/org/freedesktop/Telepathy/Account/cm-name/protocol-name/account-name</literal>
+      (e.g.
+      <literal>/org/freedesktop/Telepathy/Account/gabble/jabber/bob_40example_2com0</literal>).
+     </para>
+     <para>
+      If required (i.e. for an accounts editor) you can parse the account
+      object path in telepathy-glib using
+      <function>tp_account_parse_object_path</function>.
+     </para>
+     <para>
+      Read more about accounts in
+      <xref linkend="sect.accounts.accounts"/>.
+     </para>
+    </tip>
 
     <sect2 id="sect.connection.connection-manager.glib">
      <title>telepathy-glib</title>
@@ -274,10 +308,33 @@
       Telepathy bindings are able to do it for you (e.g.
       <function>tp_connection_new</function>).
      </para>
+
+     <sect3 id="sect.connection.obtaining.account-manager.tp-glib">
+      <title>telepathy-glib</title>
+
+      <para>
+       When an account is connected, a <classname>TpConnection</classname>
+       can be retrieved from a prepared <classname>TpAccount</classname>.
+       The <classname>TpConnection</classname> will itself require preparation.
+      </para>
+
+      <para>
+       The <classname>TpAccount</classname>
+       <methodname>status-changed</methodname> signal is used to watch for
+       changes to the connection status.
+      </para>
+     </sect3>
     </sect2>
 
     <sect2 id="sect.connection.obtaining.connection-manager">
      <title>From a Connection Manager</title>
+     <warning><para>
+       Usually you want the
+       <link linkend="chapter.accounts">Account Manager</link>
+       to request the Connection from the Connection Manager for you from
+       a configured Account.
+     </para></warning>
+
      <para>
       There might be times when you are using Telepathy without an
       Account Manager and need to manually set up your own connections using
