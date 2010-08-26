@@ -19,17 +19,10 @@ _channel_group_ready (GObject *channel,
     GAsyncResult *res,
     gpointer user_data)
 {
-  TpHandleChannelsContext *context = user_data;
   GError *error;
 
   if (!tp_proxy_prepare_finish (channel, res, &error))
-    {
-      tp_handle_channels_context_fail (context, error);
-      handle_error (error);
-    }
-
-  tp_handle_channels_context_accept (context);
-  g_object_unref (context);
+    handle_error (error);
 
   g_print ("Handled channel %s\n",
       tp_proxy_get_object_path (channel));
@@ -72,23 +65,22 @@ _channel_ready (GObject *request,
     gpointer user_data)
 {
   TpChannel *channel;
-  TpHandleChannelsContext *context;
   GQuark features[] = { TP_CHANNEL_FEATURE_GROUP, 0 };
   GError *error = NULL;
 
   channel = tp_account_channel_request_ensure_and_handle_channel_finish (
-      TP_ACCOUNT_CHANNEL_REQUEST (request), res, &context, &error);
+      TP_ACCOUNT_CHANNEL_REQUEST (request), res, NULL, &error);
   if (channel == NULL)
     handle_error (error);
 
   /* prepare the GROUP feature on this channel */
-  tp_proxy_prepare_async (channel, features, _channel_group_ready, context);
+  tp_proxy_prepare_async (channel, features, _channel_group_ready, NULL);
 
-  tp_handle_channels_context_delay (context);
-
+  /* store a reference to the request so we can connect re-handled */
   g_object_set_data_full (G_OBJECT (channel), "request",
       g_object_ref (request), g_object_unref);
 
+  /* connect the signals we want to listen to */
   g_signal_connect (channel, "invalidated",
       G_CALLBACK (_channel_invalidated), NULL);
 
