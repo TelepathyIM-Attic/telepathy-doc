@@ -84,7 +84,7 @@
 <xi:include href="filetransfer.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
 <chapter id="chapter.streamedmedia">
- <title>Streamed Media (VoIP)</title>
+ <title>Calls (VoIP)</title>
 </chapter>
 
 <xi:include href="tubes.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>

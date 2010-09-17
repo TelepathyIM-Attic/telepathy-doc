@@ -44,22 +44,6 @@
 	 </para>
        </listitem>
      </varlistentry>
-     
-     <varlistentry>
-       <term>
-         <indexterm><primary>RoomList</primary></indexterm>
-         <interfacename>RoomList</interfacename>
-       </term>
-       <listitem>
-         <para>
-	  A channel type for listing named channels (e.g. chatrooms)
-	  available on the server.
-	 </para>
-	 <para>
-	  See <xref linkend="sect.channel.roomlist"/>.
-	 </para>
-       </listitem>
-     </varlistentry>
 
      <varlistentry>
        <term>
@@ -80,28 +64,15 @@
 
      <varlistentry>
        <term>
-         <indexterm><primary>StreamedMedia</primary></indexterm>
-         <interfacename>StreamedMedia</interfacename>
+         <indexterm><primary>Call</primary></indexterm>
+         <interfacename>Call</interfacename>
        </term>
        <listitem>
          <para>
-	  This channel sends and receives streamed audio or video,
-	  such as a video call.
+	  This channel is for voice and video calls.
 	 </para>
        </listitem>
      </varlistentry>
-     
-     <!--varlistentry>
-       <term>
-         <indexterm><primary>Tubes</primary></indexterm>
-         <interfacename>Tubes</interfacename>
-       </term>
-       <listitem>
-         <para>
-	 </para>
-       </listitem>
-     </varlistentry-->
-     
      <varlistentry>
        <term>
          <indexterm><primary>FileTransfer</primary></indexterm>
@@ -114,6 +85,49 @@
 	 <para>
 	  File transfers are covered in-depth in
 	  <xref linkend="chapter.filetransfer"/>.
+	 </para>
+       </listitem>
+     </varlistentry>
+
+     <varlistentry>
+       <term>
+         <indexterm><primary>DBusTube</primary></indexterm>
+         <interfacename>DBusTube</interfacename>,
+         <indexterm><primary>StreamTube</primary></indexterm>
+         <interfacename>StreamTube</interfacename>
+       </term>
+       <listitem>
+         <para>
+	  Tubes are channels that enable contact-to-contact networking.
+	  See <xref linkend="chapter.tubes"/>.
+	 </para>
+       </listitem>
+     </varlistentry>
+
+     <varlistentry>
+       <term>
+         <indexterm><primary>RoomList</primary></indexterm>
+         <interfacename>RoomList</interfacename>
+       </term>
+       <listitem>
+         <para>
+	  A channel type for listing named channels (e.g. chatrooms)
+	  available on the server.
+	 </para>
+	 <para>
+	  See <xref linkend="sect.channel.roomlist"/>.
+	 </para>
+       </listitem>
+     </varlistentry>
+
+     <varlistentry>
+       <term>
+         <indexterm><primary>ContactSearch</primary></indexterm>
+         <interfacename>ContactSearch</interfacename>
+       </term>
+       <listitem>
+         <para>
+	  A channel type for searching for contacts on the server.
 	 </para>
        </listitem>
      </varlistentry>
