@@ -1381,11 +1381,11 @@
    </sect2>
 
   </sect1>
-  
+
   <sect1 id="sect.channel.text">
     <title>Text Channels</title>
     <indexterm><primary>Text</primary></indexterm>
-  
+
     <para>
      A <interfacename>Text</interfacename> channel sends and receives text
      messages, such as instant
@@ -1408,11 +1408,17 @@
      Some protocols (e.g. MSN) support transient, unnamed chatrooms that
      are just defined by their members. These chatrooms are represented by
      an anonymous channel (<type>Handle_Type_None</type>) and
-     implement the <interfacename>Group</interfacename> interface. On some
-     protocols, i.e. ones where all chats are simply transient chatrooms,
-     setting up a channel for a one-to-one chat with a contact may result
-     in this type of channel; with the target contact simply a member.
+     implement the <interfacename>Group</interfacename> interface.
     </para>
+
+    <warning><para>
+     Some older Connection Managers (e.g. older versions of butterfly) with
+     protocols where one-to-one chats are implemented as transient chatrooms
+     may return a chatroom when a one-to-one chat is requested.
+     That is all chats are simply transient chatrooms, and
+     setting up a channel for a one-to-one chat with a contact will result
+     in a chatroom; with the target contact simply a member.
+    </para></warning>
 
     <para>
      A summary of the various text channels is given in
@@ -1441,7 +1447,7 @@
 	<entry>
 	 Requests for this sort of channel may be upgraded to a transient
 	 chatroom.
-        </entry>	
+        </entry>
        </row>
 
        <row>
@@ -1454,7 +1460,7 @@
 
        <row>
         <entry>Transient Chatroom</entry>
-	<entry>MSN conversation</entry>
+	<entry>MSN group chats</entry>
 	<entry><type>Handle_Type_None</type></entry>
 	<entry><interfacename>Group</interfacename></entry>
 	<entry>Appears as an anonymous channel.</entry>
@@ -1566,7 +1572,181 @@
       </tgroup>
      </table>
     </sect2>
-  
+
+    <sect2 id="sect.channel.text.conference">
+     <title>Channel Merging and Upgrading (Conferences)</title>
+
+     <para>
+       The <interfacename>Conference</interfacename> interface can be used
+       to upgrade a one-to-one chat to a multi-user chat (e.g. inviting a
+       3rd person) and for creating transient multi-user chats. This is done
+       by requesting a new channel, with the request including the
+       appropriate properties from the
+       <interfacename>Conference</interfacename> interface.
+     </para>
+
+     <para>
+       You can request to upgrade a one-to-one conversation to a multi-user
+       chatroom by requesting a channel with a combination of two or more
+       <property>InitialChannels</property>,
+       <property>InitialInviteeHandles</property> and
+       <property>InitialInviteeIDs</property>.
+     </para>
+
+     <para>
+      The newly created channel will be the union of all the contacts in all
+      the specified channels, plus all of the individually invited contacts.
+      This information will be provided in the channel's immutable
+      properties, and can be used by user interfaces to automatically
+      upgrade the UI to a group chat. Depending on the protocol, this channel
+      may be automatically created for all of the contacts, or each contact
+      may have to be invited to the new channel individually.
+     </para>
+
+     <important><para>
+       When merging or upgrading channels, the
+       <property>ChannelType</property> must match for all channels.
+     </para></important>
+
+     <example>
+      <title>Adding more contacts to a one-to-one chat</title>
+      <para>
+        To request a channel upgrading your existing
+        one-to-one conversation with
+        <literal>theo@comic.cat</literal> (channel path
+        <literal>/.../catchat/escher/theo_comic_cat</literal>) to also include
+        <literal>sage@comic.cat</literal>, the request to
+        <methodname>CreateChannel</methodname> would be:
+      </para>
+      <informaltable>
+       <tgroup cols="2">
+        <tbody>
+         <row>
+          <entry>Channel.ChannelType</entry>
+          <entry>Channel.Type.Text</entry>
+         </row>
+         <row>
+          <entry>Channel.Interface.Conference.InitialChannels</entry>
+          <entry>[ <literal>/.../catchat/escher/theo_comic_cat</literal> ]</entry>
+         </row>
+         <row>
+          <entry>Channel.Interface.Conference.InitialInviteeIDs</entry>
+          <entry>[ <literal>sage@comic.cat</literal> ]</entry>
+         </row>
+        </tbody>
+       </tgroup>
+      </informaltable>
+     </example>
+
+     <example>
+      <title>Merging two channels</title>
+       <para>
+        To request merging two one-to-one conversations, for example
+	<literal>/.../catchat/escher/theo_comic_cat</literal> and
+	<literal>/.../catchat/escher/sage_comic_cat</literal>, the request
+	to <methodname>CreateChannel</methodname> would be:
+       </para>
+       <informaltable>
+        <tgroup cols="2">
+         <tbody>
+          <row>
+           <entry>Channel.ChannelType</entry>
+           <entry>Channel.Type.Text</entry>
+          </row>
+          <row>
+           <entry>Channel.Interface.Conference.InitialChannels</entry>
+           <entry>
+	    [ <literal>/.../catchat/escher/theo_comic_cat</literal>,
+	    <literal>/.../catchat/escher/sage_comic_cat</literal> ]
+	   </entry>
+          </row>
+         </tbody>
+        </tgroup>
+       </informaltable>
+     </example>
+
+     <example>
+      <title>Creating a transient chatroom with two other contacts</title>
+      <para>
+       To create a transient chatroom (e.g. an anonymous XMPP MUC or an MSN
+       chat) with two other contacts, <literal>cameo@egg.cat</literal> and
+       <literal>rocket@pocketdog.cat</literal>, the request to
+       <methodname>CreateChannel</methodname> would be:
+      </para>
+      <informaltable>
+       <tgroup cols="2">
+        <tbody>
+         <row>
+          <entry>Channel.ChannelType</entry>
+          <entry>Channel.Type.Text</entry>
+         </row>
+         <row>
+          <entry>Channel.Interface.Conference.InitialInviteeIDs</entry>
+          <entry>
+	   [ <literal>cameo@egg.cat</literal>,
+	   <literal>rocket@pocketdog.cat</literal> ]
+	  </entry>
+         </row>
+        </tbody>
+       </tgroup>
+      </informaltable>
+     </example>
+
+     <tip>
+      <title>Ensuring a named room with several contacts</title>
+      <para>
+       For protocols that support named chatrooms, you can also use
+       <methodname>EnsureChannel</methodname> to ensure a chatroom that
+       includes the members of other channels, or named invitees.
+      </para>
+      <informalexample>
+       For example, inviting a group of friends to a new channel,
+       <literal>#catnap</literal>, the request to
+       <methodname>EnsureChannel</methodname> would be:
+       <informaltable>
+        <tgroup cols="2">
+         <tbody>
+          <row>
+           <entry>Channel.ChannelType</entry>
+           <entry>Channel.Type.Text</entry>
+          </row>
+	  <row>
+	   <entry>Channel.TargetHandleType</entry>
+	   <entry>Target_Handle_Room</entry>
+	  </row>
+	  <row>
+	   <entry>Channel.TargetID</entry>
+	   <entry><literal>#catnap</literal></entry>
+	  </row>
+          <row>
+           <entry>Channel.Interface.Conference.InitialInviteeIDs</entry>
+           <entry>
+            [ <literal>escher</literal>, <literal>cameo</literal>,
+            <literal>rocket</literal>, <literal>button</literal> ]
+           </entry>
+          </row>
+         </tbody>
+        </tgroup>
+       </informaltable>
+       <para>
+        This is functionally equivalent to ensuring the channel and then
+	inviting the other contacts via the
+	<interfacename>Group</interfacename> interface. This functionality
+	is more interesting for protocols/situations where existing channels
+	can be merged into one named channel. <!-- FIXME: for instance -->
+       </para>
+      </informalexample>
+     </tip>
+
+     <para>
+      Incoming channels with the <property>InitialChannels</property>
+      property from the can be seen as continuations of those channels,
+      and the client interface can optionally change or merge the display of
+      those channels in its interface.
+     </para>
+
+    </sect2>
+
   </sect1>
 
   <sect1 id="sect.channel.roomlist">
