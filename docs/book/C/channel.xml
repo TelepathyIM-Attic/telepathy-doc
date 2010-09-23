@@ -260,6 +260,21 @@
      </tgroup>
     </informaltable>
 
+   <tip>
+    <title>Only one of TargetHandle or TargetID can be supplied</title>
+    <para>
+     Channel requests should only include one of the properties
+     <property>TargetHandle</property> or <property>TargetID</property>.
+     Providing both properties (even if they match) is an error and your
+     request will fail.
+    </para>
+   </tip>
+
+   <para>
+    More channel request examples are given in
+    <xref linkend="ex.channel.requesting.requests"/>.
+   </para>
+
    <note>
     <title>Anonymous Channels</title>
     <para>
@@ -291,6 +306,153 @@
     Object, which is discussed further in
     <xref linkend="sect.channel.requesting.requestobjects"/>.
    </para>
+
+   <example id="ex.channel.requesting.requests">
+    <title>More Channel Request Examples</title>
+
+    <para>
+     Requesting a one-to-one text channel to the contact
+     <literal>escher@tuxedo.cat</literal>:
+    </para>
+
+    <informaltable>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>Channel.ChannelType</entry>
+	<entry>Channel.Type.Text</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetHandleType</entry>
+	<entry>Handle_Type_Contact</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetID</entry>
+	<entry><literal>escher@tuxedo.cat</literal></entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+
+    <para>
+     Requesting a one-to-one text channel to the contact with handle id
+     <literal>12</literal> (as requested using
+     <methodname>RequestHandles</methodname>), or from a
+     <classname>TpContact</classname>, or a method-return/signal that gives
+     handles:
+    </para>
+
+    <informaltable>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>Channel.ChannelType</entry>
+	<entry>Channel.Type.Text</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetHandleType</entry>
+	<entry>Handle_Type_Contact</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetHandle</entry>
+	<entry><literal>12</literal></entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+
+    <para>
+     Requesting a text channel to the multi-user chat room
+     <literal>kitties@conf.litter.cat</literal>:
+    </para>
+
+    <informaltable>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>Channel.ChannelType</entry>
+	<entry>Channel.Type.Text</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetHandleType</entry>
+	<entry>Handle_Type_Room</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetID</entry>
+	<entry><literal>kitties@conf.litter.cat</literal></entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+
+    <para>
+     Requesting a D-Bus tube to <literal>cami@egg.cat</literal> for the
+     service <literal>cat.litter.ExampleService</literal> (see more
+     of these in <xref linkend="sect.tubes.setup"/>):
+    </para>
+
+    <informaltable>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>Channel.ChannelType</entry>
+	<entry>Channel.Type.DBusTube</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetHandleType</entry>
+	<entry>Handle_Type_Contact</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetID</entry>
+	<entry><literal>cami@egg.cat</literal></entry>
+       </row>
+       <row>
+        <entry>Channel.Type.DBusTube.ServiceName</entry>
+	<entry><literal>cat.litter.ExampleService</literal></entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+
+    <para>
+     Opening a file transfer channel to <literal>harvey@nom.cat</literal>;
+     initial information about the file is included in the channel request
+     so that the recepient can make a decision whether to accept the
+     channel (more information in
+     <xref linkend="sect.filetransfer.sending"/>):
+    </para>
+
+    <informaltable>
+     <tgroup cols="2">
+      <tbody>
+       <row>
+        <entry>Channel.ChannelType</entry>
+	<entry>Channel.Type.FileTransfer</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetHandleType</entry>
+	<entry>Handle_Type_Contact</entry>
+       </row>
+       <row>
+        <entry>Channel.TargetID</entry>
+	<entry><literal>harvey@nom.cat</literal></entry>
+       </row>
+       <row>
+        <entry>Channel.Type.FileTransfer.Filename</entry>
+	<entry><literal>cat.jpg</literal></entry>
+       </row>
+       <row>
+        <entry>Channel.Type.FileTransfer.ContentType</entry>
+	<entry><literal>image/jpeg</literal></entry>
+       </row>
+       <row>
+        <entry>Channel.Type.FileTransfer.Size</entry>
+	<entry><literal>115121</literal></entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </example>
 
    <sect2 id="sect.channel.requesting.requestobjects">
     <title>Channel Request Objects</title>
