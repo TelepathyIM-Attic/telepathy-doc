@@ -196,9 +196,9 @@ example_handler_handle_channels (TpSvcClientHandler   *self,
           &map);
 
       const char *type = tp_asv_get_string (map,
-          TP_IFACE_CHANNEL ".ChannelType");
+          TP_PROP_CHANNEL_CHANNEL_TYPE);
       const char *service = tp_asv_get_string (map,
-          TP_IFACE_CHANNEL_TYPE_DBUS_TUBE ".ServiceName");
+          TP_PROP_CHANNEL_TYPE_DBUS_TUBE_SERVICE_NAME);
 
       if (tp_strdiff (type, TP_IFACE_CHANNEL_TYPE_DBUS_TUBE) ||
           tp_strdiff (service, SERVICE_NAME))
@@ -244,13 +244,13 @@ example_handler_get_property (GObject    *self,
         /* this is the same map as the Python handler example */
         GPtrArray *array = g_ptr_array_new ();
         GHashTable *map = tp_asv_new (
-              TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING,
+              TP_PROP_CHANNEL_CHANNEL_TYPE, G_TYPE_STRING,
                   TP_IFACE_CHANNEL_TYPE_DBUS_TUBE,
-              TP_IFACE_CHANNEL ".TargetHandleType", G_TYPE_UINT,
+              TP_PROP_CHANNEL_TARGET_HANDLE_TYPE, G_TYPE_UINT,
                   TP_HANDLE_TYPE_ROOM,
-              TP_IFACE_CHANNEL ".Requested", G_TYPE_BOOLEAN,
+              TP_PROP_CHANNEL_REQUESTED, G_TYPE_BOOLEAN,
                   FALSE,
-              TP_IFACE_CHANNEL_TYPE_DBUS_TUBE ".ServiceName", G_TYPE_STRING,
+              TP_PROP_CHANNEL_TYPE_DBUS_TUBE_SERVICE_NAME, G_TYPE_STRING,
                   SERVICE_NAME,
               NULL
             );

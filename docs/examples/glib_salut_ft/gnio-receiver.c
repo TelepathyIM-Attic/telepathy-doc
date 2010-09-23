@@ -6,15 +6,7 @@
 #include <gio/gio.h>
 #include <gio/gunixoutputstream.h>
 
-#include <telepathy-glib/connection-manager.h>
-#include <telepathy-glib/connection.h>
-#include <telepathy-glib/channel.h>
-#include <telepathy-glib/interfaces.h>
-#include <telepathy-glib/gtypes.h>
-#include <telepathy-glib/util.h>
-#include <telepathy-glib/gnio-util.h>
-#include <telepathy-glib/enums.h>
-#include <telepathy-glib/debug.h>
+#include <telepathy-glib/telepathy-glib.h>
 
 static GMainLoop *loop = NULL;
 static TpDBusDaemon *bus_daemon = NULL;
@@ -132,9 +124,9 @@ file_transfer_channel_ready (TpChannel		*channel,
 	GHashTable *map = tp_channel_borrow_immutable_properties (channel);
 
 	const char *filename = tp_asv_get_string (map,
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Filename");
+			TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_FILENAME);
 	guint64 size = tp_asv_get_uint64 (map,
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Size", NULL);
+			TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_SIZE, NULL);
 
 	g_print ("New file transfer from %s -- `%s' (%llu bytes)\n",
 			tp_channel_get_identifier (channel),
@@ -144,7 +136,7 @@ file_transfer_channel_ready (TpChannel		*channel,
 	 * Connection Manager and streaming the file over that socket.
 	 * Let's find out what manner of sockets are supported by this CM */
 	GHashTable *sockets = tp_asv_get_boxed (map,
-		TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".AvailableSocketTypes",
+		TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_AVAILABLE_SOCKET_TYPES,
 		TP_HASH_TYPE_SUPPORTED_SOCKET_MAP);
 
 	struct ft_state *ftstate = g_slice_new (struct ft_state);
@@ -205,11 +197,11 @@ new_channels_cb (TpConnection		*conn,
 				&map);
 
 		const char *type = tp_asv_get_string (map,
-				TP_IFACE_CHANNEL ".ChannelType");
+				TP_PROP_CHANNEL_CHANNEL_TYPE);
 		int handle_type = tp_asv_get_uint32 (map,
-				TP_IFACE_CHANNEL ".TargetHandleType", NULL);
+				TP_PROP_CHANNEL_TARGET_HANDLE_TYPE, NULL);
 		const char *id = tp_asv_get_string (map,
-				TP_IFACE_CHANNEL ".TargetID");
+				TP_PROP_CHANNEL_TARGET_ID);
 
 		g_print ("New channel: %s\n", type);
 

@@ -417,9 +417,18 @@ conn_ready (TpConnection	*conn,
 	{
 		/* make a connection to a MUC channel */
 		GHashTable *map = tp_asv_new (
-			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_TEXT,
-			TP_IFACE_CHANNEL ".TargetHandleType", G_TYPE_UINT, TP_HANDLE_TYPE_ROOM,
-			TP_IFACE_CHANNEL ".TargetID", G_TYPE_STRING, "#test",
+			TP_PROP_CHANNEL_CHANNEL_TYPE,
+			G_TYPE_STRING,
+			TP_IFACE_CHANNEL_TYPE_TEXT,
+
+			TP_PROP_CHANNEL_TARGET_HANDLE_TYPE,
+			G_TYPE_UINT,
+			TP_HANDLE_TYPE_ROOM,
+
+			TP_PROP_CHANNEL_TARGET_ID,
+			G_TYPE_STRING,
+			"#test",
+
 			NULL);
 
 		tp_cli_connection_interface_requests_call_ensure_channel (

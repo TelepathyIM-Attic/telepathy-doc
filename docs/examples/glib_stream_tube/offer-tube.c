@@ -3,16 +3,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <telepathy-glib/connection-manager.h>
-#include <telepathy-glib/connection.h>
-#include <telepathy-glib/channel.h>
-#include <telepathy-glib/contact.h>
-#include <telepathy-glib/interfaces.h>
-#include <telepathy-glib/gtypes.h>
-#include <telepathy-glib/util.h>
-#include <telepathy-glib/gnio-util.h>
-#include <telepathy-glib/enums.h>
-#include <telepathy-glib/debug.h>
+#include <telepathy-glib/telepathy-glib.h>
 
 static GMainLoop *loop = NULL;
 static TpDBusDaemon *bus_daemon = NULL;
@@ -122,11 +113,11 @@ new_channels_cb (TpConnection		*conn,
 				&map);
 
 		const char *type = tp_asv_get_string (map,
-				TP_IFACE_CHANNEL ".ChannelType");
+				TP_PROP_CHANNEL_CHANNEL_TYPE);
 		guint handle_type = tp_asv_get_uint32 (map,
-				TP_IFACE_CHANNEL ".TargetHandleType", NULL);
+				TP_PROP_CHANNEL_TARGET_HANDLE_TYPE, NULL);
 		const char *targetid = tp_asv_get_string (map,
-				TP_IFACE_CHANNEL ".TargetID");
+				TP_PROP_CHANNEL_TARGET_ID);
 
 		/* if this channel is a contact list, we want to know
 		 * about it */
@@ -148,10 +139,22 @@ new_channels_cb (TpConnection		*conn,
 
 			/* Dial up a D-Bus Tube */
 			GHashTable *request = tp_asv_new (
-				TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_STREAM_TUBE,
-				TP_IFACE_CHANNEL ".TargetHandleType", TP_TYPE_HANDLE, handle_type,
-				TP_IFACE_CHANNEL ".TargetID", G_TYPE_STRING, targetid,
-				TP_IFACE_CHANNEL_TYPE_STREAM_TUBE ".Service", G_TYPE_STRING, "badger",
+				TP_PROP_CHANNEL_CHANNEL_TYPE,
+				G_TYPE_STRING,
+				TP_IFACE_CHANNEL_TYPE_STREAM_TUBE,
+
+				TP_PROP_CHANNEL_TARGET_HANDLE_TYPE,
+				G_TYPE_UINT,
+				handle_type,
+
+				TP_PROP_CHANNEL_TARGET_ID,
+				G_TYPE_STRING,
+				targetid,
+
+				TP_PROP_CHANNEL_TYPE_STREAM_TUBE_SERVICE,
+				G_TYPE_STRING,
+				"badger",
+
 				NULL);
 
 			tp_cli_connection_interface_requests_call_create_channel (
@@ -189,9 +192,18 @@ conn_ready (TpConnection	*conn,
 #if 0
 #endif
 		GHashTable *request = tp_asv_new (
-			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_TEXT,
-			TP_IFACE_CHANNEL ".TargetHandleType", TP_TYPE_HANDLE, TP_HANDLE_TYPE_ROOM,
-			TP_IFACE_CHANNEL ".TargetID", G_TYPE_STRING, targetid,
+			TP_PROP_CHANNEL_CHANNEL_TYPE,
+			G_TYPE_STRING,
+			TP_IFACE_CHANNEL_TYPE_TEXT,
+
+			TP_PROP_CHANNEL_TARGET_HANDLE_TYPE,
+			G_TYPE_UINT,
+			TP_HANDLE_TYPE_ROOM,
+
+			TP_PROP_CHANNEL_TARGET_ID,
+			G_TYPE_STRING,
+			targetid,
+
 			NULL);
 
 		tp_cli_connection_interface_requests_call_ensure_channel (

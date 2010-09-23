@@ -9,14 +9,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include <telepathy-glib/connection-manager.h>
-#include <telepathy-glib/connection.h>
-#include <telepathy-glib/channel.h>
-#include <telepathy-glib/interfaces.h>
-#include <telepathy-glib/gtypes.h>
-#include <telepathy-glib/util.h>
-#include <telepathy-glib/enums.h>
-#include <telepathy-glib/debug.h>
+#include <telepathy-glib/telepathy-glib.h>
 
 #define UNIX_PATH_MAX    108
 
@@ -146,9 +139,9 @@ file_transfer_channel_ready (TpChannel		*channel,
 	GHashTable *map = tp_channel_borrow_immutable_properties (channel);
 
 	const char *filename = tp_asv_get_string (map,
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Filename");
+			TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_FILENAME);
 	guint64 size = tp_asv_get_uint64 (map,
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Size", NULL);
+			TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_SIZE, NULL);
 
 	g_print ("New file transfer to %s -- `%s' (%llu bytes)\n",
 			tp_channel_get_identifier (channel),
@@ -158,7 +151,7 @@ file_transfer_channel_ready (TpChannel		*channel,
 	 * Connection Manager and streaming the file over that socket.
 	 * Let's find out what manner of sockets are supported by this CM */
 	GHashTable *sockets = tp_asv_get_boxed (map,
-		TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".AvailableSocketTypes",
+		TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_AVAILABLE_SOCKET_TYPES,
 		TP_HASH_TYPE_SUPPORTED_SOCKET_MAP);
 
 	/* let's try for IPv4 */
@@ -232,12 +225,30 @@ iterate_contacts (TpChannel	 *channel,
 		handle_error (error);
 
 		GHashTable *props = tp_asv_new (
-			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER,
-			TP_IFACE_CHANNEL ".TargetHandleType", G_TYPE_UINT, TP_HANDLE_TYPE_CONTACT,
-			TP_IFACE_CHANNEL ".TargetHandle", G_TYPE_UINT, handle,
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Filename", G_TYPE_STRING, g_file_info_get_display_name (info),
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".ContentType", G_TYPE_STRING, g_file_info_get_content_type (info),
-			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER ".Size", G_TYPE_UINT64, g_file_info_get_size (info),
+			TP_PROP_CHANNEL_CHANNEL_TYPE,
+			G_TYPE_STRING,
+			TP_IFACE_CHANNEL_TYPE_FILE_TRANSFER,
+
+			TP_PROP_CHANNEL_TARGET_HANDLE_TYPE,
+			G_TYPE_UINT,
+			TP_HANDLE_TYPE_CONTACT,
+
+			TP_PROP_CHANNEL_TARGET_HANDLE,
+			G_TYPE_UINT,
+			handle,
+
+			TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_FILENAME,
+			G_TYPE_STRING,
+			g_file_info_get_display_name (info),
+
+			TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_CONTENT_TYPE,
+			G_TYPE_STRING,
+			g_file_info_get_content_type (info),
+
+			TP_PROP_CHANNEL_TYPE_FILE_TRANSFER_SIZE,
+			G_TYPE_UINT64,
+			g_file_info_get_size (info),
+
 			NULL);
 
 		tp_cli_connection_interface_requests_call_create_channel (
@@ -331,9 +342,18 @@ conn_ready (TpConnection	*conn,
 	{
 		/* we need to ensure a contact list */
 		GHashTable *props = tp_asv_new (
-			TP_IFACE_CHANNEL ".ChannelType", G_TYPE_STRING, TP_IFACE_CHANNEL_TYPE_CONTACT_LIST,
-			TP_IFACE_CHANNEL ".TargetHandleType", G_TYPE_UINT, TP_HANDLE_TYPE_LIST,
-			TP_IFACE_CHANNEL ".TargetID", G_TYPE_STRING, "subscribe",
+			TP_PROP_CHANNEL_CHANNEL_TYPE,
+			G_TYPE_STRING,
+			TP_IFACE_CHANNEL_TYPE_CONTACT_LIST,
+
+			TP_PROP_CHANNEL_TARGET_HANDLE_TYPE,
+			G_TYPE_UINT,
+			TP_HANDLE_TYPE_LIST,
+
+			TP_PROP_CHANNEL_TARGET_ID,
+			G_TYPE_STRING,
+			"subscribe",
+
 			NULL);
 
 		tp_cli_connection_interface_requests_call_ensure_channel (
