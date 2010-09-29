@@ -14,6 +14,7 @@ example_dirs = \
 	glib_blinkenlight_observer \
 	glib_mc5_ft_handler \
 	glib_mc5_presence_app \
+	glib_mc5_request_call \
 	gtk_presence_app \
 	pygtk_chat_client \
 	python_get_parameters \

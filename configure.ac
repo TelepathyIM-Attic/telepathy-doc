@@ -42,6 +42,7 @@ AC_OUTPUT([
       docs/examples/glib_blinkenlight_observer/Makefile
       docs/examples/glib_mc5_ft_handler/Makefile
       docs/examples/glib_mc5_presence_app/Makefile
+      docs/examples/glib_mc5_request_call/Makefile
       docs/examples/gtk_presence_app/Makefile
       docs/examples/pygtk_chat_client/Makefile
       docs/examples/python_get_parameters/Makefile
