@@ -16,6 +16,7 @@ example_dirs = \
 	glib_mc5_presence_app \
 	glib_mc5_request_call \
 	gtk_presence_app \
+	mission_control_plugin \
 	pygtk_chat_client \
 	python_get_parameters \
 	python_iface_messaging \
