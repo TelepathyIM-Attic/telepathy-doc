@@ -18,6 +18,7 @@ DOC_INCLUDES = \
 	introduction.xml \
 	basics.xml \
 	accounts.xml \
+	calls.xml \
 	channel-dispatcher.xml \
 	connection.xml \
 	channel.xml \

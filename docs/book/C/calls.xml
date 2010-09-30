@@ -1,0 +1,161 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+               "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+
+  <!ENTITY mdash "&#8212;">
+  <!ENTITY url_spec "http://telepathy.freedesktop.org/spec/">
+]>
+
+<chapter id="chapter.calls">
+  <title>Calls (VoIP)</title>
+
+  <para>
+    <interfacename>Call</interfacename> channels are used to make streamed
+    media calls. They are designed to support one-to-one and multi-user
+    calls.
+  </para>
+
+  <note>
+    <title>StreamedMedia</title>
+    <para>
+      The Telepathy API also specifies
+      <interfacename>StreamedMedia</interfacename> channels. These are an
+      older channel type that has some limitations which were addressed by
+      <interfacename>Call</interfacename> and will not be documented in
+      this manual.
+    </para>
+  </note>
+
+  <tip>
+    <title>Farstream</title>
+    <para>
+      Most Telepathy Connection Managers only handle the call signalling and
+      leave it up to the client to handle the media streaming itself. This
+      improves latency and allows better UI integration in the client.
+    </para>
+    <para>
+      <ulink href="http://farsight.freedesktop.org/wiki/">Farstream</ulink>
+      (formerly known as Farsight) provides a convienient API to handle the
+      streaming (using
+      <ulink href="http://www.gstreamer.net/">GStreamer</ulink>) that is
+      designed to be integrated with Telepathy.
+    </para>
+  </tip>
+
+  <sect1 id="sect.calls.requesting">
+    <title>Requesting Calls</title>
+
+    <para>
+      Frequently you will not wish to handle
+      <interfacename>Call</interfacename> channels, but simply make a request
+      to the <link linkend="chapter.channel-dispatcher">Channel
+      Dispatcher</link> asking another client to place the call.
+    </para>
+
+    <para>
+      This can be done by requesting that the Channel Dispatcher create you
+      a channel (see <xref linkend="sect.channel.requesting"/>) with the
+      properties given in <xref linkend="table.calls.requesting.properties"/>.
+    </para>
+
+    <para>
+      The first three properties are common to most channel requests.
+      The <property>InitialAudio</property> channel indicates the
+      Connection Manager should immediately set up an audio channel (logically
+      required). The <property>InitialVideo</property> property indicates the
+      Connection Manager should also immediately set up a video channel.
+      Most protocols do not support video without audio. Although Telepathy
+      itself supports adding or removing video at any time during a call, some
+      protocols (notably Google Talk's version of Jingle)
+      do not support adding video to an existing audio call.
+    </para>
+
+    <table id="table.calls.requesting.properties">
+      <tgroup cols="2">
+        <thead>
+          <row>
+            <entry>Property</entry>
+            <entry>Value</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>Channel.ChannelType</literal></entry>
+            <entry><literal>Channel.Type.Call</literal></entry>
+          </row>
+          <row>
+            <entry><literal>Channel.TargetHandleType</literal></entry>
+            <entry>
+             <literal>Handle_Type_Contact</literal> or
+             <literal>Handle_Type_Room</literal>
+            </entry>
+          </row>
+          <row>
+            <entry>
+             <literal>Channel.TargetID</literal> or
+             <literal>Channel.TargetHandle</literal>
+            </entry>
+            <entry>e.g. <literal>escher@tuxedo.cat</literal></entry>
+          </row>
+          <row>
+            <entry><literal>Channel.Type.Call.InitialAudio</literal></entry>
+            <entry><literal>True</literal></entry>
+          </row>
+          <row>
+            <entry><literal>Channel.Type.Call.InitialVideo</literal></entry>
+            <entry><literal>True</literal> or <literal>False</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <tip>
+      <title>StreamedMedia</title>
+
+      <para>
+        Making a request in this manner is also supported by the older
+        StreamedMedia interface:
+      </para>
+      <informaltable>
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry>Property</entry>
+              <entry>Value</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry><literal>Channel.ChannelType</literal></entry>
+              <entry><literal>Channel.Type.StreamedMedia</literal></entry>
+            </row>
+            <row>
+              <entry><literal>Channel.TargetHandleType</literal></entry>
+              <entry><literal>Handle_Type_Contact</literal></entry>
+            </row>
+            <row>
+              <entry>
+               <literal>Channel.TargetID</literal> or
+               <literal>Channel.TargetHandle</literal>
+              </entry>
+              <entry>e.g. <literal>eschiecat</literal></entry>
+            </row>
+            <row>
+              <entry>
+                <literal>Channel.Type.StreamedMedia.InitialAudio</literal>
+              </entry>
+              <entry><literal>True</literal></entry>
+            </row>
+            <row>
+              <entry>
+                <literal>Channel.Type.StreamedMedia.InitialVideo</literal>
+              </entry>
+              <entry><literal>True</literal> or <literal>False</literal></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </informaltable>
+    </tip>
+
+  </sect1>
+</chapter>
