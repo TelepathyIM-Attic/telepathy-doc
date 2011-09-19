@@ -98,7 +98,7 @@ main (int argc, char **argv)
   TpAccountManager *am = tp_account_manager_dup ();
 
   /* we want to request some AM features */
-  GQuark features[] = { TP_ACCOUNT_MANAGER_FEATURE_CORE }; // FIXME const?
+  const GQuark features[] = { TP_ACCOUNT_MANAGER_FEATURE_CORE };
   tp_proxy_prepare_async (am, features, _am_ready, window);
 
   gtk_widget_show (window);
