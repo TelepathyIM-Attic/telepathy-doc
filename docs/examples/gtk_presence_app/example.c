@@ -74,7 +74,7 @@ _am_ready (GObject      *am,
 {
   GError *error = NULL;
 
-  if (!tp_account_manager_prepare_finish (TP_ACCOUNT_MANAGER (am), res,
+  if (!tp_proxy_prepare_finish (TP_ACCOUNT_MANAGER (am), res,
       &error))
     {
       g_error ("ERROR: %s", error->message);
@@ -99,7 +99,7 @@ main (int argc, char **argv)
 
   /* we want to request some AM features */
   GQuark features[] = { TP_ACCOUNT_MANAGER_FEATURE_CORE }; // FIXME const?
-  tp_account_manager_prepare_async (am, features, _am_ready, window);
+  tp_proxy_prepare_async (am, features, _am_ready, window);
 
   gtk_widget_show (window);
 
